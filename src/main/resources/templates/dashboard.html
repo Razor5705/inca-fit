@@ -1,0 +1,22 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Inca Fit</title>
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h1>Bienvenido, <span th:text="${username}"></span>!</h1>
+  <div class="card mt-4">
+    <div class="card-body">
+      <h5 class="card-title">Tu Panel de Control</h5>
+      <p class="card-text">Aquí encontrarás tus clases reservadas, pagos y más.</p>
+      <a href="#" class="btn btn-primary">Ver mis reservas</a>
+      <a href="/logout" class="btn btn-secondary">Cerrar sesión</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
