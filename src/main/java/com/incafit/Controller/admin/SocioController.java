@@ -7,6 +7,7 @@ import com.incafit.service.MembresiaService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -52,15 +53,28 @@ public class SocioController {
         return "admin/socios/formulario";
     }
 
-    @PostMapping("/{id}/estado")
-    public String cambiarEstado(@PathVariable Long id, @RequestParam boolean activo) {
-        socioService.cambiarEstadoSocio(id, activo);
+    @PostMapping("/{id}/eliminar")
+    public String eliminarSocio(@PathVariable Long id, RedirectAttributes redirect) {
+        try {
+            socioService.eliminarSocio(id);
+            redirect.addFlashAttribute("success", "Socio eliminado correctamente");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", "Error al eliminar socio: " + e.getMessage());
+        }
         return "redirect:/admin/socios";
     }
 
-    @PostMapping("/{id}/eliminar")
-    public String eliminarSocio(@PathVariable Long id) {
-        socioService.eliminarSocio(id);
+    @PostMapping("/{id}/estado")
+    public String cambiarEstado(@PathVariable Long id,
+                                @RequestParam boolean activo,
+                                RedirectAttributes redirect) {
+        try {
+            socioService.cambiarEstadoSocio(id, activo);
+            String msg = activo ? "Socio activado correctamente" : "Socio desactivado correctamente";
+            redirect.addFlashAttribute("success", msg);
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", "Error al cambiar estado: " + e.getMessage());
+        }
         return "redirect:/admin/socios";
     }
 }
