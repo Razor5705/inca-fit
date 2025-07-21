@@ -17,10 +17,11 @@ public class HomeController {
         return "redirect:/"; // Redirige a la raíz
     }
 
+    /*
     @GetMapping("/login")
     public String login() {
         return "login"; // Muestra la página de login
     }
-
+   */
 
 }
