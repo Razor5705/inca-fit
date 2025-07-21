@@ -1,16 +1,633 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Inca Fit</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inca Fit - Tu gimnasio en casa</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+        --primary: #0d6efd;
+        --secondary: #6c757d;
+        --success: #198754;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --fitness-primary: #1a2a6c;
+        --fitness-secondary: #b21f1f;
+        --fitness-accent: #fdbb2d;
+    }
+
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: #333;
+        overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        color: white;
+        padding: 120px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        max-width: 700px;
+    }
+
+    .hero-image {
+        position: relative;
+        z-index: 1;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+
+    .btn-primary-custom {
+        background-color: var(--fitness-accent);
+        border: none;
+        color: #000;
+        font-weight: 600;
+        padding: 12px 30px;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #ffa500;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    .btn-outline-light-custom {
+        background-color: transparent;
+        border: 2px solid white;
+        color: white;
+        font-weight: 600;
+        padding: 10px 28px;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-light-custom:hover {
+        background-color: white;
+        color: var(--fitness-primary);
+    }
+
+    .section-title {
+        position: relative;
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(to right, var(--fitness-primary), var(--fitness-accent));
+        border-radius: 2px;
+    }
+
+    .feature-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        color: var(--fitness-accent);
+    }
+
+    .membership-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        height: 100%;
+    }
+
+    .membership-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .membership-header {
+        background: linear-gradient(to right, var(--fitness-primary), var(--fitness-secondary));
+        color: white;
+        padding: 25px 20px;
+        text-align: center;
+    }
+
+    .popular-badge {
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        background-color: var(--fitness-accent);
+        color: #000;
+        font-weight: bold;
+        padding: 5px 15px;
+        border-radius: 20px;
+        transform: rotate(5deg);
+    }
+
+    .testimonial-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        height: 100%;
+    }
+
+    .testimonial-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--fitness-accent);
+    }
+
+    .stats-section {
+        background: linear-gradient(to right, var(--fitness-primary), var(--fitness-secondary));
+        color: white;
+        padding: 80px 0;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .cta-section {
+        background: linear-gradient(rgba(0,0,0,0.7), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
+        padding: 100px 0;
+        text-align: center;
+    }
+
+    .footer {
+        background-color: #1a1a2e;
+        color: #fff;
+        padding: 60px 0 30px;
+    }
+
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(255,255,255,0.1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .social-icon:hover {
+        background-color: var(--fitness-accent);
+        transform: translateY(-5px);
+    }
+
+    .feature-highlight {
+        border-left: 4px solid var(--fitness-accent);
+        padding-left: 15px;
+        margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
-<div class="container mt-5">
-  <h1 th:text="${titulo}"></h1>
-  <a href="/login" class="btn btn-primary">Iniciar Sesión</a>
-  <a th:href="@{/registro}" class="btn btn-success">Registrarse</a>
+<!-- Header Fragment -->
+<div th:replace="fragments/header :: header"></div>
 
-</div>
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 hero-content">
+        <h1 class="hero-title">Transforma tu cuerpo, transforma tu vida</h1>
+        <p class="hero-subtitle">Únete a la comunidad fitness más grande del Perú. Entrena cuando quieras, donde quieras, con los mejores entrenadores.</p>
+        <div class="d-flex flex-wrap gap-3">
+          <a th:href="@{/registro}" class="btn btn-primary-custom">Empieza ahora</a>
+          <a th:href="@{#features}" class="btn btn-outline-light-custom">Descubre más</a>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="hero-image text-center">
+          <img src="https://images.unsplash.com/photo-1534367507877-0edd93bd013b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+               alt="Entrenamiento" class="img-fluid rounded-3 shadow-lg" style="max-width: 90%;">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+  <div class="container py-5">
+    <h2 class="section-title">¿Por qué elegir Inca Fit?</h2>
+
+    <div class="row g-4 mt-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card p-4 text-center">
+          <div class="feature-icon">
+            <i class="fas fa-dumbbell"></i>
+          </div>
+          <h3>Entrenamiento Personalizado</h3>
+          <p>Rutinas diseñadas específicamente para tus objetivos, nivel y disponibilidad de tiempo.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card p-4 text-center">
+          <div class="feature-icon">
+            <i class="fas fa-video"></i>
+          </div>
+          <h3>Clases en Vivo</h3>
+          <p>Participa en clases en tiempo real con nuestros entrenadores certificados.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card p-4 text-center">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3>Seguimiento de Progreso</h3>
+          <p>Monitorea tus avances con nuestras herramientas de análisis y estadísticas.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card p-4 text-center">
+          <div class="feature-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3>Comunidad Activa</h3>
+          <p>Conecta con otros miembros, comparte logros y participa en desafíos grupales.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card p-4 text-center">
+          <div class="feature-icon">
+            <i class="fas fa-apple-alt"></i>
+          </div>
+          <h3>Plan Nutricional</h3>
+          <p>Recibe planes de alimentación personalizados según tus objetivos y preferencias.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card p-4 text-center">
+          <div class="feature-icon">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          <h3>Acceso Multiplataforma</h3>
+          <p>Entrena desde cualquier dispositivo: web, móvil o tablet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Membership Section -->
+<section class="py-5 bg-light">
+  <div class="container py-5">
+    <h2 class="section-title">Nuestras Membresías</h2>
+    <p class="text-center mb-5">Elige el plan que mejor se adapte a tus necesidades y objetivos</p>
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="membership-card">
+          <div class="membership-header">
+            <h3>Básico</h3>
+            <h2 class="mt-3">S/ 99<span class="fs-5">/mes</span></h2>
+          </div>
+          <div class="card-body p-4">
+            <ul class="list-unstyled">
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Acceso a 5 clases semanales</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Rutinas básicas</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-times text-muted me-2"></i>
+                  <span class="text-muted">Clases en vivo</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-times text-muted me-2"></i>
+                  <span class="text-muted">Seguimiento personal</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-times text-muted me-2"></i>
+                  <span class="text-muted">Plan nutricional</span>
+                </div>
+              </li>
+            </ul>
+            <div class="text-center mt-4">
+              <a th:href="@{/registro}" class="btn btn-outline-primary w-100">Seleccionar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="membership-card position-relative">
+          <div class="popular-badge">POPULAR</div>
+          <div class="membership-header" style="background: linear-gradient(to right, #fdbb2d, #ff5e62);">
+            <h3>Premium</h3>
+            <h2 class="mt-3">S/ 149<span class="fs-5">/mes</span></h2>
+          </div>
+          <div class="card-body p-4">
+            <ul class="list-unstyled">
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Acceso ilimitado a clases</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Rutinas personalizadas</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>10 clases en vivo semanales</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Seguimiento mensual</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Plan nutricional básico</span>
+                </div>
+              </li>
+            </ul>
+            <div class="text-center mt-4">
+              <a th:href="@{/registro}" class="btn btn-warning w-100">Seleccionar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="membership-card">
+          <div class="membership-header" style="background: linear-gradient(to right, #0f2027, #203a43, #2c5364);">
+            <h3>VIP</h3>
+            <h2 class="mt-3">S/ 249<span class="fs-5">/mes</span></h2>
+          </div>
+          <div class="card-body p-4">
+            <ul class="list-unstyled">
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Acceso ilimitado premium</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Rutinas ultra personalizadas</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Clases en vivo ilimitadas</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Seguimiento semanal con coach</span>
+                </div>
+              </li>
+              <li class="mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <span>Plan nutricional avanzado</span>
+                </div>
+              </li>
+            </ul>
+            <div class="text-center mt-4">
+              <a th:href="@{/registro}" class="btn btn-dark w-100">Seleccionar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-3 col-6 mb-4 mb-md-0">
+        <div class="stat-number">5,000+</div>
+        <p>Miembros Activos</p>
+      </div>
+      <div class="col-md-3 col-6 mb-4 mb-md-0">
+        <div class="stat-number">120+</div>
+        <p>Entrenadores</p>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-number">50+</div>
+        <p>Clases Semanales</p>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-number">98%</div>
+        <p>Satisfacción de Clientes</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5">
+  <div class="container py-5">
+    <h2 class="section-title">Historias de Éxito</h2>
+    <p class="text-center mb-5">Lo que dicen nuestros miembros</p>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="testimonial-card p-4">
+          <div class="d-flex align-items-center mb-4">
+            <img src="https://randomuser.me/api/portraits/women/32.jpg" class="testimonial-img me-3" alt="Testimonial">
+            <div>
+              <h5 class="mb-0">María Rodríguez</h5>
+              <span class="text-warning">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </span>
+            </div>
+          </div>
+          <p>"En 6 meses perdí 15 kilos y gané una confianza que nunca tuve. Las rutinas son increíbles y los entrenadores siempre están disponibles para ayudar."</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="testimonial-card p-4">
+          <div class="d-flex align-items-center mb-4">
+            <img src="https://randomuser.me/api/portraits/men/54.jpg" class="testimonial-img me-3" alt="Testimonial">
+            <div>
+              <h5 class="mb-0">Carlos Mendoza</h5>
+              <span class="text-warning">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </span>
+            </div>
+          </div>
+          <p>"Las clases en vivo son lo mejor. Puedo entrenar desde casa con la misma intensidad que en un gimnasio. El seguimiento de progreso me mantiene motivado."</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="testimonial-card p-4">
+          <div class="d-flex align-items-center mb-4">
+            <img src="https://randomuser.me/api/portraits/women/67.jpg" class="testimonial-img me-3" alt="Testimonial">
+            <div>
+              <h5 class="mb-0">Lucía Fernández</h5>
+              <span class="text-warning">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </span>
+            </div>
+          </div>
+          <p>"El plan nutricional personalizado hizo toda la diferencia. Combinado con las rutinas de entrenamiento, logré resultados que nunca había obtenido antes."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <h2 class="display-4 fw-bold mb-4">¿Listo para transformar tu vida?</h2>
+    <p class="lead mb-5">Únete a miles de peruanos que ya comenzaron su viaje fitness con nosotros</p>
+    <a th:href="@{/registro}" class="btn btn-light btn-lg px-5 py-3 me-3">Empieza gratis por 7 días</a>
+    <a th:href="@{/login}" class="btn btn-outline-light btn-lg px-5 py-3">Iniciar sesión</a>
+  </div>
+</section>
+
+<!-- Footer Fragment -->
+<div th:replace="fragments/footer :: footer"></div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Animación para elementos al hacer scroll
+  document.addEventListener('DOMContentLoaded', function() {
+      const featureCards = document.querySelectorAll('.feature-card, .membership-card, .testimonial-card');
+
+      const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                  entry.target.style.opacity = "1";
+                  entry.target.style.transform = "translateY(0)";
+              }
+          });
+      }, { threshold: 0.1 });
+
+      featureCards.forEach(card => {
+          card.style.opacity = "0";
+          card.style.transform = "translateY(20px)";
+          card.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+          observer.observe(card);
+      });
+  });
+</script>
 </body>
 </html>

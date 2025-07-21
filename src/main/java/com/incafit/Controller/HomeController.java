@@ -8,20 +8,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     @GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("titulo", "¡Bienvenido a Inca Fit!");
-        return "index";
+    public String home() {
+        return "index"; // Muestra index.html en la raíz
+    }
+
+    @GetMapping("/index")
+    public String index() {
+        return "redirect:/"; // Redirige a la raíz
     }
 
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "login"; // Muestra la página de login
     }
 
-    /*
-    @GetMapping("/registro")
-    public String registro() {
-        return "registro";
-    }
-     */
+
 }

@@ -21,6 +21,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public UserDetailsService userDetailsService() {
+        return userDetailsService;
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -29,19 +34,20 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/js/**", "/registro", "/procesar-registro").permitAll()
-                        .requestMatchers("/admin/socios/**").hasRole("ADMIN") // Proteger rutas admin
+                        .requestMatchers("/", "/index", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/admin/socios/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard")
+                        .defaultSuccessUrl("/dashboard", true) // Redirige al dashboard después de login
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutSuccessUrl("/")
+                        .permitAll()
                 );
+
         return http.build();
     }
 }
