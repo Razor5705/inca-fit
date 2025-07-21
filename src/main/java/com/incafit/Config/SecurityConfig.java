@@ -30,6 +30,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/js/**", "/registro", "/procesar-registro").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // Proteger rutas admin
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

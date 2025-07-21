@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Socios</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous"></head>
+</head>
+<body>
+<div class="container mt-5">
+  <h1>Gestión de Socios</h1>
+  <a href="/admin/socios/nuevo" class="btn btn-primary mb-3">Nuevo Socio</a>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>DNI</th>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Rol</th>
+      <th>Membresía</th>
+      <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="socio : ${socios}">
+      <td th:text="${socio.id}"></td>
+      <td th:text="${socio.dni}"></td>
+      <td th:text="${socio.nombre}"></td>
+      <td th:text="${socio.email}"></td>
+      <td th:text="${socio.rol}"></td>
+      <td th:text="${socio.membresia?.nombre} ?: 'Sin membresía'"></td>
+      <td>
+        <a th:href="@{/admin/socios/editar/{id}(id=${socio.id})}"
+           class="btn btn-warning">Editar</a>
+        <a th:href="@{/admin/socios/eliminar/{id}(id=${socio.id})}"
+           class="btn btn-danger">Eliminar</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

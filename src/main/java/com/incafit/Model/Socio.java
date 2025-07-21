@@ -44,6 +44,20 @@ public class Socio {
 
     private LocalDate fechaRegistro = LocalDate.now();
 
+
+    // Agregar relación
+    @ManyToOne
+    @JoinColumn(name = "membresia_id")
+    private Membresia membresia;
+
+    // Agregar getter y setter
+    public Membresia getMembresia() {
+        return membresia;
+    }
+
+    public void setMembresia(Membresia membresia) {
+        this.membresia = membresia;
+    }
     // Constructor, getters y setters
 
 
@@ -59,7 +73,11 @@ public class Socio {
         this.password = password;
     }
 
-    public Socio(Long id) {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 
