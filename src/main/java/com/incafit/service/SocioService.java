@@ -8,4 +8,5 @@ public interface SocioService {
     Socio obtenerSocioPorId(Long id);
     void guardarSocio(Socio socio);
     void eliminarSocio(Long id);
+    void cambiarEstadoSocio(Long id, boolean estado);
 }

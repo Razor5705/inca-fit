@@ -52,7 +52,13 @@ public class SocioController {
         return "admin/socios/formulario";
     }
 
-    @GetMapping("/eliminar/{id}")
+    @PostMapping("/{id}/estado")
+    public String cambiarEstado(@PathVariable Long id, @RequestParam boolean activo) {
+        socioService.cambiarEstadoSocio(id, activo);
+        return "redirect:/admin/socios";
+    }
+
+    @PostMapping("/{id}/eliminar")
     public String eliminarSocio(@PathVariable Long id) {
         socioService.eliminarSocio(id);
         return "redirect:/admin/socios";

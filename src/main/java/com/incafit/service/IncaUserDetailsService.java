@@ -2,6 +2,7 @@ package com.incafit.service;
 
 import com.incafit.Model.Socio;
 import com.incafit.Repository.SocioRepository;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +26,11 @@ public class IncaUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Socio socio = socioRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+        // Asegúrate de verificar el estado activo
+        if (!socio.isActivo()) {
+            throw new DisabledException("Cuenta desactivada");
+        }
 
         return new User(
                 socio.getEmail(),

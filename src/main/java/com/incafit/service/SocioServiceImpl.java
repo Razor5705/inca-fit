@@ -3,6 +3,8 @@ package com.incafit.service;
 
 import com.incafit.Model.Socio;
 import com.incafit.Repository.SocioRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -51,7 +53,17 @@ public class SocioServiceImpl implements SocioService {
     }
 
     @Override
+    @Transactional
     public void eliminarSocio(Long id) {
         socioRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void cambiarEstadoSocio(Long id, boolean estado) {
+        Socio socio = socioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Socio no encontrado"));
+        socio.setActivo(estado);
+        socioRepository.save(socio);
     }
 }

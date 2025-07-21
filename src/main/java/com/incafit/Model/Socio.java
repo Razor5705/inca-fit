@@ -39,6 +39,9 @@ public class Socio {
     @Enumerated(EnumType.STRING)
     private Rol rol = Rol.USUARIO;
 
+    @Column(nullable = false)
+    private boolean activo = true; // Nuevo campo
+
 
 
 
@@ -58,6 +61,8 @@ public class Socio {
     public void setMembresia(Membresia membresia) {
         this.membresia = membresia;
     }
+
+
     // Constructor, getters y setters
 
 
@@ -127,5 +132,13 @@ public class Socio {
 
     public void setFechaRegistro(LocalDate fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
     }
 }
