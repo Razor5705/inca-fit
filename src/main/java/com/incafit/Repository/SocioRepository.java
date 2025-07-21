@@ -12,4 +12,7 @@ public interface SocioRepository extends JpaRepository<Socio, Long> {
 
     @Query("SELECT s FROM Socio s")
     List<Socio> findAllSocios();
+
+    boolean existsByEmail(String email);
+
 }

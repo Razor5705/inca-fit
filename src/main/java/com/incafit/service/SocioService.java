@@ -9,4 +9,6 @@ public interface SocioService {
     void guardarSocio(Socio socio);
     void eliminarSocio(Long id);
     void cambiarEstadoSocio(Long id, boolean estado);
+    boolean existeEmail(String email); // Añade esta línea
+
 }

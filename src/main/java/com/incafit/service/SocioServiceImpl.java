@@ -66,4 +66,9 @@ public class SocioServiceImpl implements SocioService {
         socio.setActivo(estado);
         socioRepository.save(socio);
     }
+
+    @Override
+    public boolean existeEmail(String email) {
+        return socioRepository.existsByEmail(email);
+    }
 }
