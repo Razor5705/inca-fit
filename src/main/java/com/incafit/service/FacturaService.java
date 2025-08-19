@@ -13,4 +13,9 @@ public interface FacturaService {
     void pagarFactura(Long id);
     List<Factura> obtenerFacturasPorSocio(Socio socio);
     Factura obtenerFacturaPorId(Long id);
+
+    List<Factura> obtenerTodasFacturas();
+    List<Factura> obtenerFacturasPorEstado(String estado);
+    List<Factura> obtenerFacturasPagadasEsteMes();
+
 }
