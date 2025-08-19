@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mis Reservas</title>
+    <th:block th:replace="fragments/header :: head"></th:block>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container my-5">
+    <h2>Mis Reservas</h2>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <a th:href="@{/socio/reservas/nueva}" class="btn btn-primary mb-3">Nueva Reserva</a>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Clase</th>
+            <th>Fecha y Hora</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="reserva : ${reservas}">
+            <td th:text="${reserva.clase}"></td>
+            <td th:text="${#temporals.format(reserva.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+            <td>
+                <span th:if="${reserva.estado == 'CONFIRMADA'}" class="badge bg-success">Confirmada</span>
+                <span th:if="${reserva.estado == 'CANCELADA'}" class="badge bg-danger">Cancelada</span>
+            </td>
+            <td>
+                <form th:if="${reserva.estado == 'CONFIRMADA'}"
+                      th:action="@{/socio/reservas/{id}/cancelar(id=${reserva.id})}"
+                      method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

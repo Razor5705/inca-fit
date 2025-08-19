@@ -71,4 +71,9 @@ public class SocioServiceImpl implements SocioService {
     public boolean existeEmail(String email) {
         return socioRepository.existsByEmail(email);
     }
+
+    @Override
+    public Optional<Socio> obtenerSocioPorEmail(String email) {
+        return socioRepository.findByEmail(email);
+    }
 }

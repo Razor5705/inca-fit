@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Mis Facturas</title>
+  <th:block th:replace="fragments/header :: head"></th:block>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container my-5">
+  <h2>Mis Facturas</h2>
+
+  <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Fecha Emisión</th>
+      <th>Total</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="factura : ${facturas}">
+      <td th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}"></td>
+      <td th:text="${#numbers.formatCurrency(factura.total)}"></td>
+      <td>
+        <span th:if="${factura.estado == 'PENDIENTE'}" class="badge bg-warning">Pendiente</span>
+        <span th:if="${factura.estado == 'PAGADA'}" class="badge bg-success">Pagada</span>
+      </td>
+      <td>
+        <form th:if="${factura.estado == 'PENDIENTE'}"
+              th:action="@{/socio/facturas/{id}/pagar(id=${factura.id})}"
+              method="post" class="d-inline">
+          <button type="submit" class="btn btn-success btn-sm">Pagar</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
