@@ -17,7 +17,7 @@
 - [Licencia](#licencia)
 
 ## Introducción 📖
-Inca Fit es una aplicación web desarrollada como Trabajo de Fin de Grado (TFG) para la Universidad de Salamanca. El sistema permite a los usuarios:
+Inca Fit es una aplicación web desarrollada como Trabajo de Fin de Grado (TFG) para Campus FP. El sistema permite a los usuarios:
 
 - Registrar y monitorear actividades deportivas
 - Visualizar estadísticas de progreso
