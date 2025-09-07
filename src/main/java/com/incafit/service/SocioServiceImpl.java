@@ -29,11 +29,6 @@ public class SocioServiceImpl implements SocioService {
     }
 
     @Override
-    public List<Socio> obtenerTodosSociosConMembresia() {
-        return socioRepository.findAllWithMembresia();
-    }
-
-    @Override
     public Socio obtenerSocioPorId(Long id) {
         Optional<Socio> socio = socioRepository.findById(id);
         return socio.orElse(null);

@@ -6,7 +6,6 @@ import java.util.Optional;
 
 public interface SocioService {
     List<Socio> obtenerTodosSocios();
-    List<Socio> obtenerTodosSociosConMembresia();
     Socio obtenerSocioPorId(Long id);
     void guardarSocio(Socio socio);
     void eliminarSocio(Long id);

@@ -1,7 +1,6 @@
 package com.incafit.Repository;
 
 import com.incafit.Model.Socio;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,8 +11,9 @@ public interface SocioRepository extends JpaRepository<Socio, Long> {
     Optional<Socio> findByEmail(String email);
 
     @Query("SELECT s FROM Socio s")
-    @EntityGraph(attributePaths = {"membresia"})
-    List<Socio> findAllWithMembresia();
+    List<Socio> findAllSocios();
+
 
     boolean existsByEmail(String email);
+
 }

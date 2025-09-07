@@ -1,0 +1,249 @@
+:root {
+    --primary: #0d6efd;
+    --secondary: #6c757d;
+    --success: #198754;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --fitness-primary: #1a2a6c;
+    --fitness-secondary: #b21f1f;
+    --fitness-accent: #fdbb2d;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    color: #333;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: white;
+    padding: 120px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    max-width: 700px;
+}
+
+.hero-image {
+    position: relative;
+    z-index: 1;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+.btn-primary-custom {
+    background-color: var(--fitness-accent);
+    border: none;
+    color: #000;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.btn-primary-custom:hover {
+    background-color: #ffa500;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.btn-outline-light-custom {
+    background-color: transparent;
+    border: 2px solid white;
+    color: white;
+    font-weight: 600;
+    padding: 10px 28px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-light-custom:hover {
+    background-color: white;
+    color: var(--fitness-primary);
+}
+
+.section-title {
+    position: relative;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(to right, var(--fitness-primary), var(--fitness-accent));
+    border-radius: 2px;
+}
+
+.feature-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--fitness-accent);
+}
+
+.membership-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    height: 100%;
+}
+
+.membership-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.membership-header {
+    background: linear-gradient(to right, var(--fitness-primary), var(--fitness-secondary));
+    color: white;
+    padding: 25px 20px;
+    text-align: center;
+}
+
+.popular-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    background-color: var(--fitness-accent);
+    color: #000;
+    font-weight: bold;
+    padding: 5px 15px;
+    border-radius: 20px;
+    transform: rotate(5deg);
+}
+
+.testimonial-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    height: 100%;
+}
+
+.testimonial-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--fitness-accent);
+}
+
+.stats-section {
+    background: linear-gradient(to right, var(--fitness-primary), var(--fitness-secondary));
+    color: white;
+    padding: 80px 0;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.cta-section {
+    background: linear-gradient(rgba(0,0,0,0.7), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+}
+
+.footer {
+    background-color: #1a1a2e;
+    color: #fff;
+    padding: 60px 0 30px;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255,255,255,0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+    background-color: var(--fitness-accent);
+    transform: translateY(-5px);
+}
+
+.feature-highlight {
+    border-left: 4px solid var(--fitness-accent);
+    padding-left: 15px;
+    margin-bottom: 20px;
+}
+
+.admin-table .status-badge {
+    font-size: 0.85em;
+    padding: 0.35em 0.65em;
+}
+
+.admin-table .btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}

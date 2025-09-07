@@ -34,7 +34,7 @@ public class SocioController {
 
     @GetMapping
     public String listarSocios(Model model) {
-        model.addAttribute("socios", socioService.obtenerTodosSociosConMembresia());
+        model.addAttribute("socios", socioService.obtenerTodosSocios());
         return "admin/socios/lista";
     }
 
