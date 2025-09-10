@@ -45,7 +45,7 @@ public class Socio {
 
 
 
-    private LocalDate fechaRegistro = LocalDate.now();
+    private LocalDate fechaRegistro;
 
 
     // Agregar relación
@@ -66,8 +66,9 @@ public class Socio {
     // Constructor, getters y setters
 
 
-    // Constructor vacío REQUERIDO
     public Socio() {
+        this.fechaRegistro = LocalDate.now();
+        this.activo = true;
     }
 
     // Constructor con parámetros (opcional)

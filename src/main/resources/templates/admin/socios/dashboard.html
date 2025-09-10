@@ -1,65 +1,61 @@
-<!-- src/main/resources/templates/admin/dashboard.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <title>Panel de Administración - Inca Fit</title>
-  <th:block th:replace="fragments/header :: head"></th:block>
-</head>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
 <body>
-<div th:replace="fragments/header :: header"></div>
 
-<div class="container-fluid my-5">
-  <div class="row">
-    <!-- Sidebar -->
-    <div th:replace="fragments/admin-sidebar :: sidebar"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
-    <!-- Main content -->
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Dashboard</h1>
-      </div>
+<main class="container-fluid py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h1 class="display-4">Panel de Administración</h1>
+      <p class="lead">Gestiona todos los aspectos de Inca Fit desde aquí.</p>
+    </div>
 
-      <!-- Estadísticas -->
-      <div class="row">
-        <div class="col-md-3">
-          <div class="card text-white bg-primary mb-3">
-            <div class="card-body">
-              <h5 class="card-title">Socios Activos</h5>
-              <p class="card-text" th:text="${estadisticas.totalSocios}">0</p>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="card feature-card h-100">
+          <div class="card-body text-center p-4">
+            <div class="feature-icon">
+              <i class="fas fa-users"></i>
             </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card text-white bg-success mb-3">
-            <div class="card-body">
-              <h5 class="card-title">Reservas Hoy</h5>
-              <p class="card-text" th:text="${estadisticas.reservasHoy}">0</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card text-white bg-warning mb-3">
-            <div class="card-body">
-              <h5 class="card-title">Facturas Pendientes</h5>
-              <p class="card-text" th:text="${estadisticas.facturasPendientes}">0</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card text-white bg-info mb-3">
-            <div class="card-body">
-              <h5 class="card-title">Ingresos Mensuales</h5>
-              <p class="card-text" th:text="${#numbers.formatCurrency(estadisticas.ingresosMensuales)}">$0.00</p>
-            </div>
+            <h3 class="card-title">Socios</h3>
+            <p class="card-text">Administra los usuarios registrados, sus membresías y estados.</p>
+            <a href="/admin/socios" class="btn btn-primary-custom mt-auto">Administrar Socios</a>
           </div>
         </div>
       </div>
 
-      <!-- Gráficos y tablas adicionales -->
-    </main>
+      <div class="col-md-6 col-lg-4">
+        <div class="card feature-card h-100">
+          <div class="card-body text-center p-4">
+            <div class="feature-icon">
+              <i class="fas fa-id-card"></i>
+            </div>
+            <h3 class="card-title">Membresías</h3>
+            <p class="card-text">Crea, edita y gestiona los diferentes tipos de planes y precios.</p>
+            <a href="/admin/membresias" class="btn btn-primary-custom mt-auto">Administrar Membresías</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="card feature-card h-100">
+          <div class="card-body text-center p-4">
+            <div class="feature-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <h3 class="card-title">Clases</h3>
+            <p class="card-text">Configura y programa las clases disponibles para los socios.</p>
+            <a href="#" class="btn btn-secondary disabled mt-auto">Próximamente</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</main>
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>

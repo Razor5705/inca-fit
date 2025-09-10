@@ -15,11 +15,14 @@ public class SocioServiceImpl implements SocioService {
 
     private final SocioRepository socioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public SocioServiceImpl(SocioRepository socioRepository,
-                            PasswordEncoder passwordEncoder) {
+                            PasswordEncoder passwordEncoder,
+                            EmailService emailService) {
         this.socioRepository = socioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
 
@@ -35,21 +38,32 @@ public class SocioServiceImpl implements SocioService {
     }
 
     @Override
-    public void guardarSocio(Socio socio) {
-        // Si es un socio existente y la contraseña está vacía, mantener la actual
-        if (socio.getId() != null) {
-            Socio socioExistente = socioRepository.findById(socio.getId()).orElse(null);
-            if (socioExistente != null &&
-                    (socio.getPassword() == null || socio.getPassword().isEmpty())) {
-                socio.setPassword(socioExistente.getPassword());
-            } else {
-                socio.setPassword(passwordEncoder.encode(socio.getPassword()));
-            }
-        } else {
-            // Nuevo socio: encriptar contraseña
+    @Transactional
+    public Socio guardarSocio(Socio socio) {
+        boolean isNewSocio = socio.getId() == null;
+
+        // Encriptar contraseña si es necesario
+        if (isNewSocio || (socio.getPassword() != null && !socio.getPassword().isEmpty())) {
             socio.setPassword(passwordEncoder.encode(socio.getPassword()));
+        } else {
+            // Mantener la contraseña existente si no se proporciona una nueva
+            socioRepository.findById(socio.getId())
+                    .ifPresent(socioExistente -> socio.setPassword(socioExistente.getPassword()));
         }
-        socioRepository.save(socio);
+
+        Socio socioGuardado = socioRepository.save(socio);
+
+        // Enviar email de bienvenida si es un nuevo socio
+        if (isNewSocio) {
+            String subject = "¡Bienvenido a Inca Fit!";
+            String text = "Hola " + socioGuardado.getNombre() + ",\n\n" +
+                    "Gracias por registrarte en Inca Fit. ¡Estamos muy contentos de tenerte con nosotros!\n\n" +
+                    "Tu cuenta ha sido creada exitosamente.\n\n" +
+                    "Saludos,\n" +
+                    "El equipo de Inca Fit";
+            emailService.sendEmail(socioGuardado.getEmail(), subject, text);
+        }
+        return socioGuardado;
     }
 
     @Override

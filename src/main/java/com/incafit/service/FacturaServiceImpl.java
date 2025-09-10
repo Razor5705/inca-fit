@@ -7,9 +7,13 @@ import com.incafit.Model.Membresia;
 import com.incafit.Model.Socio;
 import com.incafit.Repository.FacturaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -73,9 +77,35 @@ public class FacturaServiceImpl implements FacturaService {
         return facturaRepository.findBySocio(socio);
     }
 
+    public class FacturaNoEncontradaException extends RuntimeException {
+        public FacturaNoEncontradaException(Long id) {
+            super("Factura no encontrada con ID: " + id);
+        }
+    }
+
     @Override
     public Factura obtenerFacturaPorId(Long id) {
         return facturaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+    }
+
+    @Override
+    public List<Factura> obtenerTodasFacturas() {
+        return facturaRepository.findAll(); // Debe usar el repositorio para obtener todas las facturas
+    }
+
+
+    @Override
+    public List<Factura> obtenerFacturasPorEstado(String estado) {
+        return facturaRepository.findByEstado(estado); // Debe usar el repositorio para filtrar por estado
+    }
+
+    @Override
+    public List<Factura> obtenerFacturasPagadasEsteMes() {
+        LocalDate inicioMes = LocalDate.now().withDayOfMonth(1);
+        LocalDate finMes = LocalDate.now().withDayOfMonth(YearMonth.now().lengthOfMonth());
+
+        return facturaRepository.findByEstadoAndFechaEmisionBetween(
+                "PAGADA", inicioMes, finMes); // Filtra por estado y rango de fechas
     }
 }

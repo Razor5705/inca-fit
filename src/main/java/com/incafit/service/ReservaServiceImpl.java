@@ -6,6 +6,8 @@ import com.incafit.Model.Socio;
 import com.incafit.Repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,5 +49,15 @@ public class ReservaServiceImpl implements ReservaService {
     public Reserva obtenerReservaPorId(Long id) {
         return reservaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+    }
+
+    @Override
+    public List<Reserva> obtenerTodasReservas() {
+        return reservaRepository.findAll(); // Debe usar el repositorio para obtener todas las facturas
+    }
+
+    @Override
+    public List<Reserva> obtenerReservasPorFecha(LocalDate fecha) {
+        return reservaRepository.findByFecha(fecha);
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import jakarta.validation.Valid;
 
-
+import java.time.LocalDate;
 
 
 @Controller
@@ -36,22 +36,40 @@ public class RegistroController {
 
     @PostMapping("/procesar-registro")
     public String procesarRegistro(@Valid @ModelAttribute("socio") Socio socio,
-                                   BindingResult result) {
+                                   BindingResult result, Model model) {
+
+        System.out.println("Iniciando proceso de registro para: " + socio.getEmail());
 
         if (result.hasErrors()) {
+            System.out.println("Errores de validación: " + result.getAllErrors());
             return "registro";
         }
 
         if (socioService.existeEmail(socio.getEmail())) {
+            System.out.println("Email ya existe: " + socio.getEmail());
             result.rejectValue("email", "error.socio", "El email ya está registrado");
             return "registro";
         }
 
-        // Encriptar contraseña y asignar rol
-        socio.setPassword(passwordEncoder.encode(socio.getPassword()));
-        socio.setRol(Rol.USUARIO);
-        socioService.guardarSocio(socio);
+        try {
+            // Encriptar contraseña y asignar rol
+            String passwordPlana = socio.getPassword();
+            socio.setPassword(passwordEncoder.encode(passwordPlana));
+            socio.setRol(Rol.USUARIO);
+            socio.setFechaRegistro(LocalDate.now());
+            socio.setActivo(true);
 
-        return "redirect:/login?registroExitoso";
+            System.out.println("Guardando socio en BD: " + socio.getEmail());
+            Socio socioGuardado = socioService.guardarSocio(socio);
+            System.out.println("Socio guardado con ID: " + socioGuardado.getId());
+
+            return "redirect:/login?registroExitoso=true";
+
+        } catch (Exception e) {
+            System.err.println("Error al guardar socio: " + e.getMessage());
+            e.printStackTrace();
+            result.rejectValue("email", "error.socio", "Error en el registro. Intenta nuevamente.");
+            return "registro";
+        }
     }
 }

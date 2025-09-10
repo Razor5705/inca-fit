@@ -34,21 +34,28 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/index", "/login","/registro", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/socios/**").hasRole("ADMIN")
-                        .requestMatchers("/socio/**").hasRole("SOCIO")
+                        .requestMatchers("/socio/**").hasAnyRole("SOCIO", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")  // Asegúrate que coincida con tu controlador
                         .defaultSuccessUrl("/dashboard", true)
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
                         .permitAll()
-                );
+                )
+                .userDetailsService(userDetailsService); // Asegúrate de tener esta línea
+        ;
+
 
         return http.build();
     }
+
+
 }
