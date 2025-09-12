@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import jakarta.validation.Valid;
 
+
 import java.time.LocalDate;
 
 
@@ -52,9 +53,8 @@ public class RegistroController {
         }
 
         try {
-            // Encriptar contraseña y asignar rol
-            String passwordPlana = socio.getPassword();
-            socio.setPassword(passwordEncoder.encode(passwordPlana));
+            // asignar rol
+
             socio.setRol(Rol.USUARIO);
             socio.setFechaRegistro(LocalDate.now());
             socio.setActivo(true);
