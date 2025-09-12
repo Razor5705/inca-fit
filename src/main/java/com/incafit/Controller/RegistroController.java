@@ -47,8 +47,7 @@ public class RegistroController {
             return "registro";
         }
 
-        // Encriptar contraseña y asignar rol
-        socio.setPassword(passwordEncoder.encode(socio.getPassword()));
+        // Asignar rol
         socio.setRol(Rol.USUARIO);
         socioService.guardarSocio(socio);
 
