@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head}"></head>
+<head>
+    <title>Mis Reservas</title>
+    <th:block th:replace="fragments/header :: head"></th:block>
+</head>
 <body>
+<div th:replace="fragments/header :: header"></div>
 
-<div th:replace="~{fragments/header :: header}"></div>
-
-<main class="container-fluid py-5" style="background-color: #f8f9fa;">
 <div class="container my-5">
     <h2>Mis Reservas</h2>
 
@@ -42,8 +43,7 @@
         </tbody>
     </table>
 </div>
-</main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

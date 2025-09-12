@@ -47,7 +47,7 @@ public class RegistroController {
             return "registro";
         }
 
-        // Asignar rol
+        // Asignar rol y guardar
         socio.setRol(Rol.USUARIO);
         socioService.guardarSocio(socio);
 
