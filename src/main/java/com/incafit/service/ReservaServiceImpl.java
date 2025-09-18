@@ -57,4 +57,11 @@ public class ReservaServiceImpl implements ReservaService {
         return reservaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
     }
+
+    @Override
+    public List<com.incafit.dto.DataPointDTO> getMonthlyAttendance() {
+        return reservaRepository.findMonthlyAttendance().stream()
+                .map(result -> new com.incafit.dto.DataPointDTO((String) result[0], (Number) result[1]))
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

@@ -11,4 +11,5 @@ public interface ReservaService {
     void cancelarReserva(Long id);
     List<Reserva> obtenerReservasPorSocio(Socio socio);
     Reserva obtenerReservaPorId(Long id);
+    List<com.incafit.dto.DataPointDTO> getMonthlyAttendance();
 }
