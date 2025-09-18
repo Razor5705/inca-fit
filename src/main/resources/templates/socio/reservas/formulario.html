@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container-fluid py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h1 class="display-4">Reservar una Clase</h1>
+      <p class="lead">Elige una de las clases disponibles para reservar tu plaza.</p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <div th:if="${param.success}" class="alert alert-success" th:text="${param.success}"></div>
+        <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
+
+        <div class="list-group">
+          <div th:each="clase : ${clases}" class="list-group-item list-group-item-action flex-column align-items-start mb-3 shadow-sm rounded-3">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1" th:text="${clase.nombre}"></h5>
+              <small th:text="${#temporals.format(clase.fechaHora, 'dd MMM yyyy, HH:mm')}"></small>
+            </div>
+            <p class="mb-1" th:text="${clase.descripcion}"></p>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <div>
+                <small class="me-3"><i class="fas fa-user-tie me-1"></i> <span th:text="${clase.instructor}"></span></small>
+                <small class="me-3"><i class="fas fa-clock me-1"></i> <span th:text="${clase.duracionEnMinutos + ' min'}"></span></small>
+                <small><i class="fas fa-users me-1"></i> <span th:text="${clase.reservas.size() + ' / ' + clase.capacidad}"></span></small>
+              </div>
+              <form th:action="@{/socio/reservas/guardar}" method="post">
+                <input type="hidden" name="claseId" th:value="${clase.id}" />
+                <button type="submit" class="btn btn-sm btn-primary-custom" th:disabled="${clase.reservas.size() >= clase.capacidad}">
+                  <span th:if="${clase.reservas.size() < clase.capacidad}">Reservar</span>
+                  <span th:if="${clase.reservas.size() >= clase.capacidad}">Completo</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div th:if="${clases.isEmpty()}" class="alert alert-info text-center">
+          No hay clases disponibles para reservar en este momento.
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

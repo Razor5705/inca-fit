@@ -1,13 +1,13 @@
-// ReservaService
 package com.incafit.service;
 
+import com.incafit.Model.Clase;
 import com.incafit.Model.Reserva;
 import com.incafit.Model.Socio;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
 public interface ReservaService {
-    Reserva crearReserva(Socio socio, String clase, LocalDateTime fechaHora);
+    Reserva crearReserva(Socio socio, Clase clase) throws Exception;
     void cancelarReserva(Long id);
     List<Reserva> obtenerReservasPorSocio(Socio socio);
     Reserva obtenerReservaPorId(Long id);

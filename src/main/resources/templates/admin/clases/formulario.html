@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container-fluid py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-lg border-0 rounded-lg mt-5">
+          <div class="card-header text-center" style="background-color: var(--fitness-primary); color: white;">
+            <h3 class="fw-light my-4" th:text="${pageTitle}"></h3>
+          </div>
+          <div class="card-body p-4">
+            <form th:action="@{/admin/clases/guardar}" th:object="${clase}" method="post">
+              <input type="hidden" th:field="*{id}">
+
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" placeholder="Nombre de la clase" required>
+                <label for="nombre">Nombre de la clase</label>
+                <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+              </div>
+
+              <div class="form-floating mb-3">
+                <textarea class="form-control" id="descripcion" th:field="*{descripcion}" placeholder="Descripción" style="height: 100px"></textarea>
+                <label for="descripcion">Descripción</label>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="instructor" th:field="*{instructor}" placeholder="Instructor">
+                    <label for="instructor">Instructor</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input type="datetime-local" class="form-control" id="fechaHora" th:field="*{fechaHora}" required>
+                    <label for="fechaHora">Fecha y Hora</label>
+                    <div class="text-danger" th:if="${#fields.hasErrors('fechaHora')}" th:errors="*{fechaHora}"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input type="number" class="form-control" id="duracion" th:field="*{duracionEnMinutos}" placeholder="Duración" required>
+                    <label for="duracion">Duración (minutos)</label>
+                    <div class="text-danger" th:if="${#fields.hasErrors('duracionEnMinutos')}" th:errors="*{duracionEnMinutos}"></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input type="number" class="form-control" id="capacidad" th:field="*{capacidad}" placeholder="Capacidad" required>
+                    <label for="capacidad">Capacidad (aforo)</label>
+                    <div class="text-danger" th:if="${#fields.hasErrors('capacidad')}" th:errors="*{capacidad}"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 d-flex justify-content-end">
+                <a th:href="@{/admin/clases}" class="btn btn-secondary me-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary-custom">Guardar Clase</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
