@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container-fluid py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="card shadow-lg border-0 rounded-lg">
+          <div class="card-header text-center" style="background-color: var(--fitness-primary); color: white;">
+            <h1 class="display-5 my-3" th:text="${rutina.nombre}"></h1>
+            <span class="badge bg-warning text-dark" th:text="${rutina.nivel}"></span>
+          </div>
+          <div class="card-body p-4 p-md-5">
+            <div class="mb-4">
+              <h5 class="feature-highlight">Descripción</h5>
+              <p th:text="${rutina.descripcion}"></p>
+            </div>
+
+            <div>
+              <h5 class="feature-highlight">Ejercicios de la Rutina</h5>
+              <!-- Usamos un div para renderizar el contenido, que puede tener saltos de línea -->
+              <div class="p-3 bg-light rounded" style="white-space: pre-wrap;" th:text="${rutina.contenido}"></div>
+            </div>
+          </div>
+          <div class="card-footer text-center py-3">
+            <a th:href="@{/socio/rutinas}" class="btn btn-secondary">Volver a la lista de rutinas</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

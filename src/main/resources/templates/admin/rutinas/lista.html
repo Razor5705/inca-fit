@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container-fluid py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3">Gestión de Rutinas</h1>
+      <a th:href="@{/admin/rutinas/nueva}" class="btn btn-primary-custom">
+        <i class="fas fa-plus me-1"></i> Nueva Rutina
+      </a>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover admin-table">
+            <thead class="table-light">
+            <tr>
+              <th>Nombre</th>
+              <th>Nivel</th>
+              <th>Descripción</th>
+              <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="rutina : ${rutinas}">
+              <td th:text="${rutina.nombre}"></td>
+              <td th:text="${rutina.nivel}"></td>
+              <td th:text="${#strings.abbreviate(rutina.descripcion, 100)}"></td>
+              <td>
+                <div class="d-flex gap-2">
+                  <a th:href="@{/admin/rutinas/editar/{id}(id=${rutina.id})}" class="btn btn-sm btn-outline-primary btn-action" title="Editar rutina">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <form th:action="@{/admin/rutinas/{id}/eliminar(id=${rutina.id})}" method="post" onsubmit="return confirm('¿Está seguro de eliminar esta rutina?');" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger btn-action" title="Eliminar rutina">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
