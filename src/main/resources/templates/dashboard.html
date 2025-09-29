@@ -1,21 +1,295 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="fragments/head :: head">
   <title>Dashboard - Inca Fit</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous"></head>
+</head>
 <body>
-<div class="container mt-5">
-  <h1>Bienvenido, <span th:text="${username}"></span>!</h1>
-  <div class="card mt-4">
-    <div class="card-body">
-      <h5 class="card-title">Tu Panel de Control</h5>
-      <p class="card-text">Aquí encontrarás tus clases reservadas, pagos y más.</p>
-      <a href="#" class="btn btn-primary">Ver mis reservas</a>
-      <a href="/logout" class="btn btn-secondary">Cerrar sesión</a>
+<div th:replace="fragments/header :: header"></div>
+
+<main class="container-fluid py-4 mt-5">
+  <!-- Banner de Bienvenida -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="alert alert-success bg-gradient">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-check-circle fa-2x me-3"></i>
+          <div>
+            <h4 class="alert-heading mb-1">¡Bienvenido a Inca Fit!</h4>
+            <p class="mb-0">Tu centro de gestión personal del gimnasio</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+
+  <div class="row">
+    <!-- Sidebar de Navegación -->
+    <div class="col-lg-3 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-user-circle me-2"></i>Mi Cuenta
+          </h5>
+        </div>
+        <div class="list-group list-group-flush">
+          <a href="#reservas" class="list-group-item list-group-item-action active">
+            <i class="fas fa-calendar-check me-2"></i>Mis Reservas
+          </a>
+          <a href="#membresia" class="list-group-item list-group-item-action">
+            <i class="fas fa-id-card me-2"></i>Mi Membresía
+          </a>
+          <a href="#facturas" class="list-group-item list-group-item-action">
+            <i class="fas fa-file-invoice me-2"></i>Mis Facturas
+          </a>
+          <a href="#perfil" class="list-group-item list-group-item-action">
+            <i class="fas fa-user-edit me-2"></i>Editar Perfil
+          </a>
+          <a th:href="@{/logout}" class="list-group-item list-group-item-action text-danger">
+            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+          </a>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Estado -->
+      <div class="card shadow-sm mt-4">
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <i class="fas fa-heartbeat fa-3x text-primary"></i>
+          </div>
+          <h6>Estado de Cuenta</h6>
+          <span class="badge bg-success">Activa</span>
+          <p class="small text-muted mt-2">Miembro desde:
+            <span th:text="${#temporals.format(socio.fechaRegistro, 'dd/MM/yyyy')}">fecha</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="col-lg-9">
+      <!-- Header del Dashboard -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h2 class="card-title mb-1">
+                <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                Hola, <span th:text="${socio.nombre}">Usuario</span>!
+              </h2>
+              <p class="text-muted mb-0">Aquí puedes gestionar todas tus actividades en el gimnasio</p>
+            </div>
+            <div class="col-md-4 text-end">
+              <div class="btn-group">
+                <button class="btn btn-outline-primary">
+                  <i class="fas fa-sync-alt me-1"></i> Actualizar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas Rápidas -->
+      <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+          <div class="card bg-primary text-white shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="card-title">Reservas Activas</h6>
+                  <h3 class="mb-0">2</h3>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-calendar-check fa-2x opacity-50"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-success text-white shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="card-title">Membresía</h6>
+                  <h3 class="mb-0">Premium</h3>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-id-card fa-2x opacity-50"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-warning text-white shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="card-title">Próximo Pago</h6>
+                  <h3 class="mb-0">15/10</h3>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-credit-card fa-2x opacity-50"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de Reservas -->
+      <div id="reservas" class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-calendar-check me-2"></i>Mis Próximas Reservas
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+              <tr>
+                <th>Clase</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Instructor</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>Yoga Matutino</td>
+                <td>12/10/2024</td>
+                <td>09:00 - 10:00</td>
+                <td>Ana López</td>
+                <td><span class="badge bg-success">Confirmada</span></td>
+                <td>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-times"></i> Cancelar
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>Spinning</td>
+                <td>14/10/2024</td>
+                <td>18:00 - 19:00</td>
+                <td>Carlos Ruiz</td>
+                <td><span class="badge bg-success">Confirmada</span></td>
+                <td>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-times"></i> Cancelar
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="text-center mt-3">
+            <a th:href="@{/socio/reservas/nueva}" class="btn btn-primary">
+              <i class="fas fa-plus me-1"></i> Nueva Reserva
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de Membresía -->
+      <div id="membresia" class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-id-card me-2"></i>Mi Membresía
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h6>Plan Premium</h6>
+              <p class="text-muted">Acceso ilimitado a todas las clases y áreas del gimnasio</p>
+              <ul class="list-unstyled">
+                <li><i class="fas fa-check text-success me-2"></i> Acceso a todas las clases</li>
+                <li><i class="fas fa-check text-success me-2"></i> Área de cardio y pesas</li>
+                <li><i class="fas fa-check text-success me-2"></i> Asesoramiento personalizado</li>
+                <li><i class="fas fa-check text-success me-2"></i> Sin restricciones de horario</li>
+              </ul>
+            </div>
+            <div class="col-md-4 text-end">
+              <div class="mb-3">
+                <h4 class="text-primary">€49.90/mes</h4>
+                <small class="text-muted">Próximo pago: 15/10/2024</small>
+              </div>
+              <button class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-sync me-1"></i> Renovar
+              </button>
+              <button class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-file-invoice me-1"></i> Detalles
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas -->
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-dumbbell fa-3x text-primary mb-3"></i>
+              <h5>Nueva Reserva</h5>
+              <p class="text-muted">Reserva tu próxima clase</p>
+              <a th:href="@{/socio/reservas/nueva}" class="btn btn-primary">Reservar Clase</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-file-invoice-dollar fa-3x text-success mb-3"></i>
+              <h5>Mis Facturas</h5>
+              <p class="text-muted">Consulta tu historial de pagos</p>
+              <a th:href="@{/socio/facturas}" class="btn btn-success">Ver Facturas</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="fragments/scripts :: scripts"></div>
+
+<!-- Script para funcionalidades del dashboard -->
+<script>
+  // Smooth scroll para los enlaces del sidebar
+  document.addEventListener('DOMContentLoaded', function() {
+      const sidebarLinks = document.querySelectorAll('.list-group-item[href^="#"]');
+
+      sidebarLinks.forEach(link => {
+          link.addEventListener('click', function(e) {
+              e.preventDefault();
+              const targetId = this.getAttribute('href').substring(1);
+              const targetElement = document.getElementById(targetId);
+
+              if (targetElement) {
+                  targetElement.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start'
+                  });
+              }
+          });
+      });
+
+      // Actualizar la hora cada minuto
+      function updateTime() {
+          const now = new Date();
+          document.getElementById('current-time').textContent =
+              now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      setInterval(updateTime, 60000);
+      updateTime();
+  });
+</script>
 </body>
 </html>

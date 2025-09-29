@@ -247,3 +247,39 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
 }
+
+/* Estilos específicos para el dashboard */
+.dashboard-stats .card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.dashboard-stats .card:hover {
+    transform: translateY(-5px);
+}
+
+/* Sidebar styling */
+.list-group-item.active {
+    background-color: var(--inca-primary);
+    border-color: var(--inca-primary);
+}
+
+/* Badge personalizado */
+.badge {
+    font-size: 0.75em;
+}
+
+/* Animaciones para las tarjetas */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-stats .col-md-4 {
+        margin-bottom: 1rem;
+    }
+}

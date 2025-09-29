@@ -3,18 +3,15 @@ package com.incafit.Controller;
 
 import com.incafit.Model.Socio;
 import com.incafit.Model.Reserva;
-import com.incafit.service.SocioService;
-import com.incafit.service.ReservaService;
 import com.incafit.service.FacturaService;
+import com.incafit.service.ReservaService;
+import com.incafit.service.SocioService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Controller
 @RequestMapping("/socio")
@@ -26,10 +23,12 @@ public class SocioReservaController {
 
     public SocioReservaController(SocioService socioService,
                                   ReservaService reservaService,
-                                  FacturaService facturaService) {
+                                  FacturaService facturaService
+                                  ) {
         this.socioService = socioService;
         this.reservaService = reservaService;
         this.facturaService = facturaService;
+
     }
 
     @GetMapping("/reservas")
