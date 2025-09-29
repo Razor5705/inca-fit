@@ -20,10 +20,6 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return userDetailsService;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -34,7 +30,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index","/registro","/login", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/index", "/registro", "/procesar-registro", "/login",
+                                "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                         .requestMatchers("/admin/socios/**").hasRole("ADMIN")
                         .requestMatchers("/socio/**").hasAnyRole("USUARIO", "ADMIN")
                         .anyRequest().authenticated()
@@ -49,6 +46,10 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
+                )
+                .csrf(csrf -> csrf
+                        // PERMITIR CSRF PARA EL REGISTRO (IMPORTANTE)
+                        .ignoringRequestMatchers("/procesar-registro")
                 )
                 .userDetailsService(userDetailsService); // Asegúrate de tener esta línea
         ;

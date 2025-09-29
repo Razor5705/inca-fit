@@ -15,5 +15,10 @@ public interface SocioRepository extends JpaRepository<Socio, Long> {
     <S extends Socio> S save(S entity);
 
     boolean existsByEmail(String email);
-
+    boolean existsByDni(String dni);
+    // Método para verificar existencia por ID
+    boolean existsById(Long id);
+    // Método adicional para debugging
+    @Query("SELECT COUNT(s) FROM Socio s")
+    long countSocios();
 }

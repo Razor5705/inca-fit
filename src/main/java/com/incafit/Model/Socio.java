@@ -43,8 +43,6 @@ public class Socio {
     private boolean activo = true; // Nuevo campo
 
 
-
-
     private LocalDate fechaRegistro;
 
 

@@ -13,66 +13,85 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
+@Transactional
 public class SocioServiceImpl implements SocioService {
 
     private static final Logger log = LoggerFactory.getLogger(SocioServiceImpl.class);
     private final SocioRepository socioRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
 
-    public SocioServiceImpl(SocioRepository socioRepository,
-                            PasswordEncoder passwordEncoder,
-                            EmailService emailService) {
+    public SocioServiceImpl(SocioRepository socioRepository) {
         this.socioRepository = socioRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
     }
-
 
     @Override
     public List<Socio> obtenerTodosSocios() {
-        return socioRepository.findAll();
+        log.info("Obteniendo todos los socios");
+        try {
+            List<Socio> socios = socioRepository.findAll();
+            log.info("Se encontraron {} socios", socios.size());
+            return socios;
+        } catch (Exception e) {
+            log.error("Error al obtener todos los socios: {}", e.getMessage());
+            throw new RuntimeException("Error al obtener la lista de socios", e);
+        }
     }
 
     @Override
     public Socio obtenerSocioPorId(Long id) {
-        return socioRepository.findById(id).orElse(null);
+        log.info("Buscando socio por ID: {}", id);
+        try {
+            Optional<Socio> socio = socioRepository.findById(id);
+            if (socio.isPresent()) {
+                log.info("Socio encontrado: {} - {}", socio.get().getId(), socio.get().getEmail());
+                return socio.get();
+            } else {
+                log.warn("No se encontró socio con ID: {}", id);
+                throw new RuntimeException("Socio no encontrado con ID: " + id);
+            }
+        } catch (Exception e) {
+            log.error("Error al obtener socio por ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Error al obtener el socio", e);
+        }
     }
-
     @Override
     @Transactional
     public Socio guardarSocio(Socio socio) {
-        boolean isNewSocio = socio.getId() == null;
+        log.info("🔄 Guardando socio en la base de datos...");
+        log.info("   - Email: {}", socio.getEmail());
+        log.info("   - DNI: {}", socio.getDni());
+        log.info("   - Rol: {}", socio.getRol());
 
-        // Encriptar contraseña si es nuevo o si se ha proporcionado una nueva contraseña.
-        if (isNewSocio || (socio.getPassword() != null && !socio.getPassword().isEmpty())) {
-            socio.setPassword(passwordEncoder.encode(socio.getPassword()));
-        } else {
-            // Si es un socio existente y la contraseña está vacía, mantener la actual.
-            socioRepository.findById(socio.getId())
-                    .ifPresent(socioExistente -> socio.setPassword(socioExistente.getPassword()));
+        try {
+            Socio socioGuardado = socioRepository.save(socio);
+            log.info("✅ Socio guardado exitosamente con ID: {}", socioGuardado.getId());
+
+            // Verificar que realmente se guardó
+            long totalSocios = socioRepository.count();
+            log.info("📊 Total de socios en BD: {}", totalSocios);
+
+            return socioGuardado;
+        } catch (Exception e) {
+            log.error("❌ Error al guardar socio: {}", e.getMessage(), e);
+            throw new RuntimeException("Error al guardar el socio en la base de datos", e);
         }
-
-        Socio socioGuardado = socioRepository.save(socio);
-
-        // Enviar email de bienvenida si es un nuevo socio.
-        // Se envuelve en un try-catch para que un fallo en el envío de email no cancele el registro.
-        if (isNewSocio) {
-            try {
-                String subject = "¡Bienvenido a Inca Fit!";
-                String text = "Hola " + socioGuardado.getNombre() + ",\n\n" +
-                        "Gracias por registrarte en Inca Fit. ¡Estamos muy contentos de tenerte con nosotros!\n\n" +
-                        "Tu cuenta ha sido creada exitosamente.\n\n" +
-                        "Saludos,\n" +
-                        "El equipo de Inca Fit";
-                emailService.sendEmail(socioGuardado.getEmail(), subject, text);
-            } catch (Exception e) {
-                log.error("Error al enviar el email de bienvenida al socio {}: {}", socioGuardado.getEmail(), e.getMessage());
-                // No relanzamos la excepción para no revertir la transacción del usuario.
-            }
-        }
-        return socioGuardado;
     }
+
+    @Override
+    public boolean existeEmail(String email) {
+        boolean existe = socioRepository.existsByEmail(email);
+        log.info("🔍 Verificando email '{}': {}", email, existe ? "EXISTE" : "NO EXISTE");
+        return existe;
+    }
+
+    @Override
+    public Optional<Socio> obtenerSocioPorEmail(String email) {
+        log.info("🔍 Buscando socio por email: {}", email);
+        Optional<Socio> socio = socioRepository.findByEmail(email);
+        log.info("   - Resultado: {}", socio.isPresent() ? "ENCONTRADO" : "NO ENCONTRADO");
+        return socio;
+    }
+
+
 
     @Override
     @Transactional
@@ -83,19 +102,19 @@ public class SocioServiceImpl implements SocioService {
     @Override
     @Transactional
     public void cambiarEstadoSocio(Long id, boolean estado) {
-        Socio socio = socioRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Socio no encontrado"));
-        socio.setActivo(estado);
-        socioRepository.save(socio);
+        log.info("Cambiando estado del socio ID: {} a {}", id, estado);
+        try {
+            Socio socio = socioRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Socio no encontrado con ID: " + id));
+            socio.setActivo(estado);
+            socioRepository.save(socio);
+            log.info("Estado del socio actualizado exitosamente");
+        } catch (Exception e) {
+            log.error("Error al cambiar estado del socio ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Error al cambiar estado del socio", e);
+        }
     }
 
-    @Override
-    public boolean existeEmail(String email) {
-        return socioRepository.existsByEmail(email);
-    }
 
-    @Override
-    public Optional<Socio> obtenerSocioPorEmail(String email) {
-        return socioRepository.findByEmail(email);
-    }
+
 }
