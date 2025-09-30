@@ -78,11 +78,4 @@ public class FacturaServiceImpl implements FacturaService {
         return facturaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
     }
-
-    @Override
-    public List<com.incafit.dto.DataPointDTO> getMonthlyRevenue() {
-        return facturaRepository.findMonthlyRevenue().stream()
-                .map(result -> new com.incafit.dto.DataPointDTO((String) result[0], (Number) result[1]))
-                .collect(java.util.stream.Collectors.toList());
-    }
 }

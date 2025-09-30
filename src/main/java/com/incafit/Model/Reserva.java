@@ -14,10 +14,7 @@ public class Reserva {
     @JoinColumn(name = "socio_id")
     private Socio socio;
 
-    @ManyToOne
-    @JoinColumn(name = "clase_id")
-    private Clase clase;
-
+    private String clase;
     private LocalDateTime fechaHora;
     private String estado; // CONFIRMADA, CANCELADA
 
@@ -39,11 +36,11 @@ public class Reserva {
         this.socio = socio;
     }
 
-    public Clase getClase() {
+    public String getClase() {
         return clase;
     }
 
-    public void setClase(Clase clase) {
+    public void setClase(String clase) {
         this.clase = clase;
     }
 

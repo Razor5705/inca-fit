@@ -1,17 +1,20 @@
+// SocioReservaController.java
 package com.incafit.Controller;
 
-import com.incafit.Model.Clase;
 import com.incafit.Model.Socio;
-import com.incafit.service.ClaseService;
-import com.incafit.service.FacturaService;
-import com.incafit.service.ReservaService;
+import com.incafit.Model.Reserva;
 import com.incafit.service.SocioService;
+import com.incafit.service.ReservaService;
+import com.incafit.service.FacturaService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/socio")
@@ -20,16 +23,13 @@ public class SocioReservaController {
     private final SocioService socioService;
     private final ReservaService reservaService;
     private final FacturaService facturaService;
-    private final ClaseService claseService;
 
     public SocioReservaController(SocioService socioService,
                                   ReservaService reservaService,
-                                  FacturaService facturaService,
-                                  ClaseService claseService) {
+                                  FacturaService facturaService) {
         this.socioService = socioService;
         this.reservaService = reservaService;
         this.facturaService = facturaService;
-        this.claseService = claseService;
     }
 
     @GetMapping("/reservas")
@@ -41,17 +41,15 @@ public class SocioReservaController {
 
     @GetMapping("/reservas/nueva")
     public String mostrarFormularioReserva(Model model) {
-        model.addAttribute("clases", claseService.findAll());
+        model.addAttribute("reserva", new Reserva());
         return "socio/reservas/formulario";
     }
 
     @PostMapping("/reservas/guardar")
-    public String guardarReserva(@RequestParam("claseId") Long claseId, RedirectAttributes redirect) {
+    public String guardarReserva(@ModelAttribute Reserva reserva, RedirectAttributes redirect) {
         try {
             Socio socio = obtenerSocioActual();
-            Clase clase = claseService.findById(claseId)
-                    .orElseThrow(() -> new Exception("Clase no encontrada"));
-            reservaService.crearReserva(socio, clase);
+            reservaService.crearReserva(socio, reserva.getClase(), reserva.getFechaHora());
             redirect.addFlashAttribute("success", "Reserva creada correctamente");
         } catch (Exception e) {
             redirect.addFlashAttribute("error", "Error al crear reserva: " + e.getMessage());

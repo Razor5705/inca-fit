@@ -1,142 +1,45 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head}"></head>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous"></head>
+</head>
 <body>
+<div class="container mt-5">
+  <h1>Panel de Administración - Inca Fit</h1>
 
-<div th:replace="~{fragments/header :: header}"></div>
-
-<main class="container-fluid py-5" style="background-color: #f8f9fa;">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h1 class="display-4">Panel de Administración</h1>
-      <p class="lead">Métricas clave y gestión de Inca Fit.</p>
-    </div>
-
-    <div class="row g-4 mb-5">
-      <div class="col-md-6 col-lg-4">
-        <div class="card feature-card h-100">
-          <div class="card-body text-center p-4">
-            <div class="feature-icon"><i class="fas fa-users"></i></div>
-            <h3 class="card-title">Socios</h3>
-            <p class="card-text">Gestiona usuarios, membresías y estados.</p>
-            <a th:href="@{/admin/socios}" class="btn btn-primary-custom mt-auto">Administrar Socios</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="card feature-card h-100">
-          <div class="card-body text-center p-4">
-            <div class="feature-icon"><i class="fas fa-id-card"></i></div>
-            <h3 class="card-title">Membresías</h3>
-            <p class="card-text">Crea y gestiona los planes y precios.</p>
-            <a href="/admin/membresias" class="btn btn-primary-custom mt-auto">Administrar Membresías</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="card feature-card h-100">
-          <div class="card-body text-center p-4">
-            <div class="feature-icon"><i class="fas fa-calendar-alt"></i></div>
-            <h3 class="card-title">Clases</h3>
-            <p class="card-text">Programa y gestiona las clases.</p>
-            <a th:href="@{/admin/clases}" class="btn btn-primary-custom mt-auto">Administrar Clases</a>
-          </div>
+  <div class="row mt-4">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Socios</h5>
+          <p class="card-text">Gestión de usuarios registrados</p>
+          <a href="/admin/socios" class="btn btn-primary">Administrar</a>
         </div>
       </div>
     </div>
 
-    <div class="row g-4">
-      <div class="col-lg-6">
-        <div class="card shadow-sm h-100">
-          <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>Ingresos Mensuales</h5>
-          </div>
-          <div class="card-body">
-            <canvas id="revenueChart"></canvas>
-          </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Membresías</h5>
+          <p class="card-text">Tipos de planes y precios</p>
+          <a href="/admin/membresias" class="btn btn-primary">Administrar</a>
         </div>
       </div>
-      <div class="col-lg-6">
-        <div class="card shadow-sm h-100">
-          <div class="card-header">
-            <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2"></i>Asistencia Mensual</h5>
-          </div>
-          <div class="card-body">
-            <canvas id="attendanceChart"></canvas>
-          </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Clases</h5>
+          <p class="card-text">Programación de actividades</p>
+          <a href="#" class="btn btn-secondary">Próximamente</a>
         </div>
       </div>
     </div>
   </div>
-</main>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Gráfico de Ingresos
-    fetch('/api/dashboard/revenue')
-      .then(response => response.json())
-      .then(data => {
-        const labels = data.map(d => d.label);
-        const values = data.map(d => d.value);
-
-        new Chart(document.getElementById('revenueChart'), {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Ingresos (S/)',
-              data: values,
-              backgroundColor: 'rgba(253, 187, 45, 0.6)',
-              borderColor: 'rgba(253, 187, 45, 1)',
-              borderWidth: 1
-            }]
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            },
-            responsive: true,
-            maintainAspectRatio: false
-          }
-        });
-      });
-
-    // Gráfico de Asistencia
-    fetch('/api/dashboard/attendance')
-      .then(response => response.json())
-      .then(data => {
-        const labels = data.map(d => d.label);
-        const values = data.map(d => d.value);
-
-        new Chart(document.getElementById('attendanceChart'), {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Nº de Reservas',
-              data: values,
-              fill: false,
-              borderColor: 'rgb(26, 42, 108)',
-              tension: 0.1
-            }]
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            },
-            responsive: true,
-            maintainAspectRatio: false
-          }
-        });
-      });
-  });
-</script>
+</div>
 </body>
 </html>
