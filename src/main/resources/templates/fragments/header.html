@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <header th:fragment="header">
   <!-- Contenido del header -->
   <nav>
     <a th:href="@{/}">Inicio</a>
-    <a th:href="@{/login}">Iniciar sesión</a>
-    <a th:href="@{/registro}">Registrarse</a>
+    <div sec:authorize="isAnonymous()">
+      <a th:href="@{/login}">Iniciar sesión</a>
+      <a th:href="@{/registro}">Registrarse</a>
+    </div>
+    <div sec:authorize="isAuthenticated()">
+      <a th:href="@{/dashboard}">Dashboard</a>
+      <a th:href="@{/logout}">Cerrar Sesión</a>
+    </div>
   </nav>
 </header>
 </body>
