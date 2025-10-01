@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/head :: head}">
+  <title>Admin Dashboard - Inca Fit</title>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container-fluid py-4 mt-5">
+  <div class="container">
+    <h1 class="display-4">Admin Dashboard</h1>
+    <p class="lead">Bienvenido al panel de administración.</p>
+
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            Socios Activos vs. Inactivos
+          </div>
+          <div class="card-body">
+            <canvas id="sociosActivosChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/api/admin/stats/socios-activos')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('sociosActivosChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Activos', 'Inactivos'],
+                        datasets: [{
+                            label: 'Estado de Socios',
+                            data: [data.activos, data.inactivos],
+                            backgroundColor: [
+                                'rgba(25, 135, 84, 0.7)',
+                                'rgba(220, 53, 69, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(25, 135, 84, 1)',
+                                'rgba(220, 53, 69, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Distribución de Socios'
+                            }
+                        }
+                    }
+                });
+            });
+    });
+</script>
+</body>
+</html>

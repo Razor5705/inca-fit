@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class SocioServiceImpl implements SocioService {
@@ -75,5 +77,24 @@ public class SocioServiceImpl implements SocioService {
     @Override
     public Optional<Socio> obtenerSocioPorEmail(String email) {
         return socioRepository.findByEmail(email);
+    }
+
+    @Override
+    public Map<String, Long> contarSociosActivosEInactivos() {
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("activos", 0L);
+        stats.put("inactivos", 0L);
+
+        List<Map<String, Object>> results = socioRepository.countSociosByActivo();
+        for (Map<String, Object> result : results) {
+            boolean activo = (boolean) result.get("activo");
+            long total = (long) result.get("total");
+            if (activo) {
+                stats.put("activos", total);
+            } else {
+                stats.put("inactivos", total);
+            }
+        }
+        return stats;
     }
 }

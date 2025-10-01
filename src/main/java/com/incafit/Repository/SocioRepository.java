@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 public interface SocioRepository extends JpaRepository<Socio, Long> {
     Optional<Socio> findByEmail(String email);
@@ -13,7 +14,8 @@ public interface SocioRepository extends JpaRepository<Socio, Long> {
     @Query("SELECT s FROM Socio s")
     List<Socio> findAllSocios();
 
+    @Query("SELECT new map(s.activo as activo, count(s) as total) FROM Socio s GROUP BY s.activo")
+    List<Map<String, Object>> countSociosByActivo();
 
     boolean existsByEmail(String email);
-
 }
