@@ -159,30 +159,28 @@
               </tr>
               </thead>
               <tbody>
-              <tr>
-                <td>Yoga Matutino</td>
-                <td>12/10/2024</td>
-                <td>09:00 - 10:00</td>
-                <td>Ana López</td>
-                <td><span class="badge bg-success">Confirmada</span></td>
-                <td>
-                  <button class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-times"></i> Cancelar
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>Spinning</td>
-                <td>14/10/2024</td>
-                <td>18:00 - 19:00</td>
-                <td>Carlos Ruiz</td>
-                <td><span class="badge bg-success">Confirmada</span></td>
-                <td>
-                  <button class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-times"></i> Cancelar
-                  </button>
-                </td>
-              </tr>
+                <!-- Si no hay reservas, mostrar un mensaje -->
+                <tr th:if="${#lists.isEmpty(socio.reservas)}">
+                    <td colspan="6" class="text-center">No tienes próximas reservas. ¡Anímate a apuntarte a una clase!</td>
+                </tr>
+                <!-- Iterar sobre las reservas del socio -->
+                <tr th:each="reserva : ${socio.reservas}">
+                    <td th:text="${reserva.clase?.nombre ?: 'Clase no especificada'}">Nombre de la Clase</td>
+                    <td th:text="${#temporals.format(reserva.fechaHora, 'dd/MM/yyyy')}">Fecha</td>
+                    <td th:text="${#temporals.format(reserva.fechaHora, 'HH:mm')}">Hora</td>
+                    <td th:text="${reserva.clase?.instructor?.nombreCompleto ?: 'N/A'}">Instructor</td>
+                    <td>
+                        <span th:text="${reserva.estado}"
+                              th:classappend="${reserva.estado == 'CONFIRMADA' ? 'badge bg-success' : 'badge bg-warning'}">
+                            Estado
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" th:if="${reserva.estado == 'CONFIRMADA'}">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </td>
+                </tr>
               </tbody>
             </table>
           </div>

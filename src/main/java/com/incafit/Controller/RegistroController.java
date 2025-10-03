@@ -1,96 +1,122 @@
 package com.incafit.Controller;
 
-
+import com.incafit.Model.Membresia;
 import com.incafit.Model.Socio;
 import com.incafit.Model.Rol;
+import com.incafit.service.MembresiaService;
 import com.incafit.service.SocioService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.incafit.dto.RegistroSocioDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import jakarta.validation.Valid;
-
-
 import java.time.LocalDate;
-
+import java.util.List;
 
 @Controller
+@RequestMapping("/registro")
+@SessionAttributes("registroDto")
 public class RegistroController {
 
     private final SocioService socioService;
     private final PasswordEncoder passwordEncoder;
+    private final MembresiaService membresiaService;
 
     public RegistroController(SocioService socioService,
-                              PasswordEncoder passwordEncoder) {
+                              PasswordEncoder passwordEncoder,
+                              MembresiaService membresiaService) {
         this.socioService = socioService;
         this.passwordEncoder = passwordEncoder;
+        this.membresiaService = membresiaService;
     }
 
-    @GetMapping("/registro")
-    public String mostrarFormularioRegistro(Model model) {
-        model.addAttribute("socio", new Socio()); // Ahora funciona con constructor vacío
-        return "registro";
+    @ModelAttribute("registroDto")
+    public RegistroSocioDto registroSocioDto() {
+        return new RegistroSocioDto();
     }
 
-    @PostMapping("/procesar-registro")
-    public String procesarRegistro(@Valid @ModelAttribute("socio") Socio socio,
-                                   BindingResult result,
-                                   HttpServletRequest request) {
+    @GetMapping
+    public String mostrarPaso1(Model model) {
+        model.addAttribute("registroDto", new RegistroSocioDto());
+        return "registro-paso1";
+    }
 
-        System.out.println("=== 🚀 INICIANDO PROCESO DE REGISTRO ===");
-        System.out.println("📧 Email recibido: " + socio.getEmail());
-        System.out.println("👤 Nombre recibido: " + socio.getNombre());
-        System.out.println("🆔 DNI recibido: " + socio.getDni());
-
-        // Verificar si hay errores de validación
-        if (result.hasErrors()) {
-            System.out.println("❌ ERRORES DE VALIDACIÓN:");
-            result.getAllErrors().forEach(error ->
-                    System.out.println("   - " + error.getDefaultMessage()));
-            return "registro";
+    @PostMapping("/paso1")
+    public String procesarPaso1(@Valid @ModelAttribute("registroDto") RegistroSocioDto registroDto,
+                                BindingResult result) {
+        if (registroDto.getPassword() != null && !registroDto.getPassword().equals(registroDto.getPasswordConfirm())) {
+            result.rejectValue("passwordConfirm", "error.socio", "Las contraseñas no coinciden");
         }
-
-        // Verificar si el email ya existe
-        if (socioService.existeEmail(socio.getEmail())) {
-            System.out.println("❌ Email ya existe: " + socio.getEmail());
+        if (socioService.existeDni(registroDto.getDni())) {
+            result.rejectValue("dni", "error.socio", "El DNI ya está registrado en el sistema");
+        }
+        if (socioService.existeEmail(registroDto.getEmail())) {
             result.rejectValue("email", "error.socio", "El email ya está registrado");
-            return "registro";
         }
 
-
-        try {
-            // Codificar la contraseña
-            String passwordCodificada = passwordEncoder.encode(socio.getPassword());
-            socio.setPassword(passwordCodificada);
-
-            // Asignar valores por defecto
-            socio.setRol(Rol.USUARIO);
-            socio.setFechaRegistro(LocalDate.now());
-            socio.setActivo(true);
-
-            System.out.println("✅ Contraseña codificada correctamente");
-            System.out.println("💾 Guardando socio en base de datos...");
-
-            // Guardar el socio
-            Socio socioGuardado = socioService.guardarSocio(socio);
-
-            System.out.println("🎉 REGISTRO EXITOSO:");
-            System.out.println("   - ID: " + socioGuardado.getId());
-            System.out.println("   - Email: " + socioGuardado.getEmail());
-            System.out.println("   - DNI: " + socioGuardado.getDni());
-
-            return "redirect:/login?registroExitoso=true";
-
-        } catch (Exception e) {
-            System.err.println("💥 ERROR CRÍTICO durante el registro:");
-            e.printStackTrace();
-            result.rejectValue("email", "error.socio",
-                    "Error interno durante el registro. Por favor, intenta nuevamente.");
-            return "registro";
+        if (result.hasErrors()) {
+            return "registro-paso1";
         }
+
+        return "redirect:/registro/paso2";
+    }
+
+    @GetMapping("/paso2")
+    public String mostrarPaso2(Model model) {
+        List<Membresia> membresias = membresiaService.obtenerTodasMembresias();
+        model.addAttribute("membresias", membresias);
+        // El DTO se obtiene de la sesión
+        return "registro-paso2";
+    }
+
+    @PostMapping("/paso2")
+    public String procesarPaso2(@ModelAttribute("registroDto") RegistroSocioDto registroDto,
+                                @RequestParam("membresiaId") Long membresiaId) {
+
+        registroDto.setMembresiaId(membresiaId);
+        return "redirect:/registro/paso3";
+    }
+
+    @GetMapping("/paso3")
+    public String mostrarPaso3(Model model) {
+        // El DTO se obtiene de la sesión
+        return "registro-paso3";
+    }
+
+    @PostMapping("/paso3")
+    public String procesarPaso3(@Valid @ModelAttribute("registroDto") RegistroSocioDto registroDto,
+                                BindingResult result,
+                                SessionStatus status) {
+
+        if (result.hasErrors()) {
+            return "registro-paso3";
+        }
+
+        Membresia membresiaSeleccionada = membresiaService.obtenerMembresiaPorId(registroDto.getMembresiaId());
+        if (membresiaSeleccionada == null) {
+            return "redirect:/registro/paso2?error=true";
+        }
+
+        // Aquí se simula el procesamiento del pago. En una aplicación real,
+        // se integraría con una pasarela de pago.
+
+        Socio nuevoSocio = new Socio();
+        nuevoSocio.setDni(registroDto.getDni());
+        nuevoSocio.setNombre(registroDto.getNombre());
+        nuevoSocio.setEmail(registroDto.getEmail());
+        nuevoSocio.setTelefono(registroDto.getTelefono());
+        nuevoSocio.setPassword(passwordEncoder.encode(registroDto.getPassword()));
+        nuevoSocio.setMembresia(membresiaSeleccionada);
+        nuevoSocio.setRol(Rol.USUARIO);
+        nuevoSocio.setFechaRegistro(LocalDate.now());
+        nuevoSocio.setActivo(true);
+
+        socioService.guardarSocio(nuevoSocio);
+
+        status.setComplete(); // Limpiar la sesión
+        return "redirect:/login?registroExitoso=true";
     }
 }

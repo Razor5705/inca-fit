@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "socios")
@@ -18,18 +20,18 @@ public class Socio {
     @Column(unique = true, nullable = false)
     @NotBlank(message = "El DNI es obligatorio")
     @Size(min = 8, max = 10, message = "El DNI debe tener entre 8 y 10 caracteres")
-
     private String dni;
 
     @Column(nullable = false)
     @NotBlank(message = "El nombre es obligatorio")
-
     private String nombre;
 
     @Column(unique = true, nullable = false)
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "Debe ser un email válido")
     private String email;
+
+    private String telefono;
 
     @Column(nullable = false)
     @NotBlank(message = "La contraseña es obligatoria")
@@ -40,42 +42,31 @@ public class Socio {
     private Rol rol = Rol.USUARIO;
 
     @Column(nullable = false)
-    private boolean activo = true; // Nuevo campo
-
+    private boolean activo = true;
 
     private LocalDate fechaRegistro;
 
-
-    // Agregar relación
     @ManyToOne
     @JoinColumn(name = "membresia_id")
     private Membresia membresia;
 
-    // Agregar getter y setter
-    public Membresia getMembresia() {
-        return membresia;
-    }
-
-    public void setMembresia(Membresia membresia) {
-        this.membresia = membresia;
-    }
-
+    @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Reserva> reservas = new ArrayList<>();
 
     // Constructor, getters y setters
-
-
     public Socio() {
         this.fechaRegistro = LocalDate.now();
         this.activo = true;
     }
 
-    // Constructor con parámetros (opcional)
     public Socio(String dni, String nombre, String email, String password) {
         this.dni = dni;
         this.nombre = nombre;
         this.email = email;
         this.password = password;
     }
+
+    // Getters y Setters
 
     public Long getId() {
         return id;
@@ -109,6 +100,14 @@ public class Socio {
         this.email = email;
     }
 
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -139,5 +138,21 @@ public class Socio {
 
     public void setActivo(boolean activo) {
         this.activo = activo;
+    }
+
+    public Membresia getMembresia() {
+        return membresia;
+    }
+
+    public void setMembresia(Membresia membresia) {
+        this.membresia = membresia;
+    }
+
+    public List<Reserva> getReservas() {
+        return reservas;
+    }
+
+    public void setReservas(List<Reserva> reservas) {
+        this.reservas = reservas;
     }
 }

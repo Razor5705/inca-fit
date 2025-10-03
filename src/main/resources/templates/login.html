@@ -19,6 +19,9 @@
           <div th:if="${param.logout}" class="alert alert-success" role="alert">
             Has cerrado sesión.
           </div>
+          <div th:if="${param.registroExitoso}" class="alert alert-success" role="alert">
+            ¡Registro completado! Ahora puedes iniciar sesión.
+          </div>
           <form th:action="@{/login}" method="post">
             <div class="form-floating mb-3">
               <input type="email" class="form-control" id="username" name="username" placeholder="nombre@ejemplo.com" required>

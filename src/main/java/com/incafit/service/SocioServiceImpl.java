@@ -24,6 +24,13 @@ public class SocioServiceImpl implements SocioService {
     }
 
     @Override
+    public boolean existeDni(String dni) {
+        boolean existe = socioRepository.existsByDni(dni);
+        log.info("🔍 Verificando DNI '{}': {}", dni, existe ? "EXISTE" : "NO EXISTE");
+        return existe;
+    }
+
+    @Override
     public List<Socio> obtenerTodosSocios() {
         log.info("Obteniendo todos los socios");
         try {
