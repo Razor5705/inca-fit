@@ -30,9 +30,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index", "/registro", "/procesar-registro", "/login",
+                        .requestMatchers("/", "/index", "/registro/**", "/login",
                                 "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/admin/socios/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/socio/**").hasAnyRole("USUARIO", "ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -49,7 +49,7 @@ public class SecurityConfig {
                 )
                 .csrf(csrf -> csrf
                         // PERMITIR CSRF PARA EL REGISTRO (IMPORTANTE)
-                        .ignoringRequestMatchers("/procesar-registro")
+                        .ignoringRequestMatchers("/registro/**")
                 )
                 .userDetailsService(userDetailsService); // Asegúrate de tener esta línea
         ;
