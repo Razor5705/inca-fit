@@ -8,6 +8,602 @@
 
  :: Spring Boot ::                (v3.5.3)
 
-2025-10-03T19:48:15.049Z  INFO 21947 --- [inca-fit] [           main] com.incafit.IncaFitApplication           : Starting IncaFitApplication v0.0.1-SNAPSHOT using Java 21.0.8 with PID 21947 (/app/target/inca-fit-0.0.1-SNAPSHOT.jar started by jules in /app)
-2025-10-03T19:48:15.051Z DEBUG 21947 --- [inca-fit] [           main] com.incafit.IncaFitApplication           : Running with Spring Boot v3.5.3, Spring v6.2.8
-2025-10-03T19:48:15.052Z  INFO 21947 --- [inca-fit] [           main] com.incafit.IncaFitApplication           : The following 1 profile is active: "dev"
+2025-10-07T12:49:46.224Z  INFO 34686 --- [inca-fit] [           main] com.incafit.IncaFitApplication           : Starting IncaFitApplication v0.0.1-SNAPSHOT using Java 21.0.8 with PID 34686 (/app/target/inca-fit-0.0.1-SNAPSHOT.jar started by jules in /app)
+2025-10-07T12:49:46.227Z DEBUG 34686 --- [inca-fit] [           main] com.incafit.IncaFitApplication           : Running with Spring Boot v3.5.3, Spring v6.2.8
+2025-10-07T12:49:46.228Z  INFO 34686 --- [inca-fit] [           main] com.incafit.IncaFitApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-10-07T12:49:47.700Z  INFO 34686 --- [inca-fit] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-10-07T12:49:47.811Z  INFO 34686 --- [inca-fit] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 99 ms. Found 8 JPA repository interfaces.
+2025-10-07T12:49:48.646Z  INFO 34686 --- [inca-fit] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-10-07T12:49:48.676Z  INFO 34686 --- [inca-fit] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-10-07T12:49:48.676Z  INFO 34686 --- [inca-fit] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.42]
+2025-10-07T12:49:48.722Z  INFO 34686 --- [inca-fit] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-10-07T12:49:48.724Z  INFO 34686 --- [inca-fit] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2364 ms
+2025-10-07T12:49:48.922Z DEBUG 34686 --- [inca-fit] [           main] j.LocalContainerEntityManagerFactoryBean : Building JPA container EntityManagerFactory for persistence unit 'default'
+2025-10-07T12:49:48.953Z  INFO 34686 --- [inca-fit] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-10-07T12:49:49.034Z  INFO 34686 --- [inca-fit] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.18.Final
+2025-10-07T12:49:49.073Z  INFO 34686 --- [inca-fit] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-10-07T12:49:49.197Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration boolean -> org.hibernate.type.BasicTypeReference@64656b9e
+2025-10-07T12:49:49.197Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration boolean -> org.hibernate.type.BasicTypeReference@64656b9e
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Boolean -> org.hibernate.type.BasicTypeReference@64656b9e
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration numeric_boolean -> org.hibernate.type.BasicTypeReference@6870cfac
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration org.hibernate.type.NumericBooleanConverter -> org.hibernate.type.BasicTypeReference@6870cfac
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration true_false -> org.hibernate.type.BasicTypeReference@45554613
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration org.hibernate.type.TrueFalseConverter -> org.hibernate.type.BasicTypeReference@45554613
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration yes_no -> org.hibernate.type.BasicTypeReference@63e5b8aa
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration org.hibernate.type.YesNoConverter -> org.hibernate.type.BasicTypeReference@63e5b8aa
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration byte -> org.hibernate.type.BasicTypeReference@2c9306d3
+2025-10-07T12:49:49.198Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration byte -> org.hibernate.type.BasicTypeReference@2c9306d3
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Byte -> org.hibernate.type.BasicTypeReference@2c9306d3
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration binary -> org.hibernate.type.BasicTypeReference@4270b142
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration byte[] -> org.hibernate.type.BasicTypeReference@4270b142
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration [B -> org.hibernate.type.BasicTypeReference@4270b142
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration binary_wrapper -> org.hibernate.type.BasicTypeReference@2dfa02c1
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration wrapper-binary -> org.hibernate.type.BasicTypeReference@2dfa02c1
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration image -> org.hibernate.type.BasicTypeReference@6314df3c
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration blob -> org.hibernate.type.BasicTypeReference@5785e813
+2025-10-07T12:49:49.199Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.sql.Blob -> org.hibernate.type.BasicTypeReference@5785e813
+2025-10-07T12:49:49.200Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration materialized_blob -> org.hibernate.type.BasicTypeReference@10b8b900
+2025-10-07T12:49:49.200Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration materialized_blob_wrapper -> org.hibernate.type.BasicTypeReference@6d294ddc
+2025-10-07T12:49:49.200Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration short -> org.hibernate.type.BasicTypeReference@2801827a
+2025-10-07T12:49:49.200Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration short -> org.hibernate.type.BasicTypeReference@2801827a
+2025-10-07T12:49:49.200Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Short -> org.hibernate.type.BasicTypeReference@2801827a
+2025-10-07T12:49:49.200Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration integer -> org.hibernate.type.BasicTypeReference@50bc3219
+2025-10-07T12:49:49.200Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration int -> org.hibernate.type.BasicTypeReference@50bc3219
+2025-10-07T12:49:49.200Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Integer -> org.hibernate.type.BasicTypeReference@50bc3219
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration long -> org.hibernate.type.BasicTypeReference@599f1b7
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration long -> org.hibernate.type.BasicTypeReference@599f1b7
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Long -> org.hibernate.type.BasicTypeReference@599f1b7
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration float -> org.hibernate.type.BasicTypeReference@22791b75
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration float -> org.hibernate.type.BasicTypeReference@22791b75
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Float -> org.hibernate.type.BasicTypeReference@22791b75
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration double -> org.hibernate.type.BasicTypeReference@64f4f12
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration double -> org.hibernate.type.BasicTypeReference@64f4f12
+2025-10-07T12:49:49.201Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Double -> org.hibernate.type.BasicTypeReference@64f4f12
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration big_integer -> org.hibernate.type.BasicTypeReference@37d28938
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.math.BigInteger -> org.hibernate.type.BasicTypeReference@37d28938
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration big_decimal -> org.hibernate.type.BasicTypeReference@7d0cd23c
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.math.BigDecimal -> org.hibernate.type.BasicTypeReference@7d0cd23c
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration character -> org.hibernate.type.BasicTypeReference@17c4dc5b
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration char -> org.hibernate.type.BasicTypeReference@17c4dc5b
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Character -> org.hibernate.type.BasicTypeReference@17c4dc5b
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration character_nchar -> org.hibernate.type.BasicTypeReference@6b0f266e
+2025-10-07T12:49:49.202Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration string -> org.hibernate.type.BasicTypeReference@4837f97e
+2025-10-07T12:49:49.203Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.String -> org.hibernate.type.BasicTypeReference@4837f97e
+2025-10-07T12:49:49.203Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration nstring -> org.hibernate.type.BasicTypeReference@53314f76
+2025-10-07T12:49:49.203Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration characters -> org.hibernate.type.BasicTypeReference@62a6674f
+2025-10-07T12:49:49.203Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration char[] -> org.hibernate.type.BasicTypeReference@62a6674f
+2025-10-07T12:49:49.203Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration [C -> org.hibernate.type.BasicTypeReference@62a6674f
+2025-10-07T12:49:49.203Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration wrapper-characters -> org.hibernate.type.BasicTypeReference@70881123
+2025-10-07T12:49:49.203Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration text -> org.hibernate.type.BasicTypeReference@703fa45
+2025-10-07T12:49:49.203Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration ntext -> org.hibernate.type.BasicTypeReference@5e905f2c
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration clob -> org.hibernate.type.BasicTypeReference@fddd7ae
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.sql.Clob -> org.hibernate.type.BasicTypeReference@fddd7ae
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration nclob -> org.hibernate.type.BasicTypeReference@3f6cce7f
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.sql.NClob -> org.hibernate.type.BasicTypeReference@3f6cce7f
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration materialized_clob -> org.hibernate.type.BasicTypeReference@2725ca05
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration materialized_clob_char_array -> org.hibernate.type.BasicTypeReference@7b9088f2
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration materialized_clob_character_array -> org.hibernate.type.BasicTypeReference@1a914089
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration materialized_nclob -> org.hibernate.type.BasicTypeReference@43d76a92
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration materialized_nclob_character_array -> org.hibernate.type.BasicTypeReference@4a2bf50f
+2025-10-07T12:49:49.204Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration materialized_nclob_char_array -> org.hibernate.type.BasicTypeReference@350323a0
+2025-10-07T12:49:49.205Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration Duration -> org.hibernate.type.BasicTypeReference@2506b881
+2025-10-07T12:49:49.205Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.Duration -> org.hibernate.type.BasicTypeReference@2506b881
+2025-10-07T12:49:49.205Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration LocalDateTime -> org.hibernate.type.BasicTypeReference@5d7dd549
+2025-10-07T12:49:49.205Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.LocalDateTime -> org.hibernate.type.BasicTypeReference@5d7dd549
+2025-10-07T12:49:49.205Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration LocalDate -> org.hibernate.type.BasicTypeReference@486bd064
+2025-10-07T12:49:49.205Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.LocalDate -> org.hibernate.type.BasicTypeReference@486bd064
+2025-10-07T12:49:49.205Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration LocalTime -> org.hibernate.type.BasicTypeReference@6459f4ea
+2025-10-07T12:49:49.205Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.LocalTime -> org.hibernate.type.BasicTypeReference@6459f4ea
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration OffsetDateTime -> org.hibernate.type.BasicTypeReference@740b9a50
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.OffsetDateTime -> org.hibernate.type.BasicTypeReference@740b9a50
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration OffsetDateTimeWithTimezone -> org.hibernate.type.BasicTypeReference@476fde05
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration OffsetDateTimeWithoutTimezone -> org.hibernate.type.BasicTypeReference@5111de7c
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration OffsetTime -> org.hibernate.type.BasicTypeReference@7ac48e10
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.OffsetTime -> org.hibernate.type.BasicTypeReference@7ac48e10
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration OffsetTimeUtc -> org.hibernate.type.BasicTypeReference@52354202
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration OffsetTimeWithTimezone -> org.hibernate.type.BasicTypeReference@6b1321b7
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration OffsetTimeWithoutTimezone -> org.hibernate.type.BasicTypeReference@342ee097
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration ZonedDateTime -> org.hibernate.type.BasicTypeReference@6ac45c0c
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.ZonedDateTime -> org.hibernate.type.BasicTypeReference@6ac45c0c
+2025-10-07T12:49:49.206Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration ZonedDateTimeWithTimezone -> org.hibernate.type.BasicTypeReference@12192604
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration ZonedDateTimeWithoutTimezone -> org.hibernate.type.BasicTypeReference@6075b369
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration date -> org.hibernate.type.BasicTypeReference@231cdda8
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.sql.Date -> org.hibernate.type.BasicTypeReference@231cdda8
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration time -> org.hibernate.type.BasicTypeReference@6b70d1fb
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.sql.Time -> org.hibernate.type.BasicTypeReference@6b70d1fb
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration timestamp -> org.hibernate.type.BasicTypeReference@3002e397
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.sql.Timestamp -> org.hibernate.type.BasicTypeReference@3002e397
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.util.Date -> org.hibernate.type.BasicTypeReference@3002e397
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration calendar -> org.hibernate.type.BasicTypeReference@7da1e005
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.util.Calendar -> org.hibernate.type.BasicTypeReference@7da1e005
+2025-10-07T12:49:49.207Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.util.GregorianCalendar -> org.hibernate.type.BasicTypeReference@7da1e005
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration calendar_date -> org.hibernate.type.BasicTypeReference@38159384
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration calendar_time -> org.hibernate.type.BasicTypeReference@55877274
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration instant -> org.hibernate.type.BasicTypeReference@723e2d08
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.Instant -> org.hibernate.type.BasicTypeReference@723e2d08
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration uuid -> org.hibernate.type.BasicTypeReference@6d4a82
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.util.UUID -> org.hibernate.type.BasicTypeReference@6d4a82
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration pg-uuid -> org.hibernate.type.BasicTypeReference@6d4a82
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration uuid-binary -> org.hibernate.type.BasicTypeReference@14f060b8
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration uuid-char -> org.hibernate.type.BasicTypeReference@7a0ab480
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration class -> org.hibernate.type.BasicTypeReference@79df80a4
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Class -> org.hibernate.type.BasicTypeReference@79df80a4
+2025-10-07T12:49:49.208Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration currency -> org.hibernate.type.BasicTypeReference@130cfc47
+2025-10-07T12:49:49.209Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration Currency -> org.hibernate.type.BasicTypeReference@130cfc47
+2025-10-07T12:49:49.209Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.util.Currency -> org.hibernate.type.BasicTypeReference@130cfc47
+2025-10-07T12:49:49.209Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration locale -> org.hibernate.type.BasicTypeReference@4eeab3e
+2025-10-07T12:49:49.209Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.util.Locale -> org.hibernate.type.BasicTypeReference@4eeab3e
+2025-10-07T12:49:49.209Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration serializable -> org.hibernate.type.BasicTypeReference@2b6fb197
+2025-10-07T12:49:49.209Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.io.Serializable -> org.hibernate.type.BasicTypeReference@2b6fb197
+2025-10-07T12:49:49.209Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration timezone -> org.hibernate.type.BasicTypeReference@2eb0cefe
+2025-10-07T12:49:49.209Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.util.TimeZone -> org.hibernate.type.BasicTypeReference@2eb0cefe
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration ZoneOffset -> org.hibernate.type.BasicTypeReference@5a2ae1ab
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.ZoneOffset -> org.hibernate.type.BasicTypeReference@5a2ae1ab
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration url -> org.hibernate.type.BasicTypeReference@2bec068b
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.net.URL -> org.hibernate.type.BasicTypeReference@2bec068b
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration vector -> org.hibernate.type.BasicTypeReference@7d59e968
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration float_vector -> org.hibernate.type.BasicTypeReference@55361f03
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration double_vector -> org.hibernate.type.BasicTypeReference@581c9bb7
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration byte_vector -> org.hibernate.type.BasicTypeReference@138f0661
+2025-10-07T12:49:49.210Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration row_version -> org.hibernate.type.BasicTypeReference@212fafd1
+2025-10-07T12:49:49.219Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration object -> org.hibernate.type.JavaObjectType@75e80a97
+2025-10-07T12:49:49.219Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.lang.Object -> org.hibernate.type.JavaObjectType@75e80a97
+2025-10-07T12:49:49.220Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration null -> org.hibernate.type.NullType@682e422c
+2025-10-07T12:49:49.221Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration imm_date -> org.hibernate.type.BasicTypeReference@5bb8e6fc
+2025-10-07T12:49:49.221Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration imm_time -> org.hibernate.type.BasicTypeReference@2726a511
+2025-10-07T12:49:49.221Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration imm_timestamp -> org.hibernate.type.BasicTypeReference@72c9ebfa
+2025-10-07T12:49:49.221Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration imm_calendar -> org.hibernate.type.BasicTypeReference@686cf8ad
+2025-10-07T12:49:49.221Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration imm_calendar_date -> org.hibernate.type.BasicTypeReference@747f6c5a
+2025-10-07T12:49:49.221Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration imm_calendar_time -> org.hibernate.type.BasicTypeReference@66e341e9
+2025-10-07T12:49:49.221Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration imm_binary -> org.hibernate.type.BasicTypeReference@5b48f0f4
+2025-10-07T12:49:49.221Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration imm_serializable -> org.hibernate.type.BasicTypeReference@546ed2a0
+2025-10-07T12:49:49.617Z  INFO 34686 --- [inca-fit] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-10-07T12:49:49.673Z  INFO 34686 --- [inca-fit] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-10-07T12:49:50.071Z  INFO 34686 --- [inca-fit] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2025-10-07T12:49:50.074Z  INFO 34686 --- [inca-fit] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-10-07T12:49:50.117Z  WARN 34686 --- [inca-fit] [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-07T12:49:50.148Z  INFO 34686 --- [inca-fit] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-10-07T12:49:50.160Z DEBUG 34686 --- [inca-fit] [           main] o.h.t.d.jdbc.spi.JdbcTypeRegistry        : addDescriptor(NCharTypeDescriptor) replaced previous registration(CharTypeDescriptor)
+2025-10-07T12:49:50.161Z DEBUG 34686 --- [inca-fit] [           main] o.h.t.d.jdbc.spi.JdbcTypeRegistry        : addDescriptor(NVarcharTypeDescriptor) replaced previous registration(VarcharTypeDescriptor)
+2025-10-07T12:49:50.161Z DEBUG 34686 --- [inca-fit] [           main] o.h.t.d.jdbc.spi.JdbcTypeRegistry        : addDescriptor(LongNVarcharTypeDescriptor) replaced previous registration(LongVarcharTypeDescriptor)
+2025-10-07T12:49:50.165Z DEBUG 34686 --- [inca-fit] [           main] o.h.t.d.jdbc.spi.JdbcTypeRegistry        : addDescriptor(NClobTypeDescriptor(DEFAULT)) replaced previous registration(ClobTypeDescriptor(DEFAULT))
+2025-10-07T12:49:50.173Z DEBUG 34686 --- [inca-fit] [           main] o.h.t.d.jdbc.spi.JdbcTypeRegistry        : addDescriptor(TimestampUtcDescriptor) replaced previous registration(TimestampUtcDescriptor)
+2025-10-07T12:49:50.181Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration org.hibernate.type.DurationType -> basicType@1(java.time.Duration,3015)
+2025-10-07T12:49:50.181Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration Duration -> basicType@1(java.time.Duration,3015)
+2025-10-07T12:49:50.181Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.type.BasicTypeRegistry     : Adding type registration java.time.Duration -> basicType@1(java.time.Duration,3015)
+2025-10-07T12:49:50.185Z DEBUG 34686 --- [inca-fit] [           main] o.h.type.spi.TypeConfiguration$Scope     : Scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration@7b1c501d] to MetadataBuildingContext [org.hibernate.boot.internal.MetadataBuildingContextRootImpl@5abbb273]
+2025-10-07T12:49:51.757Z  INFO 34686 --- [inca-fit] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-10-07T12:49:51.759Z DEBUG 34686 --- [inca-fit] [           main] o.h.type.spi.TypeConfiguration$Scope     : Scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration@7b1c501d] to SessionFactoryImplementor [org.hibernate.internal.SessionFactoryImpl@458704ee]
+2025-10-07T12:49:51.834Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table asistencias (
+        id bigint generated by default as identity,
+        asistio boolean not null,
+        fecha_checkin timestamp(6),
+        reserva_id bigint,
+        primary key (id)
+    )
+Hibernate:
+    create table asistencias (
+        id bigint generated by default as identity,
+        asistio boolean not null,
+        fecha_checkin timestamp(6),
+        reserva_id bigint,
+        primary key (id)
+    )
+2025-10-07T12:49:51.850Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table clases (
+        id bigint generated by default as identity,
+        capacidad_maxima integer not null check (capacidad_maxima>=1),
+        descripcion varchar(255),
+        nombre varchar(255) not null,
+        instructor_id bigint,
+        primary key (id)
+    )
+Hibernate:
+    create table clases (
+        id bigint generated by default as identity,
+        capacidad_maxima integer not null check (capacidad_maxima>=1),
+        descripcion varchar(255),
+        nombre varchar(255) not null,
+        instructor_id bigint,
+        primary key (id)
+    )
+2025-10-07T12:49:51.852Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table detalles_factura (
+        id bigint generated by default as identity,
+        concepto varchar(255),
+        monto numeric(38,2),
+        factura_id bigint,
+        primary key (id)
+    )
+Hibernate:
+    create table detalles_factura (
+        id bigint generated by default as identity,
+        concepto varchar(255),
+        monto numeric(38,2),
+        factura_id bigint,
+        primary key (id)
+    )
+2025-10-07T12:49:51.854Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table facturas (
+        id bigint generated by default as identity,
+        estado varchar(255),
+        fecha_emision date,
+        total numeric(38,2),
+        socio_id bigint,
+        primary key (id)
+    )
+Hibernate:
+    create table facturas (
+        id bigint generated by default as identity,
+        estado varchar(255),
+        fecha_emision date,
+        total numeric(38,2),
+        socio_id bigint,
+        primary key (id)
+    )
+2025-10-07T12:49:51.855Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table instructores (
+        id bigint generated by default as identity,
+        email varchar(255) not null,
+        especialidad varchar(255),
+        nombre_completo varchar(255) not null,
+        primary key (id)
+    )
+Hibernate:
+    create table instructores (
+        id bigint generated by default as identity,
+        email varchar(255) not null,
+        especialidad varchar(255),
+        nombre_completo varchar(255) not null,
+        primary key (id)
+    )
+2025-10-07T12:49:51.857Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table membresias (
+        id bigint generated by default as identity,
+        clases_incluidas integer,
+        descripcion varchar(255),
+        nombre varchar(255),
+        precio_base numeric(38,2),
+        precio_clase_extra numeric(38,2),
+        tipo_cobro enum ('CLASES_INCLUIDAS','CUOTA_FIJA','PAGO_POR_CLASE'),
+        primary key (id)
+    )
+Hibernate:
+    create table membresias (
+        id bigint generated by default as identity,
+        clases_incluidas integer,
+        descripcion varchar(255),
+        nombre varchar(255),
+        precio_base numeric(38,2),
+        precio_clase_extra numeric(38,2),
+        tipo_cobro enum ('CLASES_INCLUIDAS','CUOTA_FIJA','PAGO_POR_CLASE'),
+        primary key (id)
+    )
+2025-10-07T12:49:51.859Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table pagos (
+        id bigint generated by default as identity,
+        fecha_pago date not null,
+        metodo_pago varchar(255) not null,
+        monto_pagado float(53) not null,
+        factura_id bigint,
+        primary key (id)
+    )
+Hibernate:
+    create table pagos (
+        id bigint generated by default as identity,
+        fecha_pago date not null,
+        metodo_pago varchar(255) not null,
+        monto_pagado float(53) not null,
+        factura_id bigint,
+        primary key (id)
+    )
+2025-10-07T12:49:51.861Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table reservas (
+        id bigint generated by default as identity,
+        estado varchar(255),
+        fecha_hora timestamp(6),
+        clase_id bigint,
+        socio_id bigint,
+        primary key (id)
+    )
+Hibernate:
+    create table reservas (
+        id bigint generated by default as identity,
+        estado varchar(255),
+        fecha_hora timestamp(6),
+        clase_id bigint,
+        socio_id bigint,
+        primary key (id)
+    )
+2025-10-07T12:49:51.863Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    create table socios (
+        id bigint generated by default as identity,
+        activo boolean not null,
+        dni varchar(10) not null,
+        email varchar(255) not null,
+        fecha_registro date,
+        nombre varchar(255) not null,
+        password varchar(255) not null,
+        rol enum ('ADMIN','USUARIO'),
+        telefono varchar(255),
+        membresia_id bigint,
+        primary key (id)
+    )
+Hibernate:
+    create table socios (
+        id bigint generated by default as identity,
+        activo boolean not null,
+        dni varchar(10) not null,
+        email varchar(255) not null,
+        fecha_registro date,
+        nombre varchar(255) not null,
+        password varchar(255) not null,
+        rol enum ('ADMIN','USUARIO'),
+        telefono varchar(255),
+        membresia_id bigint,
+        primary key (id)
+    )
+2025-10-07T12:49:51.865Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists asistencias
+       drop constraint if exists UKlta5j51o90k96twvbp43p53ht
+Hibernate:
+    alter table if exists asistencias
+       drop constraint if exists UKlta5j51o90k96twvbp43p53ht
+2025-10-07T12:49:51.866Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists asistencias
+       add constraint UKlta5j51o90k96twvbp43p53ht unique (reserva_id)
+Hibernate:
+    alter table if exists asistencias
+       add constraint UKlta5j51o90k96twvbp43p53ht unique (reserva_id)
+2025-10-07T12:49:51.869Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists socios
+       drop constraint if exists UKk00ad11od89ejh58gm7tib51r
+Hibernate:
+    alter table if exists socios
+       drop constraint if exists UKk00ad11od89ejh58gm7tib51r
+2025-10-07T12:49:51.869Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists socios
+       add constraint UKk00ad11od89ejh58gm7tib51r unique (dni)
+Hibernate:
+    alter table if exists socios
+       add constraint UKk00ad11od89ejh58gm7tib51r unique (dni)
+2025-10-07T12:49:51.870Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists socios
+       drop constraint if exists UK6lsbbcv0o607ad0cbb1v5wxlt
+Hibernate:
+    alter table if exists socios
+       drop constraint if exists UK6lsbbcv0o607ad0cbb1v5wxlt
+2025-10-07T12:49:51.871Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists socios
+       add constraint UK6lsbbcv0o607ad0cbb1v5wxlt unique (email)
+Hibernate:
+    alter table if exists socios
+       add constraint UK6lsbbcv0o607ad0cbb1v5wxlt unique (email)
+2025-10-07T12:49:51.872Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists asistencias
+       add constraint FK76tcdci99bet3dog7ggsqkdod
+       foreign key (reserva_id)
+       references reservas
+Hibernate:
+    alter table if exists asistencias
+       add constraint FK76tcdci99bet3dog7ggsqkdod
+       foreign key (reserva_id)
+       references reservas
+2025-10-07T12:49:51.879Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists clases
+       add constraint FKamr1i7vbaau2m29b645ono8t3
+       foreign key (instructor_id)
+       references instructores
+Hibernate:
+    alter table if exists clases
+       add constraint FKamr1i7vbaau2m29b645ono8t3
+       foreign key (instructor_id)
+       references instructores
+2025-10-07T12:49:51.881Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists detalles_factura
+       add constraint FK83v4fjco4kw6r47jik8xcmuy7
+       foreign key (factura_id)
+       references facturas
+Hibernate:
+    alter table if exists detalles_factura
+       add constraint FK83v4fjco4kw6r47jik8xcmuy7
+       foreign key (factura_id)
+       references facturas
+2025-10-07T12:49:51.885Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists facturas
+       add constraint FKnw5umg3o0di0ge0v7c62v4vcm
+       foreign key (socio_id)
+       references socios
+Hibernate:
+    alter table if exists facturas
+       add constraint FKnw5umg3o0di0ge0v7c62v4vcm
+       foreign key (socio_id)
+       references socios
+2025-10-07T12:49:51.886Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists pagos
+       add constraint FKku6sutgbnirkcq3qam8i1uqb9
+       foreign key (factura_id)
+       references facturas
+Hibernate:
+    alter table if exists pagos
+       add constraint FKku6sutgbnirkcq3qam8i1uqb9
+       foreign key (factura_id)
+       references facturas
+2025-10-07T12:49:51.888Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists reservas
+       add constraint FKt5iyfcn0dn3tn93ol2uxjx5n0
+       foreign key (clase_id)
+       references clases
+Hibernate:
+    alter table if exists reservas
+       add constraint FKt5iyfcn0dn3tn93ol2uxjx5n0
+       foreign key (clase_id)
+       references clases
+2025-10-07T12:49:51.890Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists reservas
+       add constraint FKfh5n1bwcolcv2vi7sa721x7sd
+       foreign key (socio_id)
+       references socios
+Hibernate:
+    alter table if exists reservas
+       add constraint FKfh5n1bwcolcv2vi7sa721x7sd
+       foreign key (socio_id)
+       references socios
+2025-10-07T12:49:51.892Z DEBUG 34686 --- [inca-fit] [           main] org.hibernate.SQL                        :
+    alter table if exists socios
+       add constraint FK4w3sdpk251dxde78213n3vf0h
+       foreign key (membresia_id)
+       references membresias
+Hibernate:
+    alter table if exists socios
+       add constraint FK4w3sdpk251dxde78213n3vf0h
+       foreign key (membresia_id)
+       references membresias
+2025-10-07T12:49:51.895Z TRACE 34686 --- [inca-fit] [           main] o.h.type.spi.TypeConfiguration$Scope     : Handling #sessionFactoryCreated from [org.hibernate.internal.SessionFactoryImpl@458704ee] for TypeConfiguration
+2025-10-07T12:49:51.896Z  INFO 34686 --- [inca-fit] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-10-07T12:49:52.235Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:52.342Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:52.346Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:52.350Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:52.362Z  INFO 34686 --- [inca-fit] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-10-07T12:49:53.061Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:53.155Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:53.184Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:53.186Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:53.188Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:53.284Z  INFO 34686 --- [inca-fit] [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 pre-partial-flushes;
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2025-10-07T12:49:53.441Z  WARN 34686 --- [inca-fit] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-10-07T12:49:53.514Z  INFO 34686 --- [inca-fit] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2025-10-07T12:49:54.563Z  INFO 34686 --- [inca-fit] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name incaUserDetailsService
+2025-10-07T12:49:54.745Z DEBUG 34686 --- [inca-fit] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CsrfFilter, LogoutFilter, UsernamePasswordAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-10-07T12:49:55.086Z  INFO 34686 --- [inca-fit] [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
+2025-10-07T12:49:55.221Z  INFO 34686 --- [inca-fit] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-10-07T12:49:55.241Z  INFO 34686 --- [inca-fit] [           main] com.incafit.IncaFitApplication           : Started IncaFitApplication in 9.917 seconds (process running for 11.07)

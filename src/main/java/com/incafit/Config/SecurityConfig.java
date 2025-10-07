@@ -49,7 +49,7 @@ public class SecurityConfig {
                 )
                 .csrf(csrf -> csrf
                         // PERMITIR CSRF PARA EL REGISTRO (IMPORTANTE)
-                        .ignoringRequestMatchers("/registro/**")
+                        .ignoringRequestMatchers("/registro/**", "/procesar-registro")
                 )
                 .userDetailsService(userDetailsService); // Asegúrate de tener esta línea
         ;
