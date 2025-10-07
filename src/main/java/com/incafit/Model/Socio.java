@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDate;
 
 @Entity
@@ -45,20 +46,15 @@ public class Socio {
 
     private LocalDate fechaRegistro;
 
+    private String telefono;
 
     // Agregar relación
     @ManyToOne
     @JoinColumn(name = "membresia_id")
     private Membresia membresia;
 
-    // Agregar getter y setter
-    public Membresia getMembresia() {
-        return membresia;
-    }
-
-    public void setMembresia(Membresia membresia) {
-        this.membresia = membresia;
-    }
+    @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Reserva> reservas = new ArrayList<>();
 
 
     // Constructor, getters y setters
@@ -76,6 +72,8 @@ public class Socio {
         this.email = email;
         this.password = password;
     }
+
+    // Getters y Setters
 
     public Long getId() {
         return id;
@@ -109,6 +107,23 @@ public class Socio {
         this.email = email;
     }
 
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    // Agregar getter y setter
+    public Membresia getMembresia() {
+        return membresia;
+    }
+
+    public void setMembresia(Membresia membresia) {
+        this.membresia = membresia;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -139,5 +154,13 @@ public class Socio {
 
     public void setActivo(boolean activo) {
         this.activo = activo;
+    }
+
+    public List<Reserva> getReservas() {
+        return reservas;
+    }
+
+    public void setReservas(List<Reserva> reservas) {
+        this.reservas = reservas;
     }
 }

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}">
+  <title>IncaFIT - Simulación de Pago</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container-fluid py-5" style="background-color: #f8f9fa; min-height: 80vh;">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg border-0 rounded-lg mt-5">
+        <div class="card-header text-center" style="background-color: var(--fitness-primary); color: white;">
+          <h3 class="fw-light my-4">Paso 3: Simulación de Pago</h3>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-center mb-4">Introduce tus datos de pago para completar el registro. <strong>(Esto es una simulación)</strong></p>
+
+          <form th:action="@{/registro/paso3}" th:object="${registroDto}" method="post">
+            <!-- Campo para el nombre en la tarjeta -->
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="nombreTarjeta" th:field="*{nombreTarjeta}" placeholder="Nombre en la Tarjeta" required>
+              <label for="nombreTarjeta">Nombre en la Tarjeta</label>
+            </div>
+
+            <!-- Campo para el número de tarjeta -->
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="numeroTarjeta" th:field="*{numeroTarjeta}" placeholder="Número de Tarjeta" required>
+              <label for="numeroTarjeta">Número de Tarjeta</label>
+            </div>
+
+            <div class="row">
+              <!-- Campo para la fecha de caducidad -->
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="fechaCaducidad" th:field="*{fechaCaducidad}" placeholder="MM/YY" required>
+                  <label for="fechaCaducidad">Fecha de Caducidad (MM/YY)</label>
+                </div>
+              </div>
+              <!-- Campo para el CVV -->
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="cvv" th:field="*{cvv}" placeholder="CVV" required>
+                  <label for="cvv">CVV</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-primary-custom btn-lg">Finalizar Registro</button>
+            </div>
+          </form>
+        </div>
+        <div class="card-footer text-center py-3">
+          <div class="small">
+            <a th:href="@{/registro/paso2}">Volver al paso anterior</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

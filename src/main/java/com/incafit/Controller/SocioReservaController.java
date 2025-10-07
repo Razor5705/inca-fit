@@ -1,8 +1,10 @@
 // SocioReservaController.java
 package com.incafit.Controller;
 
+import com.incafit.Model.Clase;
 import com.incafit.Model.Socio;
 import com.incafit.Model.Reserva;
+import com.incafit.service.ClaseService;
 import com.incafit.service.FacturaService;
 import com.incafit.service.ReservaService;
 import com.incafit.service.SocioService;
@@ -20,15 +22,16 @@ public class SocioReservaController {
     private final SocioService socioService;
     private final ReservaService reservaService;
     private final FacturaService facturaService;
+    private final ClaseService claseService;
 
     public SocioReservaController(SocioService socioService,
                                   ReservaService reservaService,
-                                  FacturaService facturaService
-                                  ) {
+                                  FacturaService facturaService,
+                                  ClaseService claseService) {
         this.socioService = socioService;
         this.reservaService = reservaService;
         this.facturaService = facturaService;
-
+        this.claseService = claseService;
     }
 
     @GetMapping("/reservas")
@@ -41,14 +44,15 @@ public class SocioReservaController {
     @GetMapping("/reservas/nueva")
     public String mostrarFormularioReserva(Model model) {
         model.addAttribute("reserva", new Reserva());
+        model.addAttribute("clases", claseService.obtenerTodasLasClases());
         return "socio/reservas/formulario";
     }
 
     @PostMapping("/reservas/guardar")
-    public String guardarReserva(@ModelAttribute Reserva reserva, RedirectAttributes redirect) {
+    public String guardarReserva(@RequestParam("claseId") Long claseId, @ModelAttribute Reserva reserva, RedirectAttributes redirect) {
         try {
             Socio socio = obtenerSocioActual();
-            reservaService.crearReserva(socio, reserva.getClase(), reserva.getFechaHora());
+            reservaService.crearReserva(socio, claseId, reserva.getFechaHora());
             redirect.addFlashAttribute("success", "Reserva creada correctamente");
         } catch (Exception e) {
             redirect.addFlashAttribute("error", "Error al crear reserva: " + e.getMessage());

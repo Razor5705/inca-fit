@@ -91,6 +91,12 @@ public class SocioServiceImpl implements SocioService {
         return socio;
     }
 
+    @Override
+    public boolean existeDni(String dni) {
+        boolean existe = socioRepository.existsByDni(dni);
+        log.info("🔍 Verificando DNI '{}': {}", dni, existe ? "EXISTE" : "NO EXISTE");
+        return existe;
+    }
 
 
     @Override

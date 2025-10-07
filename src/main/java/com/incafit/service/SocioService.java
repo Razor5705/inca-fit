@@ -12,5 +12,5 @@ public interface SocioService {
     void cambiarEstadoSocio(Long id, boolean estado);
     Optional<Socio> obtenerSocioPorEmail(String email); // Método añadido
     boolean existeEmail(String email); // Añade esta línea
-
+    boolean existeDni(String dni); // Añade esta línea para DNI
 }

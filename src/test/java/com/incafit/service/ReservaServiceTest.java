@@ -1,7 +1,9 @@
 package com.incafit.service;
 
+import com.incafit.Model.Clase;
 import com.incafit.Model.Reserva;
 import com.incafit.Model.Socio;
+import com.incafit.Repository.ClaseRepository;
 import com.incafit.Repository.ReservaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +27,9 @@ public class ReservaServiceTest {
     @Mock
     private ReservaRepository reservaRepository;
 
+    @Mock
+    private ClaseRepository claseRepository;
+
     @InjectMocks
     private ReservaServiceImpl reservaService;
 
@@ -33,7 +38,12 @@ public class ReservaServiceTest {
         // Given
         Socio socio = new Socio();
         socio.setId(1L);
-        String clase = "Yoga";
+
+        Long claseId = 1L;
+        Clase clase = new Clase();
+        clase.setId(claseId);
+        clase.setNombre("Yoga");
+
         LocalDateTime fechaHora = LocalDateTime.now();
 
         Reserva reserva = new Reserva();
@@ -42,10 +52,11 @@ public class ReservaServiceTest {
         reserva.setFechaHora(fechaHora);
         reserva.setEstado("CONFIRMADA");
 
+        when(claseRepository.findById(claseId)).thenReturn(Optional.of(clase));
         when(reservaRepository.save(any(Reserva.class))).thenReturn(reserva);
 
         // When
-        Reserva reservaCreada = reservaService.crearReserva(socio, clase, fechaHora);
+        Reserva reservaCreada = reservaService.crearReserva(socio, claseId, fechaHora);
 
         // Then
         assertEquals("CONFIRMADA", reservaCreada.getEstado());
