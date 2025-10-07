@@ -16,7 +16,7 @@
                     <div th:if="${param.registroExitoso}" class="alert alert-success">
                         ¡Registro exitoso! Por favor <a th:href="@{/login}">inicia sesión</a>.
                     </div>
-                    <form th:action="@{/procesar-registro}" th:object="${socio}" method="post">
+                    <form th:action="@{/registro/paso1}" th:object="${registroDto}" method="post">
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="dni" th:field="*{dni}" placeholder="DNI" required>
                             <label for="dni">DNI</label>
@@ -48,7 +48,7 @@
                             <div th:if="${#fields.hasErrors('passwordConfirm')}" class="text-danger" th:errors="*{passwordConfirm}"></div>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary-custom btn-lg">Registrarse</button>
+                            <button type="submit" class="btn btn-primary-custom btn-lg">Siguiente</button>
                         </div>
                     </form>
                 </div>
