@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/admin")
-public class AnimeDashboardController {
+@RequestMapping("/admin/dashboard")
+public class AdminDashboardController {
     private final EstadisticaService estadisticaService;
 
-    public AnimeDashboardController(EstadisticaService estadisticaService) {
+    public AdminDashboardController(EstadisticaService estadisticaService) {
         this.estadisticaService = estadisticaService;
     }
 

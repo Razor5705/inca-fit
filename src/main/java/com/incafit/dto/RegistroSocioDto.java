@@ -1,5 +1,7 @@
 package com.incafit.dto;
 
+import com.incafit.validation.DatosPersonales;
+import com.incafit.validation.PagoInfo;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -7,27 +9,43 @@ import jakarta.validation.constraints.Size;
 
 public class RegistroSocioDto {
 
-    @NotBlank(message = "El DNI es obligatorio")
-    @Size(min = 8, max = 10, message = "El DNI debe tener entre 8 y 10 caracteres")
+    @NotBlank(message = "El DNI es obligatorio", groups = DatosPersonales.class)
+    @Size(min = 8, max = 10, message = "El DNI debe tener entre 8 y 10 caracteres", groups = DatosPersonales.class)
     private String dni;
 
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "El nombre es obligatorio", groups = DatosPersonales.class)
     private String nombre;
 
-    @NotBlank(message = "El teléfono es obligatorio")
+    @NotBlank(message = "El teléfono es obligatorio", groups = DatosPersonales.class)
     private String telefono;
 
-    @NotBlank(message = "El email es obligatorio")
-    @Email(message = "Debe ser un email válido")
+    @NotBlank(message = "El email es obligatorio", groups = DatosPersonales.class)
+    @Email(message = "Debe ser un email válido", groups = DatosPersonales.class)
     private String email;
 
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
+    @NotBlank(message = "La contraseña es obligatoria", groups = DatosPersonales.class)
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres", groups = DatosPersonales.class)
     private String password;
 
     private String passwordConfirm;
 
     private Long membresiaId;
+
+    // Campos para el pago simulado
+    @NotBlank(message = "El nombre en la tarjeta es obligatorio", groups = PagoInfo.class)
+    private String nombreTarjeta;
+
+    @NotBlank(message = "El número de tarjeta es obligatorio", groups = PagoInfo.class)
+    @Pattern(regexp = "^\\d{16}$", message = "El número de tarjeta debe tener 16 dígitos", groups = PagoInfo.class)
+    private String numeroTarjeta;
+
+    @NotBlank(message = "La fecha de caducidad es obligatoria", groups = PagoInfo.class)
+    @Pattern(regexp = "^(0[1-9]|1[0-2])\\/\\d{2}$", message = "El formato debe ser MM/AA", groups = PagoInfo.class)
+    private String fechaCaducidad;
+
+    @NotBlank(message = "El CVV es obligatorio", groups = PagoInfo.class)
+    @Pattern(regexp = "^\\d{3,4}$", message = "El CVV debe tener 3 o 4 dígitos", groups = PagoInfo.class)
+    private String cvv;
 
     // Getters y Setters
 
@@ -86,23 +104,6 @@ public class RegistroSocioDto {
     public void setMembresiaId(Long membresiaId) {
         this.membresiaId = membresiaId;
     }
-
-    // Campos para el pago simulado
-    @NotBlank(message = "El nombre en la tarjeta es obligatorio")
-    private String nombreTarjeta;
-
-    @NotBlank(message = "El número de tarjeta es obligatorio")
-    @Pattern(regexp = "^\\d{16}$", message = "El número de tarjeta debe tener 16 dígitos")
-    private String numeroTarjeta;
-
-    @NotBlank(message = "La fecha de caducidad es obligatoria")
-    @Pattern(regexp = "^(0[1-9]|1[0-2])\\/\\d{2}$", message = "El formato debe ser MM/AA")
-    private String fechaCaducidad;
-
-    @NotBlank(message = "El CVV es obligatorio")
-    @Pattern(regexp = "^\\d{3,4}$", message = "El CVV debe tener 3 o 4 dígitos")
-    private String cvv;
-
 
     public String getNombreTarjeta() {
         return nombreTarjeta;

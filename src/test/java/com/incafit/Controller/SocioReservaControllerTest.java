@@ -43,7 +43,8 @@ public class SocioReservaControllerTest {
     void setUp() {
         Socio mockSocio = new Socio();
         mockSocio.setId(1L);
-        when(socioService.obtenerSocioPorEmail("user@example.com")).thenReturn(Optional.of(mockSocio));
+        // Corregido para usar el método que realmente se llama en el controlador
+        when(socioService.obtenerSocioConReservasPorEmail("user@example.com")).thenReturn(Optional.of(mockSocio));
     }
 
     @Test

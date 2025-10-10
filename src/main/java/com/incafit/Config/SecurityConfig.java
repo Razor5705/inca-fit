@@ -15,9 +15,11 @@ public class SecurityConfig {
 
 
     private final UserDetailsService userDetailsService;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    public SecurityConfig(UserDetailsService userDetailsService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
         this.userDetailsService = userDetailsService;
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
     }
 
 
@@ -30,15 +32,16 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index", "/registro/**", "/login",
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/registro/**").permitAll()
+                        .requestMatchers("/", "/index", "/registro", "/procesar-registro", "/login",
                                 "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/socios/**").hasRole("ADMIN")
                         .requestMatchers("/socio/**").hasAnyRole("USUARIO", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")  // Asegúrate que coincida con tu controlador
-                        .defaultSuccessUrl("/dashboard", true)
+                        .loginPage("/login")
+                        .successHandler(customAuthenticationSuccessHandler) // Usar el manejador personalizado
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
@@ -49,7 +52,7 @@ public class SecurityConfig {
                 )
                 .csrf(csrf -> csrf
                         // PERMITIR CSRF PARA EL REGISTRO (IMPORTANTE)
-                        .ignoringRequestMatchers("/registro/**", "/procesar-registro")
+                        .ignoringRequestMatchers("/procesar-registro")
                 )
                 .userDetailsService(userDetailsService); // Asegúrate de tener esta línea
         ;

@@ -98,6 +98,20 @@ public class SocioServiceImpl implements SocioService {
         return socio;
     }
 
+    @Override
+    @Transactional
+    public Optional<Socio> obtenerSocioConReservasPorEmail(String email) {
+        log.info("🔍 Buscando socio con reservas por email: {}", email);
+        Optional<Socio> socioOpt = socioRepository.findByEmail(email);
+        socioOpt.ifPresent(socio -> {
+            log.info("   - Socio encontrado. Inicializando reservas...");
+            // Forzar la inicialización de la colección de reservas dentro de la transacción
+            socio.getReservas().size();
+            log.info("   - Reservas inicializadas. Total: {}", socio.getReservas().size());
+        });
+        return socioOpt;
+    }
+
 
 
     @Override

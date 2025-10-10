@@ -16,15 +16,4 @@ INSERT INTO membresias (nombre, descripcion, tipo_cobro, precio_base, clases_inc
 ('Premium', 'Acceso completo, incluyendo todas las clases.', 'CUOTA_FIJA', 49.99, NULL, NULL),
 ('Anual', 'Acceso premium por un año a un precio reducido.', 'CUOTA_FIJA', 499.99, NULL, NULL);
 
--- Inserción de Socios de prueba (sin reservas iniciales)
--- Contraseña para todos es 'password' (sin encriptar para H2, Spring Security se encargará en la app)
-INSERT INTO socios (dni, nombre, email, password, telefono, membresia_id, activo, fecha_registro, rol) VALUES
-('11223344A', 'Elena Navarro', 'elena.navarro@test.com', 'password123', '611223344', 1, true, CURDATE(), 'USUARIO'),
-('55667788B', 'Javier Martin', 'javier.martin@test.com', 'password123', '655667788', 2, true, CURDATE(), 'USUARIO'),
-('99887766C', 'Admin User', 'admin@incafit.com', 'adminpass', '699887766', 2, true, CURDATE(), 'ADMIN');
-
--- No insertar reservas para usuarios nuevos para cumplir con la Tarea 3
--- Las reservas de prueba se pueden añadir manualmente si es necesario para los administradores.
--- Ejemplo de reserva para un admin (asumiendo que el socio con id 3 es el admin)
--- INSERT INTO reservas (socio_id, clase_id, fecha_hora, estado) VALUES
--- (3, 1, '2024-10-15 18:00:00', 'CONFIRMADA');
+-- La inserción de socios ahora se maneja mediante DataInitializer.java para asegurar el correcto hasheo de contraseñas.
