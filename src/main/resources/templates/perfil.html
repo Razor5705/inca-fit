@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}">
+  <title>Mi Perfil - IncaFIT</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container-fluid py-5" style="background-color: #f8f9fa; min-height: 80vh;">
+  <div class="container">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-lg-3 mb-4">
+        <div class="feature-card p-4">
+          <div class="text-center mb-4">
+            <img src="https://ui-avatars.com/api/?name=[[${socio.nombre}]]&background=1a2a6c&color=fff&size=100"
+                 class="rounded-circle mb-3" alt="Avatar">
+            <h5 th:text="${socio.nombre}">Nombre Usuario</h5>
+            <span class="badge" th:classappend="${socio.rol == 'ADMIN'} ? 'bg-warning' : 'bg-primary'"
+                  th:text="${socio.rol}">USUARIO</span>
+          </div>
+          <nav class="nav flex-column">
+            <a class="nav-link active" href="#datos-personales" style="color: var(--fitness-primary);">
+              <i class="fas fa-user me-2"></i>Datos Personales
+            </a>
+            <a class="nav-link" href="#membresia" style="color: var(--fitness-secondary);">
+              <i class="fas fa-id-card me-2"></i>Mi Membresía
+            </a>
+            <a class="nav-link" href="#seguridad" style="color: var(--fitness-accent);">
+              <i class="fas fa-lock me-2"></i>Seguridad
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenido Principal -->
+      <div class="col-lg-9">
+        <!-- Alertas -->
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+          <i class="fas fa-check-circle me-2"></i>
+          <span th:text="${param.success}">Perfil actualizado correctamente</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Datos Personales -->
+        <div class="feature-card mb-4">
+          <div class="card-header" style="background: linear-gradient(135deg, var(--fitness-primary), var(--fitness-secondary)); color: white;">
+            <h5 class="mb-0"><i class="fas fa-user me-2"></i>Datos Personales</h5>
+          </div>
+          <div class="card-body">
+            <form th:action="@{/perfil/actualizar}" th:object="${socio}" method="post">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Nombre Completo</label>
+                  <input type="text" class="form-control" th:field="*{nombre}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">DNI</label>
+                  <input type="text" class="form-control" th:field="*{dni}" readonly>
+                  <small class="text-muted">El DNI no se puede modificar</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" th:field="*{email}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Teléfono</label>
+                  <input type="tel" class="form-control" th:field="*{telefono}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Fecha de Registro</label>
+                  <input type="text" class="form-control" th:value="*{fechaRegistro}" readonly>
+                </div>
+              </div>
+              <div class="text-end">
+                <button type="submit" class="btn btn-primary-custom">
+                  <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Membresía -->
+        <div class="feature-card mb-4">
+          <div class="card-header" style="background: linear-gradient(135deg, var(--fitness-primary), var(--fitness-secondary)); color: white;">
+            <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Mi Membresía</h5>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h6 th:text="${socio.membresia.nombre}" style="color: var(--fitness-primary);">Premium</h6>
+                <p class="text-muted mb-2" th:text="${socio.membresia.descripcion}">
+                  Acceso ilimitado a todas las clases y áreas del gimnasio
+                </p>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Activa
+                                    </span>
+                  <span class="badge" style="background-color: var(--fitness-accent); color: black;">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        <span th:text="'Próximo pago: ' + ${proximoPago}">Próximo pago: 15/10/2024</span>
+                                    </span>
+                </div>
+              </div>
+              <div class="col-md-4 text-end">
+                <div class="h4 mb-2" style="color: var(--fitness-primary);"
+                     th:text="'€' + ${#numbers.formatDecimal(socio.membresia.precioBase, 1, 2)}">€49.90</div>
+                <div class="btn-group">
+                  <a th:href="@{/membresia/detalles}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-eye me-1"></i>Ver Detalles
+                  </a>
+                  <a th:href="@{/membresia/actualizar}" class="btn btn-primary-custom btn-sm">
+                    <i class="fas fa-sync me-1"></i>Actualizar
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seguridad -->
+        <div class="feature-card">
+          <div class="card-header" style="background: linear-gradient(135deg, var(--fitness-primary), var(--fitness-secondary)); color: white;">
+            <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Seguridad</h5>
+          </div>
+          <div class="card-body">
+            <form th:action="@{/perfil/cambiar-password}" method="post">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Contraseña Actual</label>
+                  <input type="password" class="form-control" name="currentPassword" required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Nueva Contraseña</label>
+                  <input type="password" class="form-control" name="newPassword" minlength="6" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Confirmar Nueva Contraseña</label>
+                  <input type="password" class="form-control" name="confirmPassword" required>
+                </div>
+              </div>
+              <div class="text-end">
+                <button type="submit" class="btn" style="background-color: var(--fitness-accent); color: black;">
+                  <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

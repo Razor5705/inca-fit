@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}">
+  <title>Acerca de - IncaFIT</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container-fluid py-5" style="background-color: #f8f9fa; min-height: 80vh;">
+  <div class="container">
+    <!-- Header Section -->
+    <div class="row mb-5">
+      <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold mb-4" style="color: var(--fitness-primary);">Acerca de IncaFIT</h1>
+        <p class="lead">Transformando vidas a través del fitness desde 2020</p>
+      </div>
+    </div>
+
+    <!-- Nuestra Historia -->
+    <div class="row mb-5 align-items-center">
+      <div class="col-lg-6">
+        <h2 class="mb-4" style="color: var(--fitness-primary);">Nuestra Historia</h2>
+        <p class="mb-3">IncaFIT nació de la pasión por el fitness y el bienestar. Fundada en 2025, nuestra misión ha sido siempre hacer el ejercicio accesible para todos, combinando la sabiduría ancestral con las últimas tecnologías.</p>
+        <p class="mb-3">Comenzamos como un pequeño estudio en Lima y hoy somos la comunidad fitness más grande del Perú, con más de 5,000 miembros activos y 120 entrenadores certificados.</p>
+        <div class="row mt-4">
+          <div class="col-md-4 text-center">
+            <div class="stat-number" style="color: var(--fitness-primary);">5,000+</div>
+            <p class="text-muted">Miembros Activos</p>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="stat-number" style="color: var(--fitness-secondary);">120+</div>
+            <p class="text-muted">Entrenadores</p>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="stat-number" style="color: var(--fitness-accent);">5</div>
+            <p class="text-muted">Años de Experiencia</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="feature-card p-4 text-center">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+               alt="Nuestro equipo" class="img-fluid rounded">
+        </div>
+      </div>
+    </div>
+
+    <!-- Nuestra Misión -->
+    <div class="row mb-5 py-5 rounded" style="background: linear-gradient(135deg, var(--fitness-primary), var(--fitness-secondary)); color: white;">
+      <div class="col-12 text-center mb-4">
+        <h2>Nuestra Misión y Valores</h2>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="feature-icon mb-3">
+          <i class="fas fa-heart"></i>
+        </div>
+        <h4>Pasión</h4>
+        <p>Amamos lo que hacemos y nos esforzamos por transmitir esa pasión a cada uno de nuestros miembros.</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="feature-icon mb-3">
+          <i class="fas fa-users"></i>
+        </div>
+        <h4>Comunidad</h4>
+        <p>Creemos en el poder de la comunidad para motivar, inspirar y lograr resultados extraordinarios.</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="feature-icon mb-3">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h4>Excelencia</h4>
+        <p>Nos comprometemos con los más altos estándares de calidad en todos nuestros servicios.</p>
+      </div>
+    </div>
+
+    <!-- Nuestro Equipo -->
+    <div class="row mb-5">
+      <div class="col-12 text-center mb-5">
+        <h2 class="section-title">Conoce a Nuestro Equipo</h2>
+        <p class="lead">Profesionales apasionados por tu bienestar</p>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="feature-card text-center p-4">
+          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+               class="rounded-circle mx-auto mb-3" style="width: 150px; height: 150px; object-fit: cover;" alt="Carlos Mendoza">
+          <h5>Carlos Mendoza</h5>
+          <p class="text-muted">Director General</p>
+          <p class="small">Más de 15 años de experiencia en gestión deportiva y wellness.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="feature-card text-center p-4">
+          <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+               class="rounded-circle mx-auto mb-3" style="width: 150px; height: 150px; object-fit: cover;" alt="Ana Rodríguez">
+          <h5>Ana Rodríguez</h5>
+          <p class="text-muted">Jefa de Entrenadores</p>
+          <p class="small">Especialista en entrenamiento funcional y rehabilitación deportiva.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="feature-card text-center p-4">
+          <img src="https://images.unsplash.com/photo-1545167622-3a6ac756afa4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+               class="rounded-circle mx-auto mb-3" style="width: 150px; height: 150px; object-fit: cover;" alt="Miguel Torres">
+          <h5>Miguel Torres</h5>
+          <p class="text-muted">Nutricionista Deportivo</p>
+          <p class="small">Expertos en planes nutricionales personalizados para atletas.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instalaciones -->
+    <div class="row mb-5">
+      <div class="col-12 text-center mb-4">
+        <h2 class="section-title">Nuestras Instalaciones</h2>
+      </div>
+      <div class="col-md-6 mb-4">
+        <div class="feature-card">
+          <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+               class="card-img-top" alt="Área de Cardio">
+          <div class="card-body">
+            <h5 class="card-title">Área de Cardio de Última Generación</h5>
+            <p class="card-text">Equipos Technogym, Life Fitness y Matrix con tecnología touch.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-4">
+        <div class="feature-card">
+          <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+               class="card-img-top" alt="Estudio de Yoga">
+          <div class="card-body">
+            <h5 class="card-title">Estudio de Yoga y Pilates</h5>
+            <p class="card-text">Espacio dedicado con equipos profesionales y ambiente relajante.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contacto -->
+    <div class="row py-5 rounded" style="background: linear-gradient(135deg, var(--fitness-primary), var(--fitness-secondary)); color: white;">
+      <div class="col-md-8">
+        <h3>¿Tienes preguntas?</h3>
+        <p class="mb-0">Estamos aquí para ayudarte. Contáctanos y te responderemos a la brevedad.</p>
+      </div>
+      <div class="col-md-4 text-end">
+        <a th:href="@{/contacto}" class="btn btn-primary-custom">Contáctanos</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

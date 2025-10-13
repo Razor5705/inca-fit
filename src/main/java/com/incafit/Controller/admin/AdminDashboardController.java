@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/admin")
-public class AnimeDashboardController {
+public class AdminDashboardController {
     private final EstadisticaService estadisticaService;
 
-    public AnimeDashboardController(EstadisticaService estadisticaService) {
+    public AdminDashboardController(EstadisticaService estadisticaService) {
         this.estadisticaService = estadisticaService;
     }
 

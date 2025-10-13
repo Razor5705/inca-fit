@@ -13,4 +13,7 @@ public interface SocioService {
     Optional<Socio> obtenerSocioPorEmail(String email); // Método añadido
     boolean existeEmail(String email); // Añade esta línea
     boolean existeDni(String dni); // Añade esta línea para DNI
+    Optional<Socio> obtenerSocioConReservasPorEmail(String email);
+
+
 }

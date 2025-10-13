@@ -93,7 +93,7 @@ public class SocioReservaController {
     private Socio obtenerSocioActual() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return socioService.obtenerSocioPorEmail(email)
+        return socioService.obtenerSocioConReservasPorEmail(email)
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado con email: " + email));
     }
 }

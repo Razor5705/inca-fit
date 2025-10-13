@@ -19,7 +19,7 @@ public class DashboardController {
     @GetMapping("/dashboard")
     public String dashboard(Model model, Authentication authentication) {
         String email = authentication.getName();
-        Socio socio = socioService.obtenerSocioPorEmail(email)
+        Socio socio = socioService.obtenerSocioConReservasPorEmail(email)
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado con email: " + email));
 
         model.addAttribute("socio", socio);
