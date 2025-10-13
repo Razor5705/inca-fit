@@ -60,7 +60,7 @@
                       <option value="">-- Sin membresía --</option>
                       <option th:each="mem : ${membresias}"
                               th:value="${mem.id}"
-                              th:text="${mem.nombre}"></option>
+                              th:text="${mem.tipoMembresia}"></option>
                     </select>
                     <label for="membresia">Membresía</label>
                   </div>
