@@ -4,6 +4,7 @@ import com.incafit.Model.Membresia;
 import com.incafit.Repository.MembresiaRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MembresiaServiceImpl implements MembresiaService {
@@ -15,22 +16,22 @@ public class MembresiaServiceImpl implements MembresiaService {
     }
 
     @Override
-    public List<Membresia> obtenerTodasMembresias() {
+    public List<Membresia> findAll() {
         return membresiaRepository.findAll();
     }
 
     @Override
-    public Membresia guardarMembresia(Membresia membresia) {
+    public Optional<Membresia> findById(Long id) {
+        return membresiaRepository.findById(id);
+    }
+
+    @Override
+    public Membresia save(Membresia membresia) {
         return membresiaRepository.save(membresia);
     }
 
     @Override
-    public Membresia obtenerMembresiaPorId(Long id) {
-        return membresiaRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public void eliminarMembresia(Long id) {
+    public void deleteById(Long id) {
         membresiaRepository.deleteById(id);
     }
 }
