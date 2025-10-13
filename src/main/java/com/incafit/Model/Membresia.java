@@ -1,6 +1,7 @@
 package com.incafit.Model;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -10,25 +11,51 @@ public class Membresia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombre;
+    @Column(nullable = false)
+    private String tipoMembresia;
+
+    @Column(nullable = false)
+    private BigDecimal precio;
+
+    @Column(nullable = false)
+    private Integer duracionDias;
+
+    @Column(length = 1000)
     private String descripcion;
-
-    @Enumerated(EnumType.STRING)
-    private TipoCobro tipoCobro;
-
-    private BigDecimal precioBase;
-    private Integer clasesIncluidas;
-    private BigDecimal precioClaseExtra;
 
     public Membresia() {
     }
 
-    public String getNombre() {
-        return nombre;
+    public Long getId() {
+        return id;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTipoMembresia() {
+        return tipoMembresia;
+    }
+
+    public void setTipoMembresia(String tipoMembresia) {
+        this.tipoMembresia = tipoMembresia;
+    }
+
+    public BigDecimal getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
+    }
+
+    public Integer getDuracionDias() {
+        return duracionDias;
+    }
+
+    public void setDuracionDias(Integer duracionDias) {
+        this.duracionDias = duracionDias;
     }
 
     public String getDescripcion() {
@@ -37,37 +64,5 @@ public class Membresia {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
-    }
-
-    public TipoCobro getTipoCobro() {
-        return tipoCobro;
-    }
-
-    public void setTipoCobro(TipoCobro tipoCobro) {
-        this.tipoCobro = tipoCobro;
-    }
-
-    public BigDecimal getPrecioBase() {
-        return precioBase;
-    }
-
-    public void setPrecioBase(BigDecimal precioBase) {
-        this.precioBase = precioBase;
-    }
-
-    public Integer getClasesIncluidas() {
-        return clasesIncluidas;
-    }
-
-    public void setClasesIncluidas(Integer clasesIncluidas) {
-        this.clasesIncluidas = clasesIncluidas;
-    }
-
-    public BigDecimal getPrecioClaseExtra() {
-        return precioClaseExtra;
-    }
-
-    public void setPrecioClaseExtra(BigDecimal precioClaseExtra) {
-        this.precioClaseExtra = precioClaseExtra;
     }
 }

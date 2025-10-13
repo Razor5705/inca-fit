@@ -31,13 +31,13 @@ public class FacturaServiceImpl implements FacturaService {
         Factura factura = new Factura();
         factura.setSocio(socio);
         factura.setFechaEmision(LocalDate.now());
-        factura.setTotal(membresia.getPrecioBase());
+        factura.setTotal(membresia.getPrecio());
         factura.setEstado("PENDIENTE");
 
         // Crear detalle de factura
         DetalleFactura detalle = new DetalleFactura();
-        detalle.setConcepto("Membresía: " + membresia.getNombre());
-        detalle.setMonto(membresia.getPrecioBase());
+        detalle.setConcepto("Membresía: " + membresia.getTipoMembresia());
+        detalle.setMonto(membresia.getPrecio());
         detalle.setFactura(factura);
 
         factura.getDetalles().add(detalle);

@@ -27,7 +27,7 @@
               <div th:each="membresia : ${membresias}" class="col-md-4 mb-4">
                 <div class="card h-100 text-center">
                   <div class="card-header bg-light">
-                    <h5 th:text="${membresia.nombre}">Nombre de Membresía</h5>
+                    <h5 th:text="${membresia.tipoMembresia}">Nombre de Membresía</h5>
                   </div>
                   <div class="card-body">
                     <h6 class="card-title" th:text="${membresia.precio} + ' € / ' + ${membresia.duracionDias} + ' días'">Precio / Duración</h6>

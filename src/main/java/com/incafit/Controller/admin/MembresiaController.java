@@ -2,6 +2,7 @@ package com.incafit.Controller.admin;
 
 import com.incafit.Model.Membresia;
 import com.incafit.service.MembresiaService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -10,39 +11,45 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/membresias")
 public class MembresiaController {
 
-    private final MembresiaService membresiaService;
+    @Autowired
+    private MembresiaService membresiaService;
 
-    public MembresiaController(MembresiaService membresiaService) {
-        this.membresiaService = membresiaService;
-    }
-
+    // READ: Muestra la lista de todas las membresías
     @GetMapping
     public String listarMembresias(Model model) {
-        model.addAttribute("membresias", membresiaService.obtenerTodasMembresias());
+        model.addAttribute("membresias", membresiaService.findAll());
         return "admin/membresias/lista";
     }
 
-    @GetMapping("/nuevo")
-    public String mostrarFormularioRegistro(Model model) {
+    // CREATE (Paso 1): Muestra el formulario para crear una nueva membresía
+    @GetMapping("/nueva")
+    public String mostrarFormularioNuevaMembresia(Model model) {
         model.addAttribute("membresia", new Membresia());
+        model.addAttribute("pageTitle", "Crear Nueva Membresía");
         return "admin/membresias/formulario";
     }
 
+    // UPDATE (Paso 1): Muestra el formulario para editar una membresía existente
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioEditarMembresia(@PathVariable Long id, Model model) {
+        Membresia membresia = membresiaService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID de membresía no válido: " + id));
+        model.addAttribute("membresia", membresia);
+        model.addAttribute("pageTitle", "Editar Membresía");
+        return "admin/membresias/formulario";
+    }
+
+    // SAVE (Cubre CREATE y UPDATE): Procesa el formulario y guarda los datos
     @PostMapping("/guardar")
-    public String guardarMembresia(@ModelAttribute Membresia membresia) {
-        membresiaService.guardarMembresia(membresia);
+    public String guardarMembresia(@ModelAttribute("membresia") Membresia membresia) {
+        membresiaService.save(membresia);
         return "redirect:/admin/membresias";
     }
 
-    @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
-        model.addAttribute("membresia", membresiaService.obtenerMembresiaPorId(id));
-        return "admin/membresias/formulario";
-    }
-
+    // DELETE: Elimina una membresía por su ID
     @GetMapping("/eliminar/{id}")
     public String eliminarMembresia(@PathVariable Long id) {
-        membresiaService.eliminarMembresia(id);
+        membresiaService.deleteById(id);
         return "redirect:/admin/membresias";
     }
 }

@@ -66,7 +66,7 @@ public class RegistroController {
 
     @GetMapping("/paso2")
     public String mostrarPaso2(Model model) {
-        List<Membresia> membresias = membresiaService.obtenerTodasMembresias();
+        List<Membresia> membresias = membresiaService.findAll();
         model.addAttribute("membresias", membresias);
         // El DTO se obtiene de la sesión
         return "registro-paso2";
@@ -95,7 +95,8 @@ public class RegistroController {
             return "registro-paso3";
         }
 
-        Membresia membresiaSeleccionada = membresiaService.obtenerMembresiaPorId(registroDto.getMembresiaId());
+        Membresia membresiaSeleccionada = membresiaService.findById(registroDto.getMembresiaId())
+                .orElse(null);
         if (membresiaSeleccionada == null) {
             return "redirect:/registro/paso2?error=true";
         }

@@ -41,7 +41,7 @@ public class SocioController {
     @GetMapping("/nuevo")
     public String mostrarFormularioRegistro(Model model) {
         model.addAttribute("socio", new Socio());
-        model.addAttribute("membresias", membresiaService.obtenerTodasMembresias());
+        model.addAttribute("membresias", membresiaService.findAll());
         return "admin/socios/formulario";
     }
 
@@ -54,7 +54,7 @@ public class SocioController {
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
         Socio socio = socioService.obtenerSocioPorId(id);
-        List<Membresia> membresias = membresiaService.obtenerTodasMembresias();
+        List<Membresia> membresias = membresiaService.findAll();
 
         model.addAttribute("socio", socio);
         model.addAttribute("membresias", membresias);

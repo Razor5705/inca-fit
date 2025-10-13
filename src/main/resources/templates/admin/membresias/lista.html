@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Gestión de Membresías</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Gestión de Membresías</h2>
+            <a th:href="@{/admin/membresias/nueva}" class="btn btn-primary">Nueva Membresía</a>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Precio</th>
+                        <th>Duración (días)</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="membresia : ${membresias}">
+                        <td th:text="${membresia.id}"></td>
+                        <td th:text="${membresia.tipoMembresia}"></td>
+                        <td th:text="${#numbers.formatCurrency(membresia.precio)}"></td>
+                        <td th:text="${membresia.duracionDias}"></td>
+                        <td>
+                            <a th:href="@{/admin/membresias/editar/{id}(id=${membresia.id})}" class="btn btn-sm btn-warning">Editar</a>
+                            <a th:href="@{/admin/membresias/eliminar/{id}(id=${membresia.id})}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro?');">Eliminar</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
