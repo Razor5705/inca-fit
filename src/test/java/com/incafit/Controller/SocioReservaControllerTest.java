@@ -3,6 +3,7 @@ package com.incafit.Controller;
 import com.incafit.Model.Socio;
 import com.incafit.service.FacturaService;
 import com.incafit.service.ReservaService;
+import com.incafit.service.ClaseService;
 import com.incafit.service.SocioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,11 +37,14 @@ public class SocioReservaControllerTest {
     @Mock
     private FacturaService facturaService;
 
+    @Mock
+    private ClaseService claseService;
+
     @BeforeEach
     void setUp() {
         Socio mockSocio = new Socio();
         mockSocio.setId(1L);
-        when(socioService.obtenerSocioPorEmail("user@example.com")).thenReturn(Optional.of(mockSocio));
+        when(socioService.findByEmail("user@example.com")).thenReturn(Optional.of(mockSocio));
     }
 
     @Test
@@ -56,7 +60,7 @@ public class SocioReservaControllerTest {
     void testGuardarReserva() throws Exception {
         mockMvc.perform(post("/socio/reservas/guardar")
                         .with(csrf())
-                        .param("clase", "Yoga")
+                        .param("claseId", "1")
                         .param("fechaHora", "2025-10-10T10:00:00"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/socio/reservas"));

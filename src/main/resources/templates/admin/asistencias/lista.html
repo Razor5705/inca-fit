@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+  <title>Administrar Asistencias</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-5">
+  <h2>Administrar Asistencias</h2>
+  <a th:href="@{/admin/asistencias/nueva}" class="btn btn-primary mb-3">Registrar Asistencia</a>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Socio</th>
+      <th>Clase</th>
+      <th>Fecha</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="asistencia : ${asistencias}">
+      <td th:text="${asistencia.socio.nombre}"></td>
+      <td th:text="${asistencia.clase.nombre}"></td>
+      <td th:text="${asistencia.fecha}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

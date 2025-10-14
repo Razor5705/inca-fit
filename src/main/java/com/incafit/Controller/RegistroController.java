@@ -1,8 +1,8 @@
 package com.incafit.Controller;
 
-import com.incafit.Model.Membresia;
-import com.incafit.Model.Socio;
-import com.incafit.Model.Rol;
+import com.incafit.Model.*;
+import com.incafit.Repository.DetalleFacturaRepository;
+import com.incafit.Repository.FacturaRepository;
 import com.incafit.service.MembresiaService;
 import com.incafit.service.SocioService;
 import com.incafit.dto.RegistroSocioDto;
@@ -24,13 +24,19 @@ public class RegistroController {
     private final SocioService socioService;
     private final PasswordEncoder passwordEncoder;
     private final MembresiaService membresiaService;
+    private final FacturaRepository facturaRepository;
+    private final DetalleFacturaRepository detalleFacturaRepository;
 
     public RegistroController(SocioService socioService,
                               PasswordEncoder passwordEncoder,
-                              MembresiaService membresiaService) {
+                              MembresiaService membresiaService,
+                              FacturaRepository facturaRepository,
+                              DetalleFacturaRepository detalleFacturaRepository) {
         this.socioService = socioService;
         this.passwordEncoder = passwordEncoder;
         this.membresiaService = membresiaService;
+        this.facturaRepository = facturaRepository;
+        this.detalleFacturaRepository = detalleFacturaRepository;
     }
 
     @ModelAttribute("registroDto")
@@ -116,6 +122,23 @@ public class RegistroController {
         nuevoSocio.setActivo(true);
 
         socioService.guardarSocio(nuevoSocio);
+
+        // Crear la factura
+        Factura factura = new Factura();
+        factura.setSocio(nuevoSocio);
+        factura.setFecha(LocalDate.now());
+        factura.setTotal(membresiaSeleccionada.getPrecio());
+        facturaRepository.save(factura);
+
+        // Crear el detalle de la factura
+        DetalleFactura detalle = new DetalleFactura();
+        detalle.setFactura(factura);
+        detalle.setDescripcion("Membresía " + membresiaSeleccionada.getNombre());
+        detalle.setCantidad(1);
+        detalle.setPrecioUnitario(membresiaSeleccionada.getPrecio());
+        detalle.setSubtotal(membresiaSeleccionada.getPrecio());
+        detalleFacturaRepository.save(detalle);
+
 
         status.setComplete(); // Limpiar la sesión
         return "redirect:/login?registroExitoso=true";

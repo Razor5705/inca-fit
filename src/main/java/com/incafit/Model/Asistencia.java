@@ -5,7 +5,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,23 +18,25 @@ public class Asistencia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "reserva_id")
-    private Reserva reserva;
+    @ManyToOne
+    @JoinColumn(name = "socio_id")
+    private Socio socio;
 
-    private LocalDateTime fechaCheckin;
+    @ManyToOne
+    @JoinColumn(name = "clase_id")
+    private Clase clase;
 
-    private boolean asistio;
+    private LocalDate fecha;
 
     // Constructores, getters y setters
 
     public Asistencia() {
     }
 
-    public Asistencia(Reserva reserva, LocalDateTime fechaCheckin, boolean asistio) {
-        this.reserva = reserva;
-        this.fechaCheckin = fechaCheckin;
-        this.asistio = asistio;
+    public Asistencia(Socio socio, Clase clase, LocalDate fecha) {
+        this.socio = socio;
+        this.clase = clase;
+        this.fecha = fecha;
     }
 
     public Long getId() {
@@ -43,27 +47,27 @@ public class Asistencia {
         this.id = id;
     }
 
-    public Reserva getReserva() {
-        return reserva;
+    public Socio getSocio() {
+        return socio;
     }
 
-    public void setReserva(Reserva reserva) {
-        this.reserva = reserva;
+    public void setSocio(Socio socio) {
+        this.socio = socio;
     }
 
-    public LocalDateTime getFechaCheckin() {
-        return fechaCheckin;
+    public Clase getClase() {
+        return clase;
     }
 
-    public void setFechaCheckin(LocalDateTime fechaCheckin) {
-        this.fechaCheckin = fechaCheckin;
+    public void setClase(Clase clase) {
+        this.clase = clase;
     }
 
-    public boolean isAsistio() {
-        return asistio;
+    public LocalDate getFecha() {
+        return fecha;
     }
 
-    public void setAsistio(boolean asistio) {
-        this.asistio = asistio;
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
     }
 }

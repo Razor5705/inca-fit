@@ -15,8 +15,8 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
     // Métodos adicionales necesarios
     List<Factura> findByEstado(String estado);
 
-    @Query("SELECT f FROM Factura f WHERE f.estado = :estado AND f.fechaEmision BETWEEN :inicio AND :fin")
-    List<Factura> findByEstadoAndFechaEmisionBetween(
+    @Query("SELECT f FROM Factura f WHERE f.estado = :estado AND f.fecha BETWEEN :inicio AND :fin")
+    List<Factura> findByEstadoAndFechaBetween(
             @Param("estado") String estado,
             @Param("inicio") LocalDate inicio,
             @Param("fin") LocalDate fin);

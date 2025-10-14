@@ -10,7 +10,7 @@ public interface SocioService {
     Socio guardarSocio(Socio socio);
     void eliminarSocio(Long id);
     void cambiarEstadoSocio(Long id, boolean estado);
-    Optional<Socio> obtenerSocioPorEmail(String email); // Método añadido
+    Optional<Socio> findByEmail(String email); // Método añadido
     boolean existeEmail(String email); // Añade esta línea
     boolean existeDni(String dni); // Añade esta línea para DNI
     Optional<Socio> obtenerSocioConReservasPorEmail(String email);

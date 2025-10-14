@@ -7,10 +7,8 @@ import com.incafit.Model.Membresia;
 import com.incafit.Model.Socio;
 import com.incafit.Repository.FacturaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -30,14 +28,16 @@ public class FacturaServiceImpl implements FacturaService {
     public Factura generarFactura(Socio socio, Membresia membresia) {
         Factura factura = new Factura();
         factura.setSocio(socio);
-        factura.setFechaEmision(LocalDate.now());
+        factura.setFecha(LocalDate.now());
         factura.setTotal(membresia.getPrecio());
         factura.setEstado("PENDIENTE");
 
         // Crear detalle de factura
         DetalleFactura detalle = new DetalleFactura();
-        detalle.setConcepto("Membresía: " + membresia.getTipoMembresia());
-        detalle.setMonto(membresia.getPrecio());
+        detalle.setDescripcion("Membresía: " + membresia.getNombre());
+        detalle.setCantidad(1);
+        detalle.setPrecioUnitario(membresia.getPrecio());
+        detalle.setSubtotal(membresia.getPrecio());
         detalle.setFactura(factura);
 
         factura.getDetalles().add(detalle);
@@ -49,14 +49,16 @@ public class FacturaServiceImpl implements FacturaService {
     public Factura generarFacturaPorReserva(Socio socio, BigDecimal monto, String concepto) {
         Factura factura = new Factura();
         factura.setSocio(socio);
-        factura.setFechaEmision(LocalDate.now());
+        factura.setFecha(LocalDate.now());
         factura.setTotal(monto);
         factura.setEstado("PENDIENTE");
 
         // Crear detalle de factura
         DetalleFactura detalle = new DetalleFactura();
-        detalle.setConcepto(concepto);
-        detalle.setMonto(monto);
+        detalle.setDescripcion(concepto);
+        detalle.setCantidad(1);
+        detalle.setPrecioUnitario(monto);
+        detalle.setSubtotal(monto);
         detalle.setFactura(factura);
 
         factura.getDetalles().add(detalle);
@@ -105,7 +107,7 @@ public class FacturaServiceImpl implements FacturaService {
         LocalDate inicioMes = LocalDate.now().withDayOfMonth(1);
         LocalDate finMes = LocalDate.now().withDayOfMonth(YearMonth.now().lengthOfMonth());
 
-        return facturaRepository.findByEstadoAndFechaEmisionBetween(
+        return facturaRepository.findByEstadoAndFechaBetween(
                 "PAGADA", inicioMes, finMes); // Filtra por estado y rango de fechas
     }
 }

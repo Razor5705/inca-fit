@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+  <title>Formulario de Instructor</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-5">
+  <h2 th:if="${instructor.id == null}">Nuevo Instructor</h2>
+  <h2 th:if="${instructor.id != null}">Editar Instructor</h2>
+  <form th:action="${instructor.id == null} ? @{/admin/instructores/nuevo} : @{/admin/instructores/editar/{id}(id=${instructor.id})}"
+        th:object="${instructor}" method="post">
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input type="text" class="form-control" id="nombre" th:field="*{nombre}">
+    </div>
+    <div class="mb-3">
+      <label for="especialidad" class="form-label">Especialidad</label>
+      <input type="text" class="form-control" id="especialidad" th:field="*{especialidad}">
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+  </form>
+</div>
+</body>
+</html>

@@ -17,7 +17,7 @@ public class Factura {
     @JoinColumn(name = "socio_id")
     private Socio socio;
 
-    private LocalDate fechaEmision;
+    private LocalDate fecha;
     private BigDecimal total;
     private String estado; // PENDIENTE, PAGADA, CANCELADA
 
@@ -51,12 +51,12 @@ public class Factura {
         this.total = total;
     }
 
-    public LocalDate getFechaEmision() {
-        return fechaEmision;
+    public LocalDate getFecha() {
+        return fecha;
     }
 
-    public void setFechaEmision(LocalDate fechaEmision) {
-        this.fechaEmision = fechaEmision;
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
     }
 
     public Socio getSocio() {

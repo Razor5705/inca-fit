@@ -64,9 +64,6 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public List<Reserva> obtenerReservasPorFecha(LocalDate fecha) {
-        // This method might need adjustment if the date is now only in fechaHora
-        // For now, assuming it's still needed and will be implemented in the repository.
-        // return reservaRepository.findByFecha(fecha);
-        throw new UnsupportedOperationException("La búsqueda de reservas por fecha aún no está implementada.");
+        return reservaRepository.findByFecha(fecha);
     }
 }

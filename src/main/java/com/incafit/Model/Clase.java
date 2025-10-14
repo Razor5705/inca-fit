@@ -9,6 +9,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalTime;
+
 
 @Entity
 @Table(name = "clases")
@@ -30,16 +32,21 @@ public class Clase {
     @JoinColumn(name = "instructor_id")
     private Instructor instructor;
 
+    private LocalTime hora;
+    private int duracionMinutos;
+
     // Constructores, getters y setters
 
     public Clase() {
     }
 
-    public Clase(String nombre, String descripcion, int capacidadMaxima, Instructor instructor) {
+    public Clase(String nombre, String descripcion, Instructor instructor, LocalTime hora, int duracionMinutos, int capacidadMaxima) {
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.capacidadMaxima = capacidadMaxima;
         this.instructor = instructor;
+        this.hora = hora;
+        this.duracionMinutos = duracionMinutos;
+        this.capacidadMaxima = capacidadMaxima;
     }
 
     public Long getId() {
@@ -80,5 +87,21 @@ public class Clase {
 
     public void setInstructor(Instructor instructor) {
         this.instructor = instructor;
+    }
+
+    public LocalTime getHora() {
+        return hora;
+    }
+
+    public void setHora(LocalTime hora) {
+        this.hora = hora;
+    }
+
+    public int getDuracionMinutos() {
+        return duracionMinutos;
+    }
+
+    public void setDuracionMinutos(int duracionMinutos) {
+        this.duracionMinutos = duracionMinutos;
     }
 }
