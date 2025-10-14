@@ -25,6 +25,13 @@ public class Membresia {
     public Membresia() {
     }
 
+    public Membresia(String tipoMembresia, String descripcion, double precio, int duracionDias) {
+        this.tipoMembresia = tipoMembresia;
+        this.descripcion = descripcion;
+        this.precio = BigDecimal.valueOf(precio);
+        this.duracionDias = duracionDias;
+    }
+
     public Long getId() {
         return id;
     }
@@ -33,11 +40,11 @@ public class Membresia {
         this.id = id;
     }
 
-    public String getTipoMembresia() {
+    public String getNombre() {
         return tipoMembresia;
     }
 
-    public void setTipoMembresia(String tipoMembresia) {
+    public void setNombre(String tipoMembresia) {
         this.tipoMembresia = tipoMembresia;
     }
 

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>Gestionar Membresía</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-5">
+    <h2>Gestionar Membresía</h2>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title" th:text="${socio.membresia.nombre}">Nombre de la Membresía</h5>
+            <p class="card-text" th:text="${socio.membresia.descripcion}">Descripción de la membresía.</p>
+            <p><strong>Precio:</strong> <span th:text="${socio.membresia.precio}">$0.00</span></p>
+            <p><strong>Duración:</strong> <span th:text="${socio.membresia.duracionDias}">30</span> días</p>
+            <form th:action="@{/dashboard/membresia/renovar}" method="post">
+                <button type="submit" class="btn btn-primary">Renovar Membresía</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

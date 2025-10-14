@@ -84,7 +84,7 @@ public class SocioServiceImpl implements SocioService {
     }
 
     @Override
-    public Optional<Socio> obtenerSocioPorEmail(String email) {
+    public Optional<Socio> findByEmail(String email) {
         log.info("🔍 Buscando socio por email: {}", email);
         Optional<Socio> socio = socioRepository.findByEmail(email);
         log.info("   - Resultado: {}", socio.isPresent() ? "ENCONTRADO" : "NO ENCONTRADO");

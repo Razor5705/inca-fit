@@ -11,7 +11,7 @@ public class RegistroSocioDto {
 
 
     @NotBlank(message = "El DNI es obligatorio")
-    @Size(min = 8, max = 10, message = "El DNI debe tener entre 8 y 10 caracteres")
+    @Pattern(regexp = "^\\d{8,10}$", message = "El DNI debe contener solo números y tener entre 8 y 10 dígitos")
     private String dni;
 
 
@@ -24,7 +24,7 @@ public class RegistroSocioDto {
 
 
     @NotBlank(message = "El email es obligatorio")
-    @Email(message = "Debe ser un email válido")
+    @Email(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", message = "Debe ser un email válido")
     private String email;
 
 

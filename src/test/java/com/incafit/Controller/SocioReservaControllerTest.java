@@ -1,6 +1,7 @@
 package com.incafit.Controller;
 
 import com.incafit.Model.Socio;
+import com.incafit.service.ClaseService;
 import com.incafit.service.FacturaService;
 import com.incafit.service.ReservaService;
 import com.incafit.service.SocioService;
@@ -8,8 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,20 +27,23 @@ public class SocioReservaControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private SocioService socioService;
 
-    @Mock
+    @MockBean
     private ReservaService reservaService;
 
-    @Mock
+    @MockBean
     private FacturaService facturaService;
+
+    @MockBean
+    private ClaseService claseService;
 
     @BeforeEach
     void setUp() {
         Socio mockSocio = new Socio();
         mockSocio.setId(1L);
-        when(socioService.obtenerSocioPorEmail("user@example.com")).thenReturn(Optional.of(mockSocio));
+        when(socioService.findByEmail("user@example.com")).thenReturn(Optional.of(mockSocio));
     }
 
     @Test
@@ -56,7 +59,7 @@ public class SocioReservaControllerTest {
     void testGuardarReserva() throws Exception {
         mockMvc.perform(post("/socio/reservas/guardar")
                         .with(csrf())
-                        .param("clase", "Yoga")
+                        .param("claseId", "1")
                         .param("fechaHora", "2025-10-10T10:00:00"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/socio/reservas"));

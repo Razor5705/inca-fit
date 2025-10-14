@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>Administrar Instructores</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-5">
+    <h2>Administrar Instructores</h2>
+    <a th:href="@{/admin/instructores/nuevo}" class="btn btn-primary mb-3">Nuevo Instructor</a>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Especialidad</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="instructor : ${instructores}">
+            <td th:text="${instructor.nombre}"></td>
+            <td th:text="${instructor.especialidad}"></td>
+            <td>
+                <a th:href="@{/admin/instructores/editar/{id}(id=${instructor.id})}" class="btn btn-sm btn-info">Editar</a>
+                <a th:href="@{/admin/instructores/eliminar/{id}(id=${instructor.id})}" class="btn btn-sm btn-danger">Eliminar</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

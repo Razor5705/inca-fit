@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>Formulario de Asistencia</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-5">
+    <h2>Registrar Asistencia</h2>
+    <form th:action="@{/admin/asistencias/nueva}" th:object="${asistencia}" method="post">
+        <div class="mb-3">
+            <label for="socio" class="form-label">Socio</label>
+            <select class="form-control" id="socio" th:field="*{socio.id}">
+                <option th:each="socio : ${socios}"
+                        th:value="${socio.id}"
+                        th:text="${socio.nombre}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="clase" class="form-label">Clase</label>
+            <select class="form-control" id="clase" th:field="*{clase.id}">
+                <option th:each="clase : ${clases}"
+                        th:value="${clase.id}"
+                        th:text="${clase.nombre}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="fecha" th:field="*{fecha}">
+        </div>
+        <button type="submit" class="btn btn-primary">Registrar</button>
+    </form>
+</div>
+</body>
+</html>
