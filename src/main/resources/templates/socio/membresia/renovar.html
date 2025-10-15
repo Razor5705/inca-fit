@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>Renovar Membresía - Inca Fit</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-sync-alt me-2"></i>Renovar Membresía
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Información:</strong> Al renovar tu membresía, se generará una factura que deberás pagar para activar la renovación.
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Membresía Actual</h6>
+                            <h5 th:text="${socio.membresia.nombre}">Premium</h5>
+                            <p class="text-muted" th:text="${socio.membresia.descripcion}">Descripción de la membresía</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Detalles de Renovación</h6>
+                            <p><strong>Precio:</strong> <span th:text="${'€' + socio.membresia.precio}">€49.90</span></p>
+                            <p><strong>Duración:</strong> <span th:text="${socio.membresia.duracionDias + ' días'}">30 días</span></p>
+                            <p><strong>Fecha de Renovación:</strong> <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}">15/10/2024</span></p>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-calendar-check me-2"></i>Resumen de la Renovación
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Concepto:</strong></p>
+                                    <p th:text="'Renovación de ' + socio.membresia.nombre">Renovación de Premium</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Total a Pagar:</strong></p>
+                                    <h5 class="text-success" th:text="${'€' + socio.membresia.precio}">€49.90</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a th:href="@{/dashboard}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <form th:action="@{/socio/membresia/renovar}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-credit-card me-2"></i>Confirmar Renovación
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

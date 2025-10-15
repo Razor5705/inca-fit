@@ -53,6 +53,20 @@ public class RegistroController {
     @PostMapping("/paso1")
     public String procesarPaso1(@Valid @ModelAttribute("registroDto") RegistroSocioDto registroDto,
                                 BindingResult result) {
+        
+        System.out.println("🔍 DEBUG - Datos recibidos:");
+        System.out.println("DNI: " + registroDto.getDni());
+        System.out.println("Nombre: " + registroDto.getNombre());
+        System.out.println("Email: " + registroDto.getEmail());
+        System.out.println("Teléfono: " + registroDto.getTelefono());
+        System.out.println("Password: " + (registroDto.getPassword() != null ? "***" : "null"));
+        System.out.println("PasswordConfirm: " + (registroDto.getPasswordConfirm() != null ? "***" : "null"));
+        
+        System.out.println("🔍 DEBUG - Errores de validación:");
+        if (result.hasErrors()) {
+            result.getAllErrors().forEach(error -> System.out.println("Error: " + error.getDefaultMessage()));
+        }
+        
         if (registroDto.getPassword() != null && !registroDto.getPassword().equals(registroDto.getPasswordConfirm())) {
             result.rejectValue("passwordConfirm", "error.socio", "Las contraseñas no coinciden");
         }
@@ -63,10 +77,13 @@ public class RegistroController {
             result.rejectValue("email", "error.socio", "El email ya está registrado");
         }
 
+        System.out.println("🔍 DEBUG - Errores finales:");
         if (result.hasErrors()) {
+            result.getAllErrors().forEach(error -> System.out.println("Error final: " + error.getDefaultMessage()));
             return "registro-paso1";
         }
 
+        System.out.println("✅ DEBUG - Redirigiendo a paso 2");
         return "redirect:/registro/paso2";
     }
 

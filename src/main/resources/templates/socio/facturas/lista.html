@@ -24,7 +24,7 @@
             </thead>
             <tbody>
             <tr th:each="factura : ${facturas}">
-                <td th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}"></td>
+                <td th:text="${#temporals.format(factura.fecha, 'dd/MM/yyyy')}"></td>
                 <td th:text="${#numbers.formatCurrency(factura.total)}"></td>
                 <td>
                     <span th:if="${factura.estado == 'PENDIENTE'}" class="badge bg-warning">Pendiente</span>

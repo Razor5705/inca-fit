@@ -19,7 +19,7 @@
     </thead>
     <tbody>
     <tr th:each="instructor : ${instructores}">
-      <td th:text="${instructor.nombre}"></td>
+      <td th:text="${instructor.nombreCompleto}"></td>
       <td th:text="${instructor.especialidad}"></td>
       <td>
         <a th:href="@{/admin/instructores/editar/{id}(id=${instructor.id})}" class="btn btn-sm btn-info">Editar</a>

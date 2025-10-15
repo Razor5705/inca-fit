@@ -3,38 +3,50 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/layout.html}">
 <head>
-    <title th:text="${pageTitle}">Formulario de Membresía</title>
+    <title>Formulario de Membresía</title>
 </head>
 <body>
-<div layout:fragment="adminContent">
-    <div class="container mt-4">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h2 th:text="${pageTitle}">Formulario de Membresía</h2>
-            </div>
-            <div class="card-body">
-                <form th:action="@{/admin/membresias/guardar}" th:object="${membresia}" method="post">
-                    <input type="hidden" th:field="*{id}" />
-                    <div class="mb-3">
-                        <label for="tipoMembresia" class="form-label">Tipo de Membresía</label>
-                        <input type="text" class="form-control" id="tipoMembresia" th:field="*{tipoMembresia}" required>
+<div layout:fragment="adminContent" class="container-fluid py-4">
+    <h2 class="mb-4" th:text="${membresia.id == null ? 'Nueva Membresía' : 'Editar Membresía'}">Formulario de Membresía</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/admin/membresias/guardar}" th:object="${membresia}" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="tipoMembresia" class="form-label">Tipo de Membresía</label>
+                            <input type="text" class="form-control" id="tipoMembresia" th:field="*{tipoMembresia}" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="precio" class="form-label">Precio (€)</label>
-                        <input type="number" step="0.01" class="form-control" id="precio" th:field="*{precio}" required>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="precio" class="form-label">Precio</label>
+                            <input type="number" step="0.01" class="form-control" id="precio" th:field="*{precio}" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="duracionDias" class="form-label">Duración (días)</label>
-                        <input type="number" class="form-control" id="duracionDias" th:field="*{duracionDias}" required>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="duracionDias" class="form-label">Duración (días)</label>
+                            <input type="number" class="form-control" id="duracionDias" th:field="*{duracionDias}" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="3"></textarea>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="3"></textarea>
+                        </div>
                     </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a th:href="@{/admin/membresias}" class="btn btn-secondary me-2">Cancelar</a>
                     <button type="submit" class="btn btn-primary">Guardar</button>
-                    <a th:href="@{/admin/membresias}" class="btn btn-secondary">Cancelar</a>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

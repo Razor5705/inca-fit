@@ -7,32 +7,61 @@
     <ul class="nav flex-column">
       <li class="nav-item">
         <a class="nav-link" th:href="@{/admin}">
-          <i class="bi bi-speedometer2 me-2"></i>
+          <i class="fas fa-tachometer-alt me-2"></i>
           Dashboard
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" th:href="@{/admin/socios}">
-          <i class="bi bi-people me-2"></i>
+          <i class="fas fa-users me-2"></i>
           Socios
         </a>
       </li>
       <li class="nav-item">
+        <a class="nav-link" th:href="@{/admin/clases}">
+          <i class="fas fa-dumbbell me-2"></i>
+          Clases
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/admin/instructores}">
+          <i class="fas fa-chalkboard-teacher me-2"></i>
+          Instructores
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link" th:href="@{/admin/membresias}">
-          <i class="bi bi-credit-card me-2"></i>
+          <i class="fas fa-id-card me-2"></i>
           Membresías
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" th:href="@{/admin/reservas}">
-          <i class="bi bi-calendar-event me-2"></i>
+          <i class="fas fa-calendar-check me-2"></i>
           Reservas
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" th:href="@{/admin/facturas}">
-          <i class="bi bi-receipt me-2"></i>
+          <i class="fas fa-file-invoice me-2"></i>
           Facturas
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/admin/asistencias}">
+          <i class="fas fa-clipboard-check me-2"></i>
+          Asistencias
+        </a>
+      </li>
+    </ul>
+    
+    <hr class="my-3">
+    
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link text-muted" th:href="@{/dashboard}">
+          <i class="fas fa-arrow-left me-2"></i>
+          Volver al Dashboard
         </a>
       </li>
     </ul>

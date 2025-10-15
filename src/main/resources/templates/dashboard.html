@@ -33,14 +33,19 @@
                     <a href="#reservas" class="list-group-item list-group-item-action active">
                         <i class="fas fa-calendar-check me-2"></i>Mis Reservas
                     </a>
-                    <a href="#membresia" class="list-group-item list-group-item-action">
+                    <a th:href="@{/socio/membresia}" class="list-group-item list-group-item-action">
                         <i class="fas fa-id-card me-2"></i>Mi Membresía
                     </a>
                     <a href="#facturas" class="list-group-item list-group-item-action">
                         <i class="fas fa-file-invoice me-2"></i>Mis Facturas
                     </a>
-                    <a href="#perfil" class="list-group-item list-group-item-action">
+                    <a th:href="@{/dashboard/perfil}" class="list-group-item list-group-item-action">
                         <i class="fas fa-user-edit me-2"></i>Editar Perfil
+                    </a>
+                    <a th:href="@{/admin}" class="list-group-item list-group-item-action" 
+                       th:if="${socio.rol.name() == 'ADMIN'}" 
+                       style="background-color: #dc3545; color: white;">
+                        <i class="fas fa-cog me-2"></i>Panel de Administración
                     </a>
                     <a th:href="@{/logout}" class="list-group-item list-group-item-action text-danger">
                         <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
@@ -106,7 +111,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title">Membresía</h6>
-                                    <h3 class="mb-0">Premium</h3>
+                                    <h3 class="mb-0" th:text="${socio.membresia?.tipoMembresia ?: 'Mensual'}">Premium</h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-id-card fa-2x opacity-50"></i>
@@ -192,8 +197,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-8">
-                            <h6>Plan Premium</h6>
-                            <p class="text-muted">Acceso ilimitado a todas las clases y áreas del gimnasio</p>
+                            <h6 th:text="${'Plan ' + (socio.membresia?.tipoMembresia ?: 'Mensual')}">Plan Premium</h6>
+                            <p class="text-muted" th:text="${socio.membresia?.descripcion ?: 'Acceso ilimitado a todas las clases y áreas del gimnasio'}">Acceso ilimitado a todas las clases y áreas del gimnasio</p>
                             <ul class="list-unstyled">
                                 <li><i class="fas fa-check text-success me-2"></i> Acceso a todas las clases</li>
                                 <li><i class="fas fa-check text-success me-2"></i> Área de cardio y pesas</li>
@@ -203,13 +208,15 @@
                         </div>
                         <div class="col-md-4 text-end">
                             <div class="mb-3">
-                                <h4 class="text-primary">€49.90/mes</h4>
-                                <small class="text-muted">Próximo pago: 15/10/2024</small>
+                                <h4 class="text-primary" th:text="${'€' + socio.membresia.precio + '/mes'}">€49.90/mes</h4>
+                                <small class="text-muted">Próximo pago: 
+                                    <span th:text="${#temporals.format(socio.fechaRegistro.plusMonths(1), 'dd/MM/yyyy')}">15/10/2024</span>
+                                </small>
                             </div>
-                            <button class="btn btn-outline-primary btn-sm">
+                            <a th:href="@{/socio/membresia/renovar}" class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-sync me-1"></i> Renovar
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm">
+                            </a>
+                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#detallesMembresiaModal">
                                 <i class="fas fa-file-invoice me-1"></i> Detalles
                             </button>
                         </div>
@@ -237,6 +244,62 @@
                             <a th:href="@{/socio/facturas}" class="btn btn-success">Ver Facturas</a>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalles de Membresía -->
+    <div class="modal fade" id="detallesMembresiaModal" tabindex="-1" aria-labelledby="detallesMembresiaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="detallesMembresiaModalLabel">
+                        <i class="fas fa-id-card me-2"></i>Detalles de tu Membresía
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Plan</h6>
+                            <p class="fs-5" th:text="${socio.membresia?.tipoMembresia ?: 'Premium'}">Premium</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Precio Mensual</h6>
+                            <p class="fs-5 text-success" th:text="${'€' + socio.membresia?.precio + '/mes'}">€49.90/mes</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Duración</h6>
+                            <p th:text="${socio.membresia?.duracionDias + ' días'}">30 días</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Estado</h6>
+                            <p><span class="badge bg-success">Activa</span></p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6 class="text-muted">Descripción</h6>
+                            <p th:text="${socio.membresia?.descripcion}">Acceso ilimitado a todas las clases y áreas del gimnasio</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Beneficios Incluidos:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i> Acceso a todas las clases</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Área de cardio y pesas</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Asesoramiento personalizado</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Sin restricciones de horario</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <a th:href="@{/socio/membresia/renovar}" class="btn btn-primary">
+                        <i class="fas fa-sync me-1"></i> Renovar Membresía
+                    </a>
                 </div>
             </div>
         </div>

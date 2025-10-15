@@ -38,18 +38,29 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Solo crear datos si no existen
         if (membresiaRepository.count() == 0) {
-            // Crear Membresías
+            System.out.println("🔧 DataInitializer: Creando membresías...");
             Membresia mensual = new Membresia("Mensual", "Acceso por 30 días", 50.00, 30);
             Membresia trimestral = new Membresia("Trimestral", "Acceso por 90 días", 135.00, 90);
             Membresia anual = new Membresia("Anual", "Acceso por 365 días", 500.00, 365);
             membresiaRepository.saveAll(Arrays.asList(mensual, trimestral, anual));
+            System.out.println("✅ DataInitializer: Membresías creadas exitosamente");
+        } else {
+            System.out.println("ℹ️ DataInitializer: Membresías ya existen, saltando creación");
         }
 
+        // Crear Instructores solo si no existen
         if (instructorRepository.count() == 0) {
-            // Crear Instructores
-            Instructor instructor1 = new Instructor("Carlos Gomez", "Yoga y Pilates", "carlos.gomez@incafit.com");
-            Instructor instructor2 = new Instructor("Ana Martinez", "Spinning y HIIT", "ana.martinez@incafit.com");
-            instructorRepository.saveAll(Arrays.asList(instructor1, instructor2));
+            System.out.println("🔧 DataInitializer: Creando instructores...");
+            try {
+                Instructor instructor1 = new Instructor("Carlos Gomez", "Yoga y Pilates", "carlos.gomez@incafit.com");
+                Instructor instructor2 = new Instructor("Ana Martinez", "Spinning y HIIT", "ana.martinez@incafit.com");
+                instructorRepository.saveAll(Arrays.asList(instructor1, instructor2));
+                System.out.println("✅ DataInitializer: Instructores creados exitosamente");
+            } catch (Exception e) {
+                System.out.println("⚠️ DataInitializer: Error creando instructores: " + e.getMessage());
+            }
+        } else {
+            System.out.println("ℹ️ DataInitializer: Instructores ya existen, saltando creación");
         }
 
         if (claseRepository.count() == 0) {
@@ -75,6 +86,17 @@ public class DataInitializer implements CommandLineRunner {
             admin.setActivo(true);
             admin.setFechaRegistro(LocalDate.now());
             socioRepository.save(admin);
+
+            // Crear cuenta de administrador adicional
+            Socio adminNiko = new Socio();
+            adminNiko.setNombre("Niko Admin");
+            adminNiko.setDni("11223344");
+            adminNiko.setEmail("nikkmed805@gmail.com");
+            adminNiko.setPassword(passwordEncoder.encode("admin123"));
+            adminNiko.setRol(Rol.ADMIN);
+            adminNiko.setActivo(true);
+            adminNiko.setFechaRegistro(LocalDate.now());
+            socioRepository.save(adminNiko);
 
             Socio usuario = new Socio();
             usuario.setNombre("Juan Perez");
@@ -103,10 +125,7 @@ public class DataInitializer implements CommandLineRunner {
                 .findFirst()
                 .orElse(null);
             
-            if (usuario != null && yoga != null) {
-                Asistencia asistencia1 = new Asistencia(usuario, yoga, LocalDate.now());
-                asistenciaRepository.save(asistencia1);
-            }
+
         }
     }
 }

@@ -1,9 +1,11 @@
 // ReservaServiceImpl
 package com.incafit.service;
 
+import com.incafit.Model.Asistencia;
 import com.incafit.Model.Clase;
 import com.incafit.Model.Reserva;
 import com.incafit.Model.Socio;
+import com.incafit.Repository.AsistenciaRepository;
 import com.incafit.Repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,11 +20,15 @@ public class ReservaServiceImpl implements ReservaService {
 
     private final ReservaRepository reservaRepository;
     private final ClaseRepository claseRepository;
+    private final AsistenciaRepository asistenciaRepository;
 
     @Autowired
-    public ReservaServiceImpl(ReservaRepository reservaRepository, ClaseRepository claseRepository) {
+    public ReservaServiceImpl(ReservaRepository reservaRepository, 
+                             ClaseRepository claseRepository,
+                             AsistenciaRepository asistenciaRepository) {
         this.reservaRepository = reservaRepository;
         this.claseRepository = claseRepository;
+        this.asistenciaRepository = asistenciaRepository;
     }
 
     @Override
@@ -35,7 +41,17 @@ public class ReservaServiceImpl implements ReservaService {
         reserva.setFechaHora(fechaHora);
         reserva.setEstado("CONFIRMADA");
 
-        return reservaRepository.save(reserva);
+        Reserva reservaGuardada = reservaRepository.save(reserva);
+        
+        // Crear asistencia automáticamente cuando se confirma una reserva
+        Asistencia asistencia = new Asistencia();
+        asistencia.setSocio(socio);
+        asistencia.setClase(clase);
+        asistencia.setReserva(reservaGuardada);
+        asistencia.setFecha(fechaHora.toLocalDate());
+        asistenciaRepository.save(asistencia);
+
+        return reservaGuardada;
     }
 
     @Override

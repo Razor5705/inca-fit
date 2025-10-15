@@ -1,26 +1,63 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout.html}">
+      layout:decorate="~{admin/layout.html}">
 <head>
-  <title>Formulario de Instructor</title>
+    <title>Formulario de Instructor</title>
 </head>
 <body>
-<div layout:fragment="content" class="container mt-5">
-  <h2 th:if="${instructor.id == null}">Nuevo Instructor</h2>
-  <h2 th:if="${instructor.id != null}">Editar Instructor</h2>
-  <form th:action="${instructor.id == null} ? @{/admin/instructores/nuevo} : @{/admin/instructores/editar/{id}(id=${instructor.id})}"
-        th:object="${instructor}" method="post">
-    <div class="mb-3">
-      <label for="nombre" class="form-label">Nombre</label>
-      <input type="text" class="form-control" id="nombre" th:field="*{nombre}">
+<div layout:fragment="adminContent" class="container-fluid py-4">
+    <h2 class="mb-4" th:text="${instructor.id == null ? 'Nuevo Instructor' : 'Editar Instructor'}">Formulario de Instructor</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/admin/instructores/guardar}" th:object="${instructor}" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="nombreCompleto" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="nombreCompleto" th:field="*{nombreCompleto}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="especialidad" class="form-label">Especialidad</label>
+                            <input type="text" class="form-control" id="especialidad" th:field="*{especialidad}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="telefono" th:field="*{telefono}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="experiencia" class="form-label">Experiencia</label>
+                            <textarea class="form-control" id="experiencia" th:field="*{experiencia}" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a th:href="@{/admin/instructores}" class="btn btn-secondary me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="mb-3">
-      <label for="especialidad" class="form-label">Especialidad</label>
-      <input type="text" class="form-control" id="especialidad" th:field="*{especialidad}">
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-  </form>
 </div>
 </body>
 </html>

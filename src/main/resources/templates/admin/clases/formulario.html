@@ -1,34 +1,74 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout.html}">
+      layout:decorate="~{admin/layout.html}">
 <head>
-  <title>Formulario de Clase</title>
+    <title>Formulario de Clase</title>
 </head>
 <body>
-<div layout:fragment="content" class="container mt-5">
-  <h2 th:if="${clase.id == null}">Nueva Clase</h2>
-  <h2 th:if="${clase.id != null}">Editar Clase</h2>
-  <form th:action="${clase.id == null} ? @{/admin/clases/nueva} : @{/admin/clases/editar/{id}(id=${clase.id})}"
-        th:object="${clase}" method="post">
-    <div class="mb-3">
-      <label for="nombre" class="form-label">Nombre</label>
-      <input type="text" class="form-control" id="nombre" th:field="*{nombre}">
+<div layout:fragment="adminContent" class="container-fluid py-4">
+    <h2 class="mb-4" th:text="${clase.id == null ? 'Nueva Clase' : 'Editar Clase'}">Formulario de Clase</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/admin/clases/guardar}" th:object="${clase}" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="instructor" class="form-label">Instructor</label>
+                            <select class="form-select" id="instructor" th:field="*{instructor}" required>
+                                <option value="">Seleccionar instructor...</option>
+                                <option th:each="instructor : ${instructores}" 
+                                        th:value="${instructor.id}" 
+                                        th:text="${instructor.nombreCompleto}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="hora" class="form-label">Hora</label>
+                            <input type="time" class="form-control" id="hora" th:field="*{hora}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="duracionMinutos" class="form-label">Duración (minutos)</label>
+                            <input type="number" class="form-control" id="duracionMinutos" th:field="*{duracionMinutos}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="capacidadMaxima" class="form-label">Capacidad Máxima</label>
+                            <input type="number" class="form-control" id="capacidadMaxima" th:field="*{capacidadMaxima}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a th:href="@{/admin/clases}" class="btn btn-secondary me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="mb-3">
-      <label for="descripcion" class="form-label">Descripción</label>
-      <textarea class="form-control" id="descripcion" th:field="*{descripcion}"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="instructor" class="form-label">Instructor</label>
-      <select class="form-control" id="instructor" th:field="*{instructor.id}">
-        <option th:each="instructor : ${instructores}"
-                th:value="${instructor.id}"
-                th:text="${instructor.nombre}"></option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-  </form>
 </div>
 </body>
 </html>

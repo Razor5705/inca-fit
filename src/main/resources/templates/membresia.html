@@ -3,23 +3,67 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
-  <title>Gestionar Membresía</title>
+    <title>Mi Membresía - Inca Fit</title>
 </head>
 <body>
 <div layout:fragment="content" class="container mt-5">
-  <h2>Gestionar Membresía</h2>
-  <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title" th:text="${socio.membresia.nombre}">Nombre de la Membresía</h5>
-      <p class="card-text" th:text="${socio.membresia.descripcion}">Descripción de la membresía.</p>
-      <p><strong>Precio:</strong> <span th:text="${socio.membresia.precio}">$0.00</span></p>
-      <p><strong>Duración:</strong> <span th:text="${socio.membresia.duracionDias}">30</span> días</p>
-      <form th:action="@{/dashboard/membresia/renovar}" method="post">
-        <button type="submit" class="btn btn-primary">Renovar Membresía</button>
-      </form>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-id-card me-2"></i>Mi Membresía
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <span th:text="${successMessage}">Mensaje de éxito</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary" th:text="${socio.membresia.nombre}">Premium</h5>
+                            <p class="text-muted" th:text="${socio.membresia.descripcion}">Descripción de la membresía</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h3 class="text-success" th:text="${'€' + socio.membresia.precio + '/mes'}">€49.90/mes</h3>
+                            <p class="text-muted" th:text="${socio.membresia.duracionDias + ' días'}">30 días</p>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-info-circle me-2"></i>Información de la Membresía
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Fecha de Registro:</strong></p>
+                                    <p th:text="${#temporals.format(socio.fechaRegistro, 'dd/MM/yyyy')}">15/10/2024</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Estado:</strong></p>
+                                    <span class="badge bg-success" th:if="${socio.activo}">Activa</span>
+                                    <span class="badge bg-danger" th:unless="${socio.activo}">Inactiva</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a th:href="@{/dashboard}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                        </a>
+                        <a th:href="@{/socio/membresia/renovar}" class="btn btn-primary">
+                            <i class="fas fa-sync-alt me-2"></i>Renovar Membresía
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 </body>
 </html>

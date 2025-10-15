@@ -11,7 +11,6 @@ public class RegistroSocioDto {
 
 
     @NotBlank(message = "El DNI es obligatorio")
-    @Pattern(regexp = "^\\d{8,10}$", message = "El DNI debe contener solo números y tener entre 8 y 10 dígitos")
     private String dni;
 
 
@@ -24,7 +23,7 @@ public class RegistroSocioDto {
 
 
     @NotBlank(message = "El email es obligatorio")
-    @Email(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", message = "Debe ser un email válido")
+    @Email(message = "Debe ser un email válido")
     private String email;
 
 
@@ -112,23 +111,10 @@ public class RegistroSocioDto {
     }
 
 
-    // Campos para el pago simulado
-    @NotBlank(message = "El nombre en la tarjeta es obligatorio")
+    // Campos para el pago simulado (sin validaciones @NotBlank)
     private String nombreTarjeta;
-
-
-    @NotBlank(message = "El número de tarjeta es obligatorio")
-    @Pattern(regexp = "^\\d{16}$", message = "El número de tarjeta debe tener 16 dígitos")
     private String numeroTarjeta;
-
-
-    @NotBlank(message = "La fecha de caducidad es obligatoria")
-    @Pattern(regexp = "^(0[1-9]|1[0-2])\\/\\d{2}$", message = "El formato debe ser MM/AA")
     private String fechaCaducidad;
-
-
-    @NotBlank(message = "El CVV es obligatorio")
-    @Pattern(regexp = "^\\d{3,4}$", message = "El CVV debe tener 3 o 4 dígitos")
     private String cvv;
 
 

@@ -2,6 +2,8 @@
 package com.incafit.service;
 
 import com.incafit.Model.Socio;
+import com.incafit.Repository.ClaseRepository;
+import com.incafit.Repository.InstructorRepository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -12,13 +14,19 @@ public class EstadisticaService {
     private final SocioService socioService;
     private final ReservaService reservaService;
     private final FacturaService facturaService;
+    private final ClaseRepository claseRepository;
+    private final InstructorRepository instructorRepository;
 
     public EstadisticaService(SocioService socioService,
                               ReservaService reservaService,
-                              FacturaService facturaService) {
+                              FacturaService facturaService,
+                              ClaseRepository claseRepository,
+                              InstructorRepository instructorRepository) {
         this.socioService = socioService;
         this.reservaService = reservaService;
         this.facturaService = facturaService;
+        this.claseRepository = claseRepository;
+        this.instructorRepository = instructorRepository;
     }
 
     public Map<String, Object> obtenerEstadisticas() {
@@ -29,6 +37,14 @@ public class EstadisticaService {
                 .filter(Socio::isActivo)
                 .count();
         estadisticas.put("totalSocios", totalSocios);
+
+        // Obtener total de clases
+        long totalClases = claseRepository.count();
+        estadisticas.put("totalClases", totalClases);
+
+        // Obtener total de instructores
+        long totalInstructores = instructorRepository.count();
+        estadisticas.put("totalInstructores", totalInstructores);
 
         // Obtener reservas de hoy
         long reservasHoy = reservaService.obtenerReservasPorFecha(LocalDate.now()).size();

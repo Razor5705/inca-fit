@@ -26,6 +26,10 @@ public class Asistencia {
     @JoinColumn(name = "clase_id")
     private Clase clase;
 
+    @OneToOne
+    @JoinColumn(name = "reserva_id")
+    private Reserva reserva;
+
     private LocalDate fecha;
 
     // Constructores, getters y setters
@@ -33,9 +37,10 @@ public class Asistencia {
     public Asistencia() {
     }
 
-    public Asistencia(Socio socio, Clase clase, LocalDate fecha) {
+    public Asistencia(Socio socio, Clase clase, Reserva reserva, LocalDate fecha) {
         this.socio = socio;
         this.clase = clase;
+        this.reserva = reserva;
         this.fecha = fecha;
     }
 
@@ -69,5 +74,13 @@ public class Asistencia {
 
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
+    }
+
+    public Reserva getReserva() {
+        return reserva;
+    }
+
+    public void setReserva(Reserva reserva) {
+        this.reserva = reserva;
     }
 }
