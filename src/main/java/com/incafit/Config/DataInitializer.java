@@ -36,17 +36,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Solo crear datos si no existen
-        if (membresiaRepository.count() == 0) {
-            System.out.println("🔧 DataInitializer: Creando membresías...");
-            Membresia mensual = new Membresia("Mensual", "Acceso por 30 días", 50.00, 30);
-            Membresia trimestral = new Membresia("Trimestral", "Acceso por 90 días", 135.00, 90);
-            Membresia anual = new Membresia("Anual", "Acceso por 365 días", 500.00, 365);
-            membresiaRepository.saveAll(Arrays.asList(mensual, trimestral, anual));
-            System.out.println("✅ DataInitializer: Membresías creadas exitosamente");
-        } else {
-            System.out.println("ℹ️ DataInitializer: Membresías ya existen, saltando creación");
-        }
+
 
         // Crear Instructores solo si no existen
         if (instructorRepository.count() == 0) {
