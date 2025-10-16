@@ -4,7 +4,10 @@ import com.incafit.Model.Membresia;
 import com.incafit.Repository.MembresiaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -31,9 +34,21 @@ public class MembresiaController {
         return "admin/membresias/formulario";
     }
 
-    @PostMapping("/guardar")
-    public String guardarMembresia(@ModelAttribute Membresia membresia) {
-        membresiaRepository.save(membresia);
+    @PostMapping("/nueva")
+    public String guardarMembresia(@Valid @ModelAttribute Membresia membresia, 
+                                  BindingResult result,
+                                  RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/membresias/formulario";
+        }
+        
+        try {
+            membresiaRepository.save(membresia);
+            redirectAttributes.addFlashAttribute("successMessage", "Membresía guardada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar la membresía: " + e.getMessage());
+        }
+        
         return "redirect:/admin/membresias";
     }
 
@@ -45,9 +60,34 @@ public class MembresiaController {
         return "admin/membresias/formulario";
     }
 
+    @PostMapping("/editar/{id}")
+    public String actualizarMembresia(@PathVariable Long id, 
+                                     @Valid @ModelAttribute Membresia membresia,
+                                     BindingResult result,
+                                     RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/membresias/formulario";
+        }
+        
+        try {
+            membresia.setId(id);
+            membresiaRepository.save(membresia);
+            redirectAttributes.addFlashAttribute("successMessage", "Membresía actualizada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar la membresía: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/membresias";
+    }
+
     @PostMapping("/eliminar/{id}")
-    public String eliminarMembresia(@PathVariable Long id) {
-        membresiaRepository.deleteById(id);
+    public String eliminarMembresia(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            membresiaRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Membresía eliminada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar la membresía: " + e.getMessage());
+        }
         return "redirect:/admin/membresias";
     }
 }

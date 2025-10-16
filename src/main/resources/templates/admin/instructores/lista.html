@@ -1,33 +1,84 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout.html}">
+      layout:decorate="~{admin/layout.html}">
 <head>
   <title>Administrar Instructores</title>
 </head>
 <body>
-<div layout:fragment="content" class="container mt-5">
-  <h2>Administrar Instructores</h2>
-  <a th:href="@{/admin/instructores/nuevo}" class="btn btn-primary mb-3">Nuevo Instructor</a>
-  <table class="table">
-    <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Especialidad</th>
-      <th>Acciones</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="instructor : ${instructores}">
-      <td th:text="${instructor.nombreCompleto}"></td>
-      <td th:text="${instructor.especialidad}"></td>
-      <td>
-        <a th:href="@{/admin/instructores/editar/{id}(id=${instructor.id})}" class="btn btn-sm btn-info">Editar</a>
-        <a th:href="@{/admin/instructores/eliminar/{id}(id=${instructor.id})}" class="btn btn-sm btn-danger">Eliminar</a>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+<div layout:fragment="adminContent" class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">
+          <i class="fas fa-chalkboard-teacher me-2"></i>Administrar Instructores
+        </h2>
+        <a th:href="@{/admin/instructores/nuevo}" class="btn btn-primary">
+          <i class="fas fa-plus me-2"></i>Nuevo Instructor
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensajes de éxito y error -->
+  <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i>
+    <span th:text="${successMessage}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  
+  <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <span th:text="${errorMessage}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre Completo</th>
+                  <th>Especialidad</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="instructor : ${instructores}">
+                  <td th:text="${instructor.id}"></td>
+                  <td th:text="${instructor.nombreCompleto}"></td>
+                  <td th:text="${instructor.especialidad}"></td>
+                  <td th:text="${instructor.email}"></td>
+                  <td th:text="${instructor.telefono}"></td>
+                  <td>
+                    <a th:href="@{/admin/instructores/editar/{id}(id=${instructor.id})}" class="btn btn-sm btn-warning me-1">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a th:href="@{/admin/instructores/eliminar/{id}(id=${instructor.id})}" class="btn btn-sm btn-danger" 
+                       onclick="return confirm('¿Estás seguro de eliminar este instructor?')">
+                      <i class="fas fa-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(instructores)}">
+                  <td colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-chalkboard-teacher fa-3x mb-3"></i>
+                    <p>No hay instructores registrados</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 </body>
 </html>

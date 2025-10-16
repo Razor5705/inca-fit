@@ -11,12 +11,15 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form th:action="@{/admin/instructores/guardar}" th:object="${instructor}" method="post">
+            <form th:action="${instructor.id == null ? @{/admin/instructores/nuevo} : @{/admin/instructores/editar/{id}(id=${instructor.id})}}" th:object="${instructor}" method="post">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="nombreCompleto" class="form-label">Nombre Completo</label>
                             <input type="text" class="form-control" id="nombreCompleto" th:field="*{nombreCompleto}" required>
+                            <div th:if="${#fields.hasErrors('nombreCompleto')}" class="text-danger small mt-1">
+                                <span th:errors="*{nombreCompleto}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -32,6 +35,9 @@
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                            <div th:if="${#fields.hasErrors('email')}" class="text-danger small mt-1">
+                                <span th:errors="*{email}"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">

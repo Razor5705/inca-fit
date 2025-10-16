@@ -5,7 +5,10 @@ import com.incafit.Repository.SocioRepository;
 import com.incafit.Repository.MembresiaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -35,9 +38,21 @@ public class SocioController {
         return "admin/socios/formulario";
     }
 
-    @PostMapping("/guardar")
-    public String guardarSocio(@ModelAttribute Socio socio) {
-        socioRepository.save(socio);
+    @PostMapping("/nueva")
+    public String guardarSocio(@Valid @ModelAttribute Socio socio, 
+                              BindingResult result,
+                              RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/socios/formulario";
+        }
+        
+        try {
+            socioRepository.save(socio);
+            redirectAttributes.addFlashAttribute("successMessage", "Socio guardado exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar el socio: " + e.getMessage());
+        }
+        
         return "redirect:/admin/socios";
     }
 
@@ -50,9 +65,34 @@ public class SocioController {
         return "admin/socios/formulario";
     }
 
+    @PostMapping("/editar/{id}")
+    public String actualizarSocio(@PathVariable Long id, 
+                                 @Valid @ModelAttribute Socio socio,
+                                 BindingResult result,
+                                 RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/socios/formulario";
+        }
+        
+        try {
+            socio.setId(id);
+            socioRepository.save(socio);
+            redirectAttributes.addFlashAttribute("successMessage", "Socio actualizado exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar el socio: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/socios";
+    }
+
     @PostMapping("/eliminar/{id}")
-    public String eliminarSocio(@PathVariable Long id) {
-        socioRepository.deleteById(id);
+    public String eliminarSocio(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            socioRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Socio eliminado exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar el socio: " + e.getMessage());
+        }
         return "redirect:/admin/socios";
     }
 }

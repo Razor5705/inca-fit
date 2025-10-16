@@ -5,7 +5,10 @@ import com.incafit.Repository.FacturaRepository;
 import com.incafit.Repository.SocioRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -35,9 +38,21 @@ public class FacturaController {
         return "admin/facturas/formulario";
     }
 
-    @PostMapping("/guardar")
-    public String guardarFactura(@ModelAttribute Factura factura) {
-        facturaRepository.save(factura);
+    @PostMapping("/nueva")
+    public String guardarFactura(@Valid @ModelAttribute Factura factura, 
+                                BindingResult result,
+                                RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/facturas/formulario";
+        }
+        
+        try {
+            facturaRepository.save(factura);
+            redirectAttributes.addFlashAttribute("successMessage", "Factura guardada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar la factura: " + e.getMessage());
+        }
+        
         return "redirect:/admin/facturas";
     }
 
@@ -50,9 +65,34 @@ public class FacturaController {
         return "admin/facturas/formulario";
     }
 
+    @PostMapping("/editar/{id}")
+    public String actualizarFactura(@PathVariable Long id, 
+                                   @Valid @ModelAttribute Factura factura,
+                                   BindingResult result,
+                                   RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/facturas/formulario";
+        }
+        
+        try {
+            factura.setId(id);
+            facturaRepository.save(factura);
+            redirectAttributes.addFlashAttribute("successMessage", "Factura actualizada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar la factura: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/facturas";
+    }
+
     @PostMapping("/eliminar/{id}")
-    public String eliminarFactura(@PathVariable Long id) {
-        facturaRepository.deleteById(id);
+    public String eliminarFactura(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            facturaRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Factura eliminada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar la factura: " + e.getMessage());
+        }
         return "redirect:/admin/facturas";
     }
 }

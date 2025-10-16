@@ -6,7 +6,10 @@ import com.incafit.Repository.SocioRepository;
 import com.incafit.Repository.ClaseRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -41,9 +44,21 @@ public class ReservaController {
         return "admin/reservas/formulario";
     }
 
-    @PostMapping("/guardar")
-    public String guardarReserva(@ModelAttribute Reserva reserva) {
-        reservaRepository.save(reserva);
+    @PostMapping("/nueva")
+    public String guardarReserva(@Valid @ModelAttribute Reserva reserva, 
+                                BindingResult result,
+                                RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/reservas/formulario";
+        }
+        
+        try {
+            reservaRepository.save(reserva);
+            redirectAttributes.addFlashAttribute("successMessage", "Reserva guardada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar la reserva: " + e.getMessage());
+        }
+        
         return "redirect:/admin/reservas";
     }
 
@@ -57,9 +72,34 @@ public class ReservaController {
         return "admin/reservas/formulario";
     }
 
+    @PostMapping("/editar/{id}")
+    public String actualizarReserva(@PathVariable Long id, 
+                                   @Valid @ModelAttribute Reserva reserva,
+                                   BindingResult result,
+                                   RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/reservas/formulario";
+        }
+        
+        try {
+            reserva.setId(id);
+            reservaRepository.save(reserva);
+            redirectAttributes.addFlashAttribute("successMessage", "Reserva actualizada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar la reserva: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/reservas";
+    }
+
     @PostMapping("/eliminar/{id}")
-    public String eliminarReserva(@PathVariable Long id) {
-        reservaRepository.deleteById(id);
+    public String eliminarReserva(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            reservaRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Reserva eliminada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar la reserva: " + e.getMessage());
+        }
         return "redirect:/admin/reservas";
     }
 }

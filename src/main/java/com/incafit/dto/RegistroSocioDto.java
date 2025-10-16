@@ -1,34 +1,28 @@
 package com.incafit.dto;
 
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-
 public class RegistroSocioDto {
 
 
-    @NotBlank(message = "El DNI es obligatorio")
+    @NotBlank(message = "El DNI es obligatorio", groups = BasicInfo.class)
     private String dni;
 
-
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "El nombre es obligatorio", groups = BasicInfo.class)
     private String nombre;
 
-
-    @NotBlank(message = "El teléfono es obligatorio")
+    @NotBlank(message = "El teléfono es obligatorio", groups = BasicInfo.class)
     private String telefono;
 
-
-    @NotBlank(message = "El email es obligatorio")
-    @Email(message = "Debe ser un email válido")
+    @NotBlank(message = "El email es obligatorio", groups = BasicInfo.class)
+    @Email(message = "Debe ser un email válido", groups = BasicInfo.class)
     private String email;
 
-
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
+    @NotBlank(message = "La contraseña es obligatoria", groups = BasicInfo.class)
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres", groups = BasicInfo.class)
     private String password;
 
 
@@ -111,10 +105,20 @@ public class RegistroSocioDto {
     }
 
 
-    // Campos para el pago simulado (sin validaciones @NotBlank)
+    // Campos para el pago simulado
+    @NotBlank(message = "El nombre en la tarjeta es obligatorio", groups = PaymentInfo.class)
     private String nombreTarjeta;
+    
+    @NotBlank(message = "El número de tarjeta es obligatorio", groups = PaymentInfo.class)
+    @Pattern(regexp = "\\d{16}", message = "El número de tarjeta debe tener 16 dígitos", groups = PaymentInfo.class)
     private String numeroTarjeta;
+    
+    @NotBlank(message = "La fecha de caducidad es obligatoria", groups = PaymentInfo.class)
+    @Pattern(regexp = "\\d{2}/\\d{2}", message = "La fecha debe tener el formato MM/YY", groups = PaymentInfo.class)
     private String fechaCaducidad;
+    
+    @NotBlank(message = "El CVV es obligatorio", groups = PaymentInfo.class)
+    @Pattern(regexp = "\\d{3}", message = "El CVV debe tener 3 dígitos", groups = PaymentInfo.class)
     private String cvv;
 
 

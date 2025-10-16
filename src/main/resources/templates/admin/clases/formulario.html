@@ -11,7 +11,7 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form th:action="@{/admin/clases/guardar}" th:object="${clase}" method="post">
+            <form th:action="${clase.id == null ? @{/admin/clases/nueva} : @{/admin/clases/editar/{id}(id=${clase.id})}}" th:object="${clase}" method="post">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">

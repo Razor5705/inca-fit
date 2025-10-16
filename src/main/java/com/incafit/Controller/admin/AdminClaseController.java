@@ -1,14 +1,14 @@
 package com.incafit.Controller.admin;
 
 import com.incafit.Model.Clase;
-import com.incafit.Model.Instructor;
 import com.incafit.Repository.ClaseRepository;
 import com.incafit.Repository.InstructorRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/admin/clases")
@@ -36,8 +36,20 @@ public class AdminClaseController {
     }
 
     @PostMapping("/nueva")
-    public String guardarClase(@ModelAttribute Clase clase) {
-        claseRepository.save(clase);
+    public String guardarClase(@Valid @ModelAttribute Clase clase, 
+                              BindingResult result,
+                              RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/clases/formulario";
+        }
+        
+        try {
+            claseRepository.save(clase);
+            redirectAttributes.addFlashAttribute("successMessage", "Clase guardada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar la clase: " + e.getMessage());
+        }
+        
         return "redirect:/admin/clases";
     }
 
@@ -50,15 +62,33 @@ public class AdminClaseController {
     }
 
     @PostMapping("/editar/{id}")
-    public String actualizarClase(@PathVariable Long id, @ModelAttribute Clase clase) {
-        clase.setId(id);
-        claseRepository.save(clase);
+    public String actualizarClase(@PathVariable Long id, 
+                                 @Valid @ModelAttribute Clase clase,
+                                 BindingResult result,
+                                 RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/clases/formulario";
+        }
+        
+        try {
+            clase.setId(id);
+            claseRepository.save(clase);
+            redirectAttributes.addFlashAttribute("successMessage", "Clase actualizada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar la clase: " + e.getMessage());
+        }
+        
         return "redirect:/admin/clases";
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminarClase(@PathVariable Long id) {
-        claseRepository.deleteById(id);
+    public String eliminarClase(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            claseRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Clase eliminada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar la clase: " + e.getMessage());
+        }
         return "redirect:/admin/clases";
     }
 }

@@ -15,16 +15,32 @@
                 </div>
                 <div class="card-body p-4">
                     <p class="text-center mb-4">Introduce tus datos de pago para completar el registro. <strong>(Esto es una simulación)</strong></p>
+                    
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading">📋 Datos de Prueba para el Tutor:</h6>
+                        <ul class="mb-0 small">
+                            <li><strong>Nombre en la Tarjeta:</strong> Cualquier nombre (ej: Juan Pérez)</li>
+                            <li><strong>Número de Tarjeta:</strong> 16 dígitos (ej: 1234567890123456)</li>
+                            <li><strong>Fecha de Caducidad:</strong> Formato MM/YY (ej: 12/25)</li>
+                            <li><strong>CVV:</strong> 3 dígitos (ej: 123)</li>
+                        </ul>
+                    </div>
 
                     <form th:action="@{/registro/paso3}" th:object="${registroDto}" method="post">
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="nombreTarjeta" th:field="*{nombreTarjeta}" placeholder="Nombre en la Tarjeta" required>
                             <label for="nombreTarjeta">Nombre en la Tarjeta</label>
+                            <div th:if="${#fields.hasErrors('nombreTarjeta')}" class="text-danger small mt-1">
+                                <span th:errors="*{nombreTarjeta}"></span>
+                            </div>
                         </div>
 
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="numeroTarjeta" th:field="*{numeroTarjeta}" placeholder="Número de Tarjeta" required>
                             <label for="numeroTarjeta">Número de Tarjeta</label>
+                            <div th:if="${#fields.hasErrors('numeroTarjeta')}" class="text-danger small mt-1">
+                                <span th:errors="*{numeroTarjeta}"></span>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -32,12 +48,18 @@
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="fechaCaducidad" th:field="*{fechaCaducidad}" placeholder="MM/YY" required>
                                     <label for="fechaCaducidad">Fecha de Caducidad (MM/YY)</label>
+                                    <div th:if="${#fields.hasErrors('fechaCaducidad')}" class="text-danger small mt-1">
+                                        <span th:errors="*{fechaCaducidad}"></span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="cvv" th:field="*{cvv}" placeholder="CVV" required>
                                     <label for="cvv">CVV</label>
+                                    <div th:if="${#fields.hasErrors('cvv')}" class="text-danger small mt-1">
+                                        <span th:errors="*{cvv}"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

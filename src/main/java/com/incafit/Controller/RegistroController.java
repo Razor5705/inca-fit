@@ -6,13 +6,15 @@ import com.incafit.Repository.FacturaRepository;
 import com.incafit.service.MembresiaService;
 import com.incafit.service.SocioService;
 import com.incafit.dto.RegistroSocioDto;
+import com.incafit.dto.BasicInfo;
+import com.incafit.dto.PaymentInfo;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
-import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -51,7 +53,7 @@ public class RegistroController {
     }
 
     @PostMapping("/paso1")
-    public String procesarPaso1(@Valid @ModelAttribute("registroDto") RegistroSocioDto registroDto,
+    public String procesarPaso1(@Validated(BasicInfo.class) @ModelAttribute("registroDto") RegistroSocioDto registroDto,
                                 BindingResult result) {
         
         System.out.println("🔍 DEBUG - Datos recibidos:");
@@ -110,11 +112,20 @@ public class RegistroController {
     }
 
     @PostMapping("/paso3")
-    public String procesarPaso3(@Valid @ModelAttribute("registroDto") RegistroSocioDto registroDto,
+    public String procesarPaso3(@Validated({BasicInfo.class, PaymentInfo.class}) @ModelAttribute("registroDto") RegistroSocioDto registroDto,
                                 BindingResult result,
                                 SessionStatus status) {
 
+        System.out.println("🔍 DEBUG - Procesando Paso 3:");
+        System.out.println("Nombre Tarjeta: " + registroDto.getNombreTarjeta());
+        System.out.println("Número Tarjeta: " + (registroDto.getNumeroTarjeta() != null ? "***" + registroDto.getNumeroTarjeta().substring(registroDto.getNumeroTarjeta().length() - 4) : "null"));
+        System.out.println("Fecha Caducidad: " + registroDto.getFechaCaducidad());
+        System.out.println("CVV: " + (registroDto.getCvv() != null ? "***" : "null"));
+        System.out.println("Membresía ID: " + registroDto.getMembresiaId());
+
         if (result.hasErrors()) {
+            System.out.println("❌ DEBUG - Errores de validación en Paso 3:");
+            result.getAllErrors().forEach(error -> System.out.println("Error: " + error.getDefaultMessage()));
             return "registro-paso3";
         }
 
@@ -156,6 +167,10 @@ public class RegistroController {
         detalle.setSubtotal(membresiaSeleccionada.getPrecio());
         detalleFacturaRepository.save(detalle);
 
+        System.out.println("✅ DEBUG - Registro completado exitosamente:");
+        System.out.println("Socio creado: " + nuevoSocio.getNombre() + " (" + nuevoSocio.getEmail() + ")");
+        System.out.println("Membresía: " + membresiaSeleccionada.getTipoMembresia());
+        System.out.println("Factura creada: " + factura.getId() + " - Total: €" + factura.getTotal());
 
         status.setComplete(); // Limpiar la sesión
         return "redirect:/login?registroExitoso=true";

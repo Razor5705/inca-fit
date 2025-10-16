@@ -31,6 +31,9 @@ public class Instructor {
     @NotBlank(message = "El email no puede estar vacío")
     private String email;
 
+    private String telefono;
+    private String experiencia;
+
 
     // Constructores, getters y setters
 
@@ -83,5 +86,21 @@ public class Instructor {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getExperiencia() {
+        return experiencia;
+    }
+
+    public void setExperiencia(String experiencia) {
+        this.experiencia = experiencia;
     }
 }
