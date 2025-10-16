@@ -54,10 +54,12 @@
                     <a th:href="@{/admin/facturas/editar/{id}(id=${factura.id})}" class="btn btn-sm btn-warning me-1">
                       <i class="fas fa-edit"></i>
                     </a>
-                    <a th:href="@{/admin/facturas/eliminar/{id}(id=${factura.id})}" class="btn btn-sm btn-danger" 
-                       onclick="return confirm('¿Estás seguro de eliminar esta factura?')">
-                      <i class="fas fa-trash"></i>
-                    </a>
+                    <form th:action="@{/admin/facturas/eliminar/{id}(id=${factura.id})}" method="post" style="display: inline;">
+                      <button type="submit" class="btn btn-sm btn-danger" 
+                              onclick="return confirm('¿Estás seguro de eliminar esta factura?')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
                   </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(facturas)}">

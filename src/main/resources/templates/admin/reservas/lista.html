@@ -54,10 +54,12 @@
                     <a th:href="@{/admin/reservas/editar/{id}(id=${reserva.id})}" class="btn btn-sm btn-warning me-1">
                       <i class="fas fa-edit"></i>
                     </a>
-                    <a th:href="@{/admin/reservas/eliminar/{id}(id=${reserva.id})}" class="btn btn-sm btn-danger" 
-                       onclick="return confirm('¿Estás seguro de eliminar esta reserva?')">
-                      <i class="fas fa-trash"></i>
-                    </a>
+                    <form th:action="@{/admin/reservas/eliminar/{id}(id=${reserva.id})}" method="post" style="display: inline;">
+                      <button type="submit" class="btn btn-sm btn-danger" 
+                              onclick="return confirm('¿Estás seguro de eliminar esta reserva?')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
                   </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(reservas)}">
