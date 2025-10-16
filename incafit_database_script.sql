@@ -111,9 +111,11 @@ CREATE TABLE asistencias (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     socio_id BIGINT NOT NULL,
     clase_id BIGINT NOT NULL,
+    reserva_id BIGINT NOT NULL UNIQUE,
     fecha DATE NOT NULL,
     FOREIGN KEY (socio_id) REFERENCES socios(id) ON DELETE CASCADE,
-    FOREIGN KEY (clase_id) REFERENCES clases(id) ON DELETE CASCADE
+    FOREIGN KEY (clase_id) REFERENCES clases(id) ON DELETE CASCADE,
+    FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE CASCADE
 );
 
 -- =====================================================
@@ -130,6 +132,7 @@ CREATE INDEX idx_facturas_socio ON facturas(socio_id);
 CREATE INDEX idx_facturas_fecha ON facturas(fecha);
 CREATE INDEX idx_asistencias_fecha ON asistencias(fecha);
 CREATE INDEX idx_asistencias_socio ON asistencias(socio_id);
+CREATE INDEX idx_asistencias_reserva ON asistencias(reserva_id);
 
 -- =====================================================
 -- INSERCIÓN DE DATOS DE PRUEBA
@@ -197,12 +200,12 @@ INSERT INTO pagos (factura_id, fecha_pago, monto_pagado, metodo_pago) VALUES
 (2, '2024-10-01', 135.00, 'TRANSFERENCIA_BANCARIA');
 
 -- Insertar ASISTENCIAS de ejemplo
-INSERT INTO asistencias (socio_id, clase_id, fecha) VALUES
-(2, 1, '2024-10-15'),
-(2, 2, '2024-10-16'),
-(3, 1, '2024-10-15'),
-(3, 3, '2024-10-17'),
-(4, 4, '2024-10-18');
+INSERT INTO asistencias (socio_id, clase_id, reserva_id, fecha) VALUES
+(2, 1, 1, '2024-10-15'),
+(2, 2, 2, '2024-10-16'),
+(3, 1, 3, '2024-10-15'),
+(3, 3, 4, '2024-10-17'),
+(4, 4, 6, '2024-10-18');
 
 -- =====================================================
 -- CONSULTAS DE VERIFICACIÓN
@@ -280,15 +283,21 @@ JOIN socios s ON f.socio_id = s.id
 LEFT JOIN detalles_factura df ON f.id = df.factura_id
 WHERE f.estado = 'PENDIENTE';
 
--- 5. Asistencias por clase
+-- 5. Asistencias por clase con información de reservas
 SELECT 
     c.nombre as clase,
     COUNT(a.id) as total_asistencias,
     c.capacidad_maxima,
-    ROUND((COUNT(a.id) / c.capacidad_maxima) * 100, 2) as porcentaje_ocupacion
+    ROUND((COUNT(a.id) / c.capacidad_maxima) * 100, 2) as porcentaje_ocupacion,
+    s.nombre as socio,
+    a.fecha,
+    r.estado as estado_reserva
 FROM clases c
 LEFT JOIN asistencias a ON c.id = a.clase_id
-GROUP BY c.id, c.nombre, c.capacidad_maxima;
+LEFT JOIN socios s ON a.socio_id = s.id
+LEFT JOIN reservas r ON a.reserva_id = r.id
+GROUP BY c.id, c.nombre, c.capacidad_maxima, s.nombre, a.fecha, r.estado
+ORDER BY c.nombre, a.fecha;
 
 -- =====================================================
 -- NOTAS IMPORTANTES PARA EL TUTOR
@@ -313,7 +322,7 @@ RELACIONES:
 - Una clase pertenece a un instructor (ManyToOne)
 - Una factura puede tener múltiples detalles (OneToMany)
 - Un pago pertenece a una factura (ManyToOne)
-- Una asistencia registra socio + clase + fecha (ManyToOne)
+- Una asistencia registra socio + clase + reserva + fecha (ManyToOne + OneToOne)
 
 DATOS DE PRUEBA:
 - 1 administrador (admin@incafit.com / admin123)
