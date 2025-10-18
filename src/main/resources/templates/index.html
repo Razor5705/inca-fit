@@ -437,6 +437,30 @@
         </div>
     </section>
 
+    <!-- Chatbot de WhatsApp -->
+    <div class="chatbot-container chatbot-closed" id="chatbot">
+        <div class="chatbot-header">
+            <h3 class="chatbot-title"><i class="fab fa-whatsapp whatsapp-icon"></i> Asistente IncaFIT</h3>
+            <button class="chatbot-toggle" id="toggleChatbot">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="chatbot-body">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Los mensajes se añadirán dinámicamente aquí -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Escribe tu mensaje...">
+                <button class="chat-send" id="chatSend">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <p>Este asistente te redirigirá a WhatsApp. <a href="https://wa.me/34603180852" target="_blank">Contactar directamente</a></p>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const featureCards = document.querySelectorAll('.feature-card, .membership-card, .testimonial-card');
@@ -456,6 +480,333 @@
                 card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                 observer.observe(card);
             });
+
+            // Chatbot functionality
+            const chatbot = document.getElementById('chatbot');
+            const toggleChatbot = document.getElementById('toggleChatbot');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatInput = document.getElementById('chatInput');
+            const chatSend = document.getElementById('chatSend');
+            let isOpen = false;
+
+            // Mensajes predefinidos del bot
+            const botMessages = {
+                greeting: "¡Hola! 👋 Soy el asistente virtual de <strong>IncaFIT</strong>. Estoy aquí para ayudarte con información sobre nuestro gimnasio. ¿En qué puedo asistirte hoy?",
+                
+                membership: "🏋️‍♂️ <strong>NUESTRAS MEMBRESÍAS INCAFIT</strong>\n\n" +
+                    "💪 <strong>Mensual:</strong> €50/mes\n" +
+                    "• Acceso completo al gimnasio\n" +
+                    "• Clases grupales incluidas\n" +
+                    "• Uso de equipos y instalaciones\n" +
+                    "• Asesoramiento básico\n\n" +
+                    
+                    "🏆 <strong>Trimestral:</strong> €135/3 meses (¡Ahorra €15!)\n" +
+                    "• Todo lo anterior +\n" +
+                    "• Clases grupales ilimitadas\n" +
+                    "• Asesoramiento personalizado\n" +
+                    "• Descuentos en servicios adicionales\n\n" +
+                    
+                    "👑 <strong>Anual:</strong> €500/año (¡Ahorra €100!)\n" +
+                    "• Acceso premium completo\n" +
+                    "• Entrenamiento personalizado incluido\n" +
+                    "• Seguimiento nutricional\n" +
+                    "• Servicios premium incluidos\n\n" +
+                    "¿Te interesa alguna membresía en particular?",
+                
+                classes: "🏃‍♀️ <strong>CLASES DISPONIBLES EN INCAFIT</strong>\n\n" +
+                    "🧘‍♀️ <strong>Yoga</strong> - 8:00 AM (60 min)\n" +
+                    "• Clase de relajación y flexibilidad\n" +
+                    "• Instructor: Carlos Gómez\n" +
+                    "• Máximo 20 personas\n\n" +
+                    
+                    "🚴‍♀️ <strong>Spinning</strong> - 6:00 PM (45 min)\n" +
+                    "• Clase de ciclismo intenso\n" +
+                    "• Instructor: Ana Martínez\n" +
+                    "• Máximo 15 personas\n\n" +
+                    
+                    "💪 <strong>Otras actividades:</strong>\n" +
+                    "• Entrenamiento personalizado\n" +
+                    "• HIIT (High Intensity Interval Training)\n" +
+                    "• Pilates\n" +
+                    "• CrossFit\n" +
+                    "• Zumba\n\n" +
+                    "¿Qué tipo de entrenamiento te interesa más?",
+                
+                schedule: "🕐 <strong>HORARIOS INCAFIT</strong>\n\n" +
+                    "📅 <strong>Lunes a Viernes:</strong>\n" +
+                    "• 6:00 AM - 10:00 PM\n" +
+                    "• Clases desde las 8:00 AM\n\n" +
+                    
+                    "📅 <strong>Sábados:</strong>\n" +
+                    "• 7:00 AM - 8:00 PM\n" +
+                    "• Clases matutinas y vespertinas\n\n" +
+                    
+                    "📅 <strong>Domingos:</strong>\n" +
+                    "• 8:00 AM - 6:00 PM\n" +
+                    "• Horario reducido\n\n" +
+                    
+                    "⏰ <strong>Horarios de clases:</strong>\n" +
+                    "• Yoga: Lunes a Viernes 8:00 AM\n" +
+                    "• Spinning: Lunes a Viernes 6:00 PM\n" +
+                    "• Consulta horarios especiales los fines de semana\n\n" +
+                    "¿Necesitas información sobre algún horario específico?",
+                
+                instructors: "👨‍🏫 <strong>NUESTRO EQUIPO DE INSTRUCTORES</strong>\n\n" +
+                    "🧘‍♂️ <strong>Carlos Gómez</strong>\n" +
+                    "• Especialidad: Yoga y Pilates\n" +
+                    "• Email: carlos.gomez@incafit.com\n" +
+                    "• Experiencia: 8 años\n\n" +
+                    
+                    "🚴‍♀️ <strong>Ana Martínez</strong>\n" +
+                    "• Especialidad: Spinning y HIIT\n" +
+                    "• Email: ana.martinez@incafit.com\n" +
+                    "• Experiencia: 6 años\n\n" +
+                    
+                    "💪 <strong>Equipo completo:</strong>\n" +
+                    "• Instructores certificados\n" +
+                    "• Entrenadores personales disponibles\n" +
+                    "• Asesoramiento nutricional\n\n" +
+                    "¿Te gustaría conocer más sobre algún instructor?",
+                
+                facilities: "🏢 <strong>INSTALACIONES INCAFIT</strong>\n\n" +
+                    "💪 <strong>Área de musculación:</strong>\n" +
+                    "• Equipos de última generación\n" +
+                    "• Zona de peso libre\n" +
+                    "• Máquinas cardiovasculares\n\n" +
+                    
+                    "🧘‍♀️ <strong>Salas de clases:</strong>\n" +
+                    "• Sala de yoga y pilates\n" +
+                    "• Sala de spinning\n" +
+                    "• Zona de HIIT\n\n" +
+                    
+                    "🚿 <strong>Servicios adicionales:</strong>\n" +
+                    "• Vestuarios completos\n" +
+                    "• Duchas y taquillas\n" +
+                    "• Área de descanso\n" +
+                    "• Parking gratuito\n\n" +
+                    "¿Te gustaría conocer más detalles sobre nuestras instalaciones?",
+                
+                contact: "📞 <strong>CONTACTO INCAFIT</strong>\n\n" +
+                    "📧 <strong>Email:</strong> incafit.soporte@gmail.com\n" +
+                    "📱 <strong>Teléfono:</strong> +34 603180852\n" +
+                    "💬 <strong>WhatsApp:</strong> Haz clic en el enlace de abajo\n\n" +
+                    
+                    "🕐 <strong>Horario de atención:</strong>\n" +
+                    "• Lunes a Viernes: 8:00 AM - 8:00 PM\n" +
+                    "• Sábados: 9:00 AM - 6:00 PM\n" +
+                    "• Domingos: 10:00 AM - 4:00 PM\n\n" +
+                    
+                    "📍 <strong>Ubicación:</strong> Consulta nuestra dirección en el sitio web\n\n" +
+                    "¿Prefieres que te contactemos por WhatsApp para una atención más personalizada?",
+                
+                registration: "📝 <strong>REGISTRO EN INCAFIT</strong>\n\n" +
+                    "¡Únete a nuestra comunidad fitness! El proceso es muy sencillo:\n\n" +
+                    "1️⃣ <strong>Registro online:</strong> Completa el formulario en nuestra web\n" +
+                    "2️⃣ <strong>Elige tu membresía:</strong> Mensual, Trimestral o Anual\n" +
+                    "3️⃣ <strong>Pago seguro:</strong> Múltiples métodos de pago\n" +
+                    "4️⃣ <strong>¡Empieza a entrenar!</strong> Acceso inmediato\n\n" +
+                    
+                    "🎁 <strong>Promociones especiales:</strong>\n" +
+                    "• 7 días gratis para nuevos miembros\n" +
+                    "• Descuentos por pago anual\n" +
+                    "• Planes familiares disponibles\n\n" +
+                    "¿Te gustaría que te ayude con el proceso de registro?",
+                
+                default: "Gracias por tu mensaje. Para una atención más personalizada y resolver todas tus dudas, te recomiendo contactarnos directamente por WhatsApp. ¡Estaremos encantados de ayudarte a comenzar tu transformación fitness! 💪\n\n¿Hay algo más en lo que pueda asistirte?"
+            };
+
+            // Opciones de respuesta rápida
+            const quickOptions = [
+                "💪 Información sobre membresías",
+                "📅 Horarios del gimnasio", 
+                "🏃‍♀️ Clases disponibles",
+                "👨‍🏫 Instructores",
+                "🏢 Instalaciones",
+                "📝 Registro",
+                "📞 Contacto directo"
+            ];
+
+            // Función para mostrar mensaje del bot
+            function showBotMessage(message, showOptions = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot-message';
+                messageDiv.innerHTML = message;
+                chatMessages.appendChild(messageDiv);
+                
+                if (showOptions) {
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'chat-options';
+                    quickOptions.forEach(option => {
+                        const optionBtn = document.createElement('button');
+                        optionBtn.className = 'chat-option';
+                        optionBtn.textContent = option;
+                        optionBtn.onclick = () => handleQuickOption(option);
+                        optionsDiv.appendChild(optionBtn);
+                    });
+                    chatMessages.appendChild(optionsDiv);
+                }
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Función para mostrar mensaje del usuario
+            function showUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.textContent = message;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Función para manejar opciones rápidas
+            function handleQuickOption(option) {
+                showUserMessage(option);
+                
+                // Limpiar opciones anteriores
+                const existingOptions = chatMessages.querySelectorAll('.chat-options');
+                existingOptions.forEach(opt => opt.remove());
+                
+                // Responder según la opción seleccionada
+                setTimeout(() => {
+                    if (option.includes('membresías')) {
+                        showBotMessage(botMessages.membership);
+                    } else if (option.includes('Horarios')) {
+                        showBotMessage(botMessages.schedule);
+                    } else if (option.includes('Clases')) {
+                        showBotMessage(botMessages.classes);
+                    } else if (option.includes('Instructores')) {
+                        showBotMessage(botMessages.instructors);
+                    } else if (option.includes('Instalaciones')) {
+                        showBotMessage(botMessages.facilities);
+                    } else if (option.includes('Registro')) {
+                        showBotMessage(botMessages.registration);
+                    } else if (option.includes('Contacto')) {
+                        showBotMessage(botMessages.contact);
+                    }
+                }, 500);
+            }
+
+            // Función para procesar mensaje del usuario
+            function processUserMessage(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Saludos
+                if (lowerMessage.includes('hola') || lowerMessage.includes('buenos') || lowerMessage.includes('buenas') || 
+                    lowerMessage.includes('saludos') || lowerMessage.includes('hey') || lowerMessage.includes('hi')) {
+                    return botMessages.greeting;
+                }
+                
+                // Membresías y precios
+                else if (lowerMessage.includes('membresía') || lowerMessage.includes('precio') || lowerMessage.includes('plan') || 
+                         lowerMessage.includes('cuota') || lowerMessage.includes('pago') || lowerMessage.includes('costo') ||
+                         lowerMessage.includes('mensual') || lowerMessage.includes('trimestral') || lowerMessage.includes('anual') ||
+                         lowerMessage.includes('euros') || lowerMessage.includes('€')) {
+                    return botMessages.membership;
+                }
+                
+                // Clases y entrenamientos
+                else if (lowerMessage.includes('clase') || lowerMessage.includes('entrenamiento') || lowerMessage.includes('ejercicio') ||
+                         lowerMessage.includes('yoga') || lowerMessage.includes('spinning') || lowerMessage.includes('pilates') ||
+                         lowerMessage.includes('hiit') || lowerMessage.includes('crossfit') || lowerMessage.includes('zumba') ||
+                         lowerMessage.includes('actividad') || lowerMessage.includes('deporte')) {
+                    return botMessages.classes;
+                }
+                
+                // Horarios
+                else if (lowerMessage.includes('horario') || lowerMessage.includes('hora') || lowerMessage.includes('abierto') ||
+                         lowerMessage.includes('cerrado') || lowerMessage.includes('funciona') || lowerMessage.includes('disponible') ||
+                         lowerMessage.includes('lunes') || lowerMessage.includes('martes') || lowerMessage.includes('miércoles') ||
+                         lowerMessage.includes('jueves') || lowerMessage.includes('viernes') || lowerMessage.includes('sábado') ||
+                         lowerMessage.includes('domingo') || lowerMessage.includes('fin de semana')) {
+                    return botMessages.schedule;
+                }
+                
+                // Instructores
+                else if (lowerMessage.includes('instructor') || lowerMessage.includes('entrenador') || lowerMessage.includes('profesor') ||
+                         lowerMessage.includes('carlos') || lowerMessage.includes('ana') || lowerMessage.includes('personal') ||
+                         lowerMessage.includes('equipo') || lowerMessage.includes('staff')) {
+                    return botMessages.instructors;
+                }
+                
+                // Instalaciones
+                else if (lowerMessage.includes('instalación') || lowerMessage.includes('gimnasio') || lowerMessage.includes('equipo') ||
+                         lowerMessage.includes('máquina') || lowerMessage.includes('sala') || lowerMessage.includes('vestuario') ||
+                         lowerMessage.includes('ducha') || lowerMessage.includes('parking') || lowerMessage.includes('zona') ||
+                         lowerMessage.includes('área') || lowerMessage.includes('lugar')) {
+                    return botMessages.facilities;
+                }
+                
+                // Registro
+                else if (lowerMessage.includes('registro') || lowerMessage.includes('registrarse') || lowerMessage.includes('inscribirse') ||
+                         lowerMessage.includes('unirse') || lowerMessage.includes('apuntarse') || lowerMessage.includes('matricularse') ||
+                         lowerMessage.includes('nuevo') || lowerMessage.includes('empezar') || lowerMessage.includes('comenzar') ||
+                         lowerMessage.includes('prueba') || lowerMessage.includes('gratis')) {
+                    return botMessages.registration;
+                }
+                
+                // Contacto
+                else if (lowerMessage.includes('contacto') || lowerMessage.includes('teléfono') || lowerMessage.includes('email') ||
+                         lowerMessage.includes('dirección') || lowerMessage.includes('ubicación') || lowerMessage.includes('localización') ||
+                         lowerMessage.includes('llamar') || lowerMessage.includes('escribir') || lowerMessage.includes('whatsapp') ||
+                         lowerMessage.includes('ayuda') || lowerMessage.includes('soporte')) {
+                    return botMessages.contact;
+                }
+                
+                // Mensaje por defecto
+                else {
+                    return botMessages.default;
+                }
+            }
+
+            // Toggle chatbot
+            toggleChatbot.addEventListener('click', () => {
+                isOpen = !isOpen;
+                if (isOpen) {
+                    chatbot.classList.remove('chatbot-closed');
+                    chatbot.classList.add('chatbot-open');
+                    toggleChatbot.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                    
+                    // Mostrar mensaje de bienvenida si es la primera vez
+                    if (chatMessages.children.length === 0) {
+                        setTimeout(() => {
+                            showBotMessage(botMessages.greeting, true);
+                        }, 300);
+                    }
+                } else {
+                    chatbot.classList.add('chatbot-closed');
+                    chatbot.classList.remove('chatbot-open');
+                    toggleChatbot.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                }
+            });
+
+            // Enviar mensaje
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    showUserMessage(message);
+                    chatInput.value = '';
+                    
+                    setTimeout(() => {
+                        const response = processUserMessage(message);
+                        showBotMessage(response);
+                    }, 1000);
+                }
+            }
+
+            // Event listeners
+            chatSend.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Auto-abrir chatbot después de 3 segundos en la página
+            setTimeout(() => {
+                if (!isOpen) {
+                    chatbot.style.animation = 'pulse 2s infinite';
+                }
+            }, 3000);
         });
     </script>
 </div>
