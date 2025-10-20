@@ -15,6 +15,7 @@ public class RegistroSocioDto {
     private String nombre;
 
     @NotBlank(message = "El teléfono es obligatorio", groups = BasicInfo.class)
+    @Pattern(regexp = "\\d{9}", message = "El teléfono debe tener 9 dígitos", groups = BasicInfo.class)
     private String telefono;
 
     @NotBlank(message = "El email es obligatorio", groups = BasicInfo.class)

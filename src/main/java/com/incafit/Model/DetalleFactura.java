@@ -19,6 +19,17 @@ public class DetalleFactura {
     private int cantidad;
     private BigDecimal precioUnitario;
     private BigDecimal subtotal;
+    
+    // Campos nuevos para relacionar con los elementos facturados
+    private String tipoItem; // "MEMBRESIA" o "CLASE"
+    
+    @ManyToOne
+    @JoinColumn(name = "membresia_id")
+    private Membresia membresia;
+    
+    @ManyToOne
+    @JoinColumn(name = "reserva_id")
+    private Reserva reserva;
 
     // Getters y setters
 
@@ -69,5 +80,29 @@ public class DetalleFactura {
 
     public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
+    }
+
+    public String getTipoItem() {
+        return tipoItem;
+    }
+
+    public void setTipoItem(String tipoItem) {
+        this.tipoItem = tipoItem;
+    }
+
+    public Membresia getMembresia() {
+        return membresia;
+    }
+
+    public void setMembresia(Membresia membresia) {
+        this.membresia = membresia;
+    }
+
+    public Reserva getReserva() {
+        return reserva;
+    }
+
+    public void setReserva(Reserva reserva) {
+        this.reserva = reserva;
     }
 }

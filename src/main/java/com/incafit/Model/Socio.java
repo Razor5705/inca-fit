@@ -52,6 +52,10 @@ public class Socio {
     @ManyToOne
     @JoinColumn(name = "membresia_id")
     private Membresia membresia;
+    
+    // Campos nuevos para controlar la vigencia de la membresía
+    private LocalDate fechaInicioMembresia;
+    private LocalDate fechaFinMembresia;
 
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Reserva> reservas = new ArrayList<>();
@@ -162,5 +166,30 @@ public class Socio {
 
     public void setReservas(List<Reserva> reservas) {
         this.reservas = reservas;
+    }
+
+    public LocalDate getFechaInicioMembresia() {
+        return fechaInicioMembresia;
+    }
+
+    public void setFechaInicioMembresia(LocalDate fechaInicioMembresia) {
+        this.fechaInicioMembresia = fechaInicioMembresia;
+    }
+
+    public LocalDate getFechaFinMembresia() {
+        return fechaFinMembresia;
+    }
+
+    public void setFechaFinMembresia(LocalDate fechaFinMembresia) {
+        this.fechaFinMembresia = fechaFinMembresia;
+    }
+    
+    // Método de utilidad para verificar si la membresía está activa
+    public boolean isMembresiaActiva() {
+        if (membresia == null || fechaInicioMembresia == null || fechaFinMembresia == null) {
+            return false;
+        }
+        LocalDate hoy = LocalDate.now();
+        return !hoy.isBefore(fechaInicioMembresia) && !hoy.isAfter(fechaFinMembresia);
     }
 }

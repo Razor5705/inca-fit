@@ -14,6 +14,8 @@ USE incafit_db;
 ALTER TABLE socios 
 ADD COLUMN telefono VARCHAR(20) AFTER email,
 ADD COLUMN fecha_registro DATE AFTER activo,
+ADD COLUMN fecha_inicio_membresia DATE AFTER membresia_id,
+ADD COLUMN fecha_fin_membresia DATE AFTER fecha_inicio_membresia,
 MODIFY COLUMN dni VARCHAR(10) NOT NULL UNIQUE,
 MODIFY COLUMN nombre VARCHAR(255) NOT NULL,
 MODIFY COLUMN email VARCHAR(255) NOT NULL UNIQUE,
@@ -38,6 +40,10 @@ ADD COLUMN descripcion TEXT AFTER duracion_dias;
 ALTER TABLE clases 
 ADD COLUMN hora TIME AFTER instructor_id,
 ADD COLUMN duracion_minutos INT AFTER hora,
+ADD COLUMN activo BOOLEAN NOT NULL DEFAULT TRUE AFTER duracion_minutos,
+ADD COLUMN fecha_inicio DATE AFTER activo,
+ADD COLUMN fecha_fin DATE AFTER fecha_inicio,
+ADD COLUMN precio_adicional DECIMAL(10,2) AFTER fecha_fin,
 MODIFY COLUMN descripcion TEXT,
 MODIFY COLUMN capacidad_maxima INT NOT NULL DEFAULT 1;
 
@@ -52,8 +58,13 @@ ALTER TABLE detalles_factura
 ADD COLUMN cantidad INT NOT NULL DEFAULT 1 AFTER concepto,
 ADD COLUMN precio_unitario DECIMAL(10,2) NOT NULL AFTER cantidad,
 ADD COLUMN subtotal DECIMAL(10,2) NOT NULL AFTER precio_unitario,
+ADD COLUMN tipo_item VARCHAR(50) AFTER subtotal,
+ADD COLUMN membresia_id BIGINT AFTER tipo_item,
+ADD COLUMN reserva_id BIGINT AFTER membresia_id,
 CHANGE concepto descripcion VARCHAR(500) NOT NULL,
-CHANGE monto precio_unitario DECIMAL(10,2) NOT NULL;
+CHANGE monto precio_unitario DECIMAL(10,2) NOT NULL,
+ADD FOREIGN KEY (membresia_id) REFERENCES membresias(id) ON DELETE SET NULL,
+ADD FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE SET NULL;
 
 -- 6. ACTUALIZAR TABLA ASISTENCIAS
 -- Cambiar estructura para que coincida con el modelo actual
@@ -102,14 +113,15 @@ INSERT IGNORE INTO instructores (nombre_completo, especialidad, email) VALUES
 ('Miguel Rodriguez', 'Musculación y Crossfit', 'miguel.rodriguez@incafit.com'),
 ('Laura Sanchez', 'Zumba y Aeróbicos', 'laura.sanchez@incafit.com');
 
--- Insertar clases si no existen
-INSERT IGNORE INTO clases (nombre, descripcion, instructor_id, hora, duracion_minutos, capacidad_maxima) VALUES
-('Yoga', 'Clase de relajación y flexibilidad', 1, '08:00:00', 60, 20),
-('Spinning', 'Clase de ciclismo intenso', 2, '18:00:00', 45, 15),
-('Pilates', 'Fortalecimiento del core y flexibilidad', 1, '10:00:00', 50, 12),
-('HIIT', 'Entrenamiento de alta intensidad', 2, '19:30:00', 30, 10),
-('Musculación', 'Entrenamiento con pesas', 3, '07:00:00', 90, 8),
-('Zumba', 'Baile y cardio', 4, '20:00:00', 60, 25);
+-- Insertar clases si no existen (incluye clases permanentes y limitadas)
+INSERT IGNORE INTO clases (nombre, descripcion, instructor_id, hora, duracion_minutos, capacidad_maxima, activo, fecha_inicio, fecha_fin, precio_adicional) VALUES
+('Yoga', 'Clase de relajación y flexibilidad', 1, '08:00:00', 60, 20, TRUE, NULL, NULL, NULL),
+('Spinning', 'Clase de ciclismo intenso', 2, '18:00:00', 45, 15, TRUE, NULL, NULL, NULL),
+('Pilates', 'Fortalecimiento del core y flexibilidad', 1, '10:00:00', 50, 12, TRUE, NULL, NULL, NULL),
+('HIIT', 'Entrenamiento de alta intensidad', 2, '19:30:00', 30, 10, TRUE, NULL, NULL, NULL),
+('Musculación', 'Entrenamiento con pesas', 3, '07:00:00', 90, 8, TRUE, NULL, NULL, NULL),
+('Zumba', 'Baile y cardio', 4, '20:00:00', 60, 25, TRUE, NULL, NULL, NULL),
+('Defensa Personal', 'Curso de defensa personal de 3 meses', 3, '19:00:00', 90, 15, TRUE, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 90 DAY), 25.00);
 
 -- Insertar membresías si no existen
 INSERT IGNORE INTO membresias (tipo_membresia, descripcion, precio, duracion_dias) VALUES
@@ -125,6 +137,8 @@ INSERT IGNORE INTO membresias (tipo_membresia, descripcion, precio, duracion_dia
 UPDATE socios 
 SET telefono = '600123456',
     membresia_id = 1,
+    fecha_inicio_membresia = CURDATE(),
+    fecha_fin_membresia = DATE_ADD(CURDATE(), INTERVAL 30 DAY),
     rol = 'USUARIO',
     activo = TRUE
 WHERE email = 'test@example.com';
@@ -132,6 +146,8 @@ WHERE email = 'test@example.com';
 UPDATE socios 
 SET telefono = '600987654',
     membresia_id = 2,
+    fecha_inicio_membresia = CURDATE(),
+    fecha_fin_membresia = DATE_ADD(CURDATE(), INTERVAL 90 DAY),
     rol = 'USUARIO',
     activo = TRUE
 WHERE email = 'nikkmed805@gmail.com';
@@ -140,10 +156,10 @@ WHERE email = 'nikkmed805@gmail.com';
 -- INSERTAR DATOS DE PRUEBA ADICIONALES
 -- =====================================================
 
--- Insertar más usuarios de prueba
-INSERT IGNORE INTO socios (dni, nombre, email, password, rol, activo, fecha_registro, telefono, membresia_id) VALUES
-('11223344', 'Maria Garcia', 'maria.garcia@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600555666', 2),
-('55667788', 'Pedro Lopez', 'pedro.lopez@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600777888', 3);
+-- Insertar más usuarios de prueba con vigencia de membresía
+INSERT IGNORE INTO socios (dni, nombre, email, password, rol, activo, fecha_registro, telefono, membresia_id, fecha_inicio_membresia, fecha_fin_membresia) VALUES
+('11223344', 'Maria Garcia', 'maria.garcia@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600555666', 2, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 90 DAY)),
+('55667788', 'Pedro Lopez', 'pedro.lopez@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600777888', 3, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 365 DAY));
 
 -- Insertar reservas de ejemplo
 INSERT IGNORE INTO reservas (socio_id, clase_id, fecha_hora, estado) VALUES
@@ -161,12 +177,12 @@ INSERT IGNORE INTO facturas (socio_id, fecha, total, estado) VALUES
 (3, '2024-10-01', 500.00, 'PENDIENTE'),
 (1, '2024-11-01', 50.00, 'PENDIENTE');
 
--- Insertar detalles de factura
-INSERT IGNORE INTO detalles_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal) VALUES
-(1, 'Membresía: Mensual', 1, 50.00, 50.00),
-(2, 'Membresía: Trimestral', 1, 135.00, 135.00),
-(3, 'Membresía: Anual', 1, 500.00, 500.00),
-(4, 'Membresía: Mensual', 1, 50.00, 50.00);
+-- Insertar detalles de factura con relación a membresías
+INSERT IGNORE INTO detalles_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal, tipo_item, membresia_id) VALUES
+(1, 'Membresía: Mensual', 1, 50.00, 50.00, 'MEMBRESIA', 1),
+(2, 'Membresía: Trimestral', 1, 135.00, 135.00, 'MEMBRESIA', 2),
+(3, 'Membresía: Anual', 1, 500.00, 500.00, 'MEMBRESIA', 3),
+(4, 'Membresía: Mensual', 1, 50.00, 50.00, 'MEMBRESIA', 1);
 
 -- Insertar pagos de ejemplo
 INSERT IGNORE INTO pagos (factura_id, fecha_pago, monto_pagado, metodo_pago) VALUES
@@ -282,25 +298,59 @@ ORDER BY f.fecha DESC;
 /*
 CAMBIOS REALIZADOS:
 
-1. SOCIOS: Agregados campos telefono y fecha_registro
-2. MEMBRESIAS: Agregados campos tipo_membresia, precio, duracion_dias, descripcion
-3. CLASES: Agregados campos hora y duracion_minutos
-4. FACTURAS: Cambiado fecha_emision por fecha
-5. DETALLES_FACTURA: Agregados campos cantidad, precio_unitario, subtotal
-6. ASISTENCIAS: Recreada con nueva estructura (socio_id, clase_id, fecha)
+1. SOCIOS: 
+   - Agregados campos: telefono, fecha_registro
+   - Agregados campos para vigencia de membresía: fecha_inicio_membresia, fecha_fin_membresia
+
+2. MEMBRESIAS: 
+   - Agregados campos: tipo_membresia, precio, duracion_dias, descripcion
+
+3. CLASES: 
+   - Agregados campos: hora, duracion_minutos, activo
+   - Agregados campos para clases con duración limitada: fecha_inicio, fecha_fin
+   - Agregado campo para clases con coste adicional: precio_adicional
+
+4. FACTURAS: 
+   - Cambiado fecha_emision por fecha
+
+5. DETALLES_FACTURA: 
+   - Agregados campos: cantidad, precio_unitario, subtotal
+   - Agregado campo tipo_item para diferenciar tipo de elemento facturado (MEMBRESIA o CLASE)
+   - Agregadas relaciones directas: membresia_id, reserva_id
+   - Esto permite vincular directamente las facturas con los elementos facturados
+
+6. ASISTENCIAS: 
+   - Recreada con nueva estructura (socio_id, clase_id, fecha)
+
+MEJORAS IMPLEMENTADAS (según feedback del tutor Víctor):
+
+✓ FACTURACIÓN Y PAGOS: 
+  Ahora hay una relación clara entre las facturas y los elementos facturados.
+  Las clases que generen un coste adicional pueden vincularse directamente a una factura
+  mediante el campo reserva_id en detalles_factura.
+
+✓ MEMBRESÍAS: 
+  Se agregaron campos fecha_inicio_membresia y fecha_fin_membresia en la tabla socios
+  para controlar la vigencia de cada membresía individual por socio.
+
+✓ CLASES Y RESERVAS: 
+  Se agregaron campos fecha_inicio y fecha_fin en la tabla clases para contemplar
+  clases con duración limitada (ejemplo: clase de defensa personal de 3 meses).
+  También se agregó precio_adicional para clases que generen costes adicionales.
 
 USUARIOS EXISTENTES ACTUALIZADOS:
-- test@example.com: Asignada membresía mensual
-- nikkmed805@gmail.com: Asignada membresía trimestral
+- test@example.com: Asignada membresía mensual con vigencia de 30 días
+- nikkmed805@gmail.com: Asignada membresía trimestral con vigencia de 90 días
 
 DATOS DE PRUEBA AGREGADOS:
 - Instructores adicionales
-- Clases con horarios
+- Clases con horarios (permanentes y limitadas)
+- Clase de ejemplo con duración limitada: "Defensa Personal" (3 meses, con precio adicional de 25.00)
 - Reservas, facturas y asistencias de ejemplo
-- Usuarios adicionales para pruebas
+- Usuarios adicionales para pruebas con vigencia de membresía
 
 ESTRUCTURA FINAL COINCIDE CON:
-- Modelos Java (Entity classes)
-- DataInitializer
+- Modelos Java (Entity classes) actualizados
+- DataInitializer actualizado
 - Controladores y servicios
 */

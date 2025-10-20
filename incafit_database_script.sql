@@ -32,6 +32,7 @@ CREATE TABLE instructores (
 
 -- Tabla: CLASES
 -- Almacena información de las clases disponibles
+-- Incluye soporte para clases permanentes y con duración limitada
 CREATE TABLE clases (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
@@ -40,11 +41,16 @@ CREATE TABLE clases (
     instructor_id BIGINT,
     hora TIME,
     duracion_minutos INT,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_inicio DATE,                      -- NULL para clases permanentes
+    fecha_fin DATE,                         -- NULL para clases permanentes
+    precio_adicional DECIMAL(10,2),        -- NULL si no tiene coste adicional
     FOREIGN KEY (instructor_id) REFERENCES instructores(id) ON DELETE SET NULL
 );
 
 -- Tabla: SOCIOS
 -- Almacena información de los socios/miembros del gimnasio
+-- Incluye control de vigencia de membresías
 CREATE TABLE socios (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     dni VARCHAR(10) NOT NULL UNIQUE,
@@ -56,6 +62,8 @@ CREATE TABLE socios (
     fecha_registro DATE NOT NULL,
     telefono VARCHAR(20),
     membresia_id BIGINT,
+    fecha_inicio_membresia DATE,           -- Inicio de vigencia de la membresía
+    fecha_fin_membresia DATE,              -- Fin de vigencia de la membresía
     FOREIGN KEY (membresia_id) REFERENCES membresias(id) ON DELETE SET NULL
 );
 
@@ -84,6 +92,7 @@ CREATE TABLE facturas (
 
 -- Tabla: DETALLES_FACTURA
 -- Almacena los detalles de cada factura
+-- Incluye relaciones directas con membresías y reservas
 CREATE TABLE detalles_factura (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     factura_id BIGINT NOT NULL,
@@ -91,7 +100,12 @@ CREATE TABLE detalles_factura (
     cantidad INT NOT NULL DEFAULT 1,
     precio_unitario DECIMAL(10,2) NOT NULL,
     subtotal DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (factura_id) REFERENCES facturas(id) ON DELETE CASCADE
+    tipo_item VARCHAR(50),                 -- 'MEMBRESIA' o 'CLASE'
+    membresia_id BIGINT,                   -- Relación con membresía facturada
+    reserva_id BIGINT,                     -- Relación con reserva/clase facturada
+    FOREIGN KEY (factura_id) REFERENCES facturas(id) ON DELETE CASCADE,
+    FOREIGN KEY (membresia_id) REFERENCES membresias(id) ON DELETE SET NULL,
+    FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE SET NULL
 );
 
 -- Tabla: PAGOS
@@ -151,25 +165,26 @@ INSERT INTO instructores (nombre_completo, especialidad, email) VALUES
 ('Miguel Rodriguez', 'Musculación y Crossfit', 'miguel.rodriguez@incafit.com'),
 ('Laura Sanchez', 'Zumba y Aeróbicos', 'laura.sanchez@incafit.com');
 
--- Insertar CLASES
-INSERT INTO clases (nombre, descripcion, instructor_id, hora, duracion_minutos, capacidad_maxima) VALUES
-('Yoga', 'Clase de relajación y flexibilidad', 1, '08:00:00', 60, 20),
-('Spinning', 'Clase de ciclismo intenso', 2, '18:00:00', 45, 15),
-('Pilates', 'Fortalecimiento del core y flexibilidad', 1, '10:00:00', 50, 12),
-('HIIT', 'Entrenamiento de alta intensidad', 2, '19:30:00', 30, 10),
-('Musculación', 'Entrenamiento con pesas', 3, '07:00:00', 90, 8),
-('Zumba', 'Baile y cardio', 4, '20:00:00', 60, 25);
+-- Insertar CLASES (incluye clases permanentes y limitadas)
+INSERT INTO clases (nombre, descripcion, instructor_id, hora, duracion_minutos, capacidad_maxima, activo, fecha_inicio, fecha_fin, precio_adicional) VALUES
+('Yoga', 'Clase de relajación y flexibilidad', 1, '08:00:00', 60, 20, TRUE, NULL, NULL, NULL),
+('Spinning', 'Clase de ciclismo intenso', 2, '18:00:00', 45, 15, TRUE, NULL, NULL, NULL),
+('Pilates', 'Fortalecimiento del core y flexibilidad', 1, '10:00:00', 50, 12, TRUE, NULL, NULL, NULL),
+('HIIT', 'Entrenamiento de alta intensidad', 2, '19:30:00', 30, 10, TRUE, NULL, NULL, NULL),
+('Musculación', 'Entrenamiento con pesas', 3, '07:00:00', 90, 8, TRUE, NULL, NULL, NULL),
+('Zumba', 'Baile y cardio', 4, '20:00:00', 60, 25, TRUE, NULL, NULL, NULL),
+('Defensa Personal', 'Curso de defensa personal de 3 meses', 3, '19:00:00', 90, 15, TRUE, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 90 DAY), 25.00);
 
--- Insertar SOCIOS (Admin y usuarios de prueba)
+-- Insertar SOCIOS (Admin y usuarios de prueba con vigencia de membresía)
 -- Nota: Las contraseñas están hasheadas con BCrypt
 -- admin123 -> $2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi
 -- user123 -> $2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW
-INSERT INTO socios (dni, nombre, email, password, rol, activo, fecha_registro, telefono, membresia_id) VALUES
-('12345678', 'Admin', 'admin@incafit.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'ADMIN', TRUE, CURDATE(), '600123456', NULL),
-('87654321', 'Juan Perez', 'juan.perez@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600987654', 1),
-('11223344', 'Maria Garcia', 'maria.garcia@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600555666', 2),
-('55667788', 'Pedro Lopez', 'pedro.lopez@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600777888', 3),
-('99887766', 'Ana Torres', 'ana.torres@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', FALSE, CURDATE(), '600999000', 1);
+INSERT INTO socios (dni, nombre, email, password, rol, activo, fecha_registro, telefono, membresia_id, fecha_inicio_membresia, fecha_fin_membresia) VALUES
+('12345678', 'Admin', 'admin@incafit.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'ADMIN', TRUE, CURDATE(), '600123456', NULL, NULL, NULL),
+('87654321', 'Juan Perez', 'juan.perez@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600987654', 1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+('11223344', 'Maria Garcia', 'maria.garcia@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600555666', 2, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 90 DAY)),
+('55667788', 'Pedro Lopez', 'pedro.lopez@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', TRUE, CURDATE(), '600777888', 3, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 365 DAY)),
+('99887766', 'Ana Torres', 'ana.torres@example.com', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'USUARIO', FALSE, CURDATE(), '600999000', 1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY));
 
 -- Insertar RESERVAS de ejemplo
 INSERT INTO reservas (socio_id, clase_id, fecha_hora, estado) VALUES
@@ -187,12 +202,12 @@ INSERT INTO facturas (socio_id, fecha, total, estado) VALUES
 (4, '2024-10-01', 500.00, 'PENDIENTE'),
 (2, '2024-11-01', 50.00, 'PENDIENTE');
 
--- Insertar DETALLES_FACTURA
-INSERT INTO detalles_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal) VALUES
-(1, 'Membresía: Mensual', 1, 50.00, 50.00),
-(2, 'Membresía: Trimestral', 1, 135.00, 135.00),
-(3, 'Membresía: Anual', 1, 500.00, 500.00),
-(4, 'Membresía: Mensual', 1, 50.00, 50.00);
+-- Insertar DETALLES_FACTURA con relación a membresías
+INSERT INTO detalles_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal, tipo_item, membresia_id, reserva_id) VALUES
+(1, 'Membresía: Mensual', 1, 50.00, 50.00, 'MEMBRESIA', 1, NULL),
+(2, 'Membresía: Trimestral', 1, 135.00, 135.00, 'MEMBRESIA', 2, NULL),
+(3, 'Membresía: Anual', 1, 500.00, 500.00, 'MEMBRESIA', 3, NULL),
+(4, 'Membresía: Mensual', 1, 50.00, 50.00, 'MEMBRESIA', 1, NULL);
 
 -- Insertar PAGOS de ejemplo
 INSERT INTO pagos (factura_id, fecha_pago, monto_pagado, metodo_pago) VALUES
@@ -308,11 +323,11 @@ ESTRUCTURA DE LA BASE DE DATOS:
 
 1. MEMBRESÍAS: Define los tipos de membresías disponibles
 2. INSTRUCTORES: Información de los entrenadores
-3. CLASES: Clases disponibles con horarios y capacidad
-4. SOCIOS: Usuarios del sistema (admin y usuarios normales)
+3. CLASES: Clases disponibles con horarios, capacidad y duración limitada
+4. SOCIOS: Usuarios del sistema (admin y usuarios normales) con vigencia de membresía
 5. RESERVAS: Reservas de clases por parte de los socios
 6. FACTURAS: Facturación de membresías y servicios
-7. DETALLES_FACTURA: Detalles de cada factura
+7. DETALLES_FACTURA: Detalles de cada factura con relación directa a membresías y clases
 8. PAGOS: Registro de pagos realizados
 9. ASISTENCIAS: Control de asistencia a clases
 
@@ -323,13 +338,30 @@ RELACIONES:
 - Una factura puede tener múltiples detalles (OneToMany)
 - Un pago pertenece a una factura (ManyToOne)
 - Una asistencia registra socio + clase + reserva + fecha (ManyToOne + OneToOne)
+- Un detalle de factura puede relacionarse con una membresía o reserva (ManyToOne)
+
+MEJORAS IMPLEMENTADAS (según feedback del tutor Víctor):
+
+✓ FACTURACIÓN Y PAGOS:
+  - DETALLES_FACTURA ahora tiene relaciones directas con membresías y reservas
+  - Campo tipo_item para distinguir entre 'MEMBRESIA' y 'CLASE'
+  - Las clases con coste adicional pueden vincularse directamente a una factura
+
+✓ MEMBRESÍAS:
+  - SOCIOS ahora tiene campos fecha_inicio_membresia y fecha_fin_membresia
+  - Permite controlar la vigencia de cada membresía por socio
+
+✓ CLASES Y RESERVAS:
+  - CLASES ahora tiene campos fecha_inicio, fecha_fin y precio_adicional
+  - Soporta clases permanentes (fechas NULL) y clases limitadas (con fechas)
+  - Ejemplo: "Defensa Personal" con duración de 3 meses y precio adicional de 25.00€
 
 DATOS DE PRUEBA:
 - 1 administrador (admin@incafit.com / admin123)
-- 4 usuarios de prueba (user123 para todos)
-- 3 tipos de membresías
+- 4 usuarios de prueba (user123 para todos) con vigencia de membresía
+- 3 tipos de membresías (Mensual, Trimestral, Anual)
 - 4 instructores
-- 6 clases diferentes
+- 7 clases (6 permanentes + 1 con duración limitada)
 - Reservas, facturas y asistencias de ejemplo
 
 CONTRASEÑAS:
@@ -343,4 +375,7 @@ CONFIGURACIÓN DE SPRING BOOT:
 - Contraseña: admin1A (según application.properties)
 - Puerto: 3306
 - DDL: update (crea/actualiza tablas automáticamente)
+
+NOTA: Este script crea la base de datos desde cero con las mejoras implementadas.
+Para actualizar una base de datos existente, usar incafit_migration_script.sql
 */

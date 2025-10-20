@@ -27,6 +27,20 @@ public class AdminClaseController {
         model.addAttribute("clases", claseRepository.findAll());
         return "admin/clases/lista";
     }
+    
+    @GetMapping("/activas")
+    public String listarClasesActivas(Model model) {
+        model.addAttribute("clases", claseRepository.findByActivoTrue());
+        model.addAttribute("titulo", "Clases Activas");
+        return "admin/clases/lista";
+    }
+    
+    @GetMapping("/inactivas")
+    public String listarClasesInactivas(Model model) {
+        model.addAttribute("clases", claseRepository.findByActivoFalse());
+        model.addAttribute("titulo", "Clases Inactivas");
+        return "admin/clases/lista";
+    }
 
     @GetMapping("/nueva")
     public String mostrarFormularioNuevaClase(Model model) {
@@ -88,6 +102,34 @@ public class AdminClaseController {
             redirectAttributes.addFlashAttribute("successMessage", "Clase eliminada exitosamente");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar la clase: " + e.getMessage());
+        }
+        return "redirect:/admin/clases";
+    }
+    
+    @PostMapping("/activar/{id}")
+    public String activarClase(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Clase clase = claseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID de clase inválido: " + id));
+            clase.setActivo(true);
+            claseRepository.save(clase);
+            redirectAttributes.addFlashAttribute("successMessage", "Clase activada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al activar la clase: " + e.getMessage());
+        }
+        return "redirect:/admin/clases";
+    }
+    
+    @PostMapping("/desactivar/{id}")
+    public String desactivarClase(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Clase clase = claseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID de clase inválido: " + id));
+            clase.setActivo(false);
+            claseRepository.save(clase);
+            redirectAttributes.addFlashAttribute("successMessage", "Clase desactivada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al desactivar la clase: " + e.getMessage());
         }
         return "redirect:/admin/clases";
     }

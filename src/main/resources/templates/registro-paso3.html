@@ -36,8 +36,8 @@
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="numeroTarjeta" th:field="*{numeroTarjeta}" placeholder="Número de Tarjeta" required>
-                            <label for="numeroTarjeta">Número de Tarjeta</label>
+                            <input type="text" class="form-control" id="numeroTarjeta" th:field="*{numeroTarjeta}" placeholder="Número de Tarjeta" pattern="\d{16}" maxlength="16" title="Debe tener 16 dígitos" required>
+                            <label for="numeroTarjeta">Número de Tarjeta (16 dígitos)</label>
                             <div th:if="${#fields.hasErrors('numeroTarjeta')}" class="text-danger small mt-1">
                                 <span th:errors="*{numeroTarjeta}"></span>
                             </div>
@@ -46,7 +46,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="fechaCaducidad" th:field="*{fechaCaducidad}" placeholder="MM/YY" required>
+                                    <input type="text" class="form-control" id="fechaCaducidad" th:field="*{fechaCaducidad}" placeholder="MM/YY" pattern="\d{2}/\d{2}" maxlength="5" title="Formato: MM/YY" required>
                                     <label for="fechaCaducidad">Fecha de Caducidad (MM/YY)</label>
                                     <div th:if="${#fields.hasErrors('fechaCaducidad')}" class="text-danger small mt-1">
                                         <span th:errors="*{fechaCaducidad}"></span>
@@ -55,8 +55,8 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="cvv" th:field="*{cvv}" placeholder="CVV" required>
-                                    <label for="cvv">CVV</label>
+                                    <input type="text" class="form-control" id="cvv" th:field="*{cvv}" placeholder="CVV" pattern="\d{3}" maxlength="3" title="Debe tener 3 dígitos" required>
+                                    <label for="cvv">CVV (3 dígitos)</label>
                                     <div th:if="${#fields.hasErrors('cvv')}" class="text-danger small mt-1">
                                         <span th:errors="*{cvv}"></span>
                                     </div>
