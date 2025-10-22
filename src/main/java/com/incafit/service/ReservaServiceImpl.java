@@ -13,6 +13,7 @@ import com.incafit.Repository.ClaseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -21,14 +22,17 @@ public class ReservaServiceImpl implements ReservaService {
     private final ReservaRepository reservaRepository;
     private final ClaseRepository claseRepository;
     private final AsistenciaRepository asistenciaRepository;
+    private final EmailService emailService;
 
     @Autowired
     public ReservaServiceImpl(ReservaRepository reservaRepository, 
                              ClaseRepository claseRepository,
-                             AsistenciaRepository asistenciaRepository) {
+                             AsistenciaRepository asistenciaRepository,
+                             EmailService emailService) {
         this.reservaRepository = reservaRepository;
         this.claseRepository = claseRepository;
         this.asistenciaRepository = asistenciaRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -50,6 +54,19 @@ public class ReservaServiceImpl implements ReservaService {
         asistencia.setReserva(reservaGuardada);
         asistencia.setFecha(fechaHora.toLocalDate());
         asistenciaRepository.save(asistencia);
+
+        // Enviar email de confirmación de reserva
+        try {
+            DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm");
+            String fecha = fechaHora.format(formatoFecha);
+            String hora = fechaHora.format(formatoHora);
+            emailService.sendReservaConfirmacionEmail(socio, clase.getNombre(), fecha, hora);
+            System.out.println("✅ Email de confirmación de reserva enviado a: " + socio.getEmail());
+        } catch (Exception e) {
+            System.err.println("⚠️ Error al enviar email de confirmación de reserva: " + e.getMessage());
+            // No detenemos el proceso si falla el email
+        }
 
         return reservaGuardada;
     }

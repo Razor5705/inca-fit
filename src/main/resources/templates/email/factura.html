@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header-left h1 {
+            margin: 0;
+            color: #667eea;
+            font-size: 32px;
+        }
+        .header-right {
+            text-align: right;
+        }
+        .invoice-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .invoice-date {
+            color: #666;
+            font-size: 14px;
+        }
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+        .info-box {
+            flex: 1;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+        .info-box:first-child {
+            margin-left: 0;
+        }
+        .info-box:last-child {
+            margin-right: 0;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #667eea;
+            font-size: 16px;
+        }
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        .items-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .items-table tr:last-child td {
+            border-bottom: 2px solid #667eea;
+        }
+        .items-table .text-right {
+            text-align: right;
+        }
+        .totals-section {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 16px;
+        }
+        .total-row.final {
+            border-top: 2px solid #667eea;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .payment-status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .footer-note {
+            background-color: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border-left: 4px solid #0066cc;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>💪 INCA FIT</h1>
+                <p style="margin: 5px 0 0 0; color: #666;">Tu Gimnasio de Confianza</p>
+            </div>
+            <div class="header-right">
+                <div class="invoice-number">FACTURA #<span th:text="${factura.id}">001</span></div>
+                <div class="invoice-date" th:text="'Fecha: ' + ${#temporals.format(factura.fecha, 'dd/MM/yyyy')}">Fecha: 01/01/2024</div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-box">
+                <h3>📍 Datos del Gimnasio</h3>
+                <p><strong>Inca Fit S.L.</strong></p>
+                <p>CIF: B-12345678</p>
+                <p>Av. Principal, 123</p>
+                <p>28001 Madrid, España</p>
+                <p>Tel: +34 123 456 789</p>
+                <p>Email: incafit.soporte@gmail.com</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>👤 Datos del Cliente</h3>
+                <p><strong th:text="${socio.nombre}">Nombre del Cliente</strong></p>
+                <p>DNI: <span th:text="${socio.dni}">12345678X</span></p>
+                <p>Email: <span th:text="${socio.email}">email@ejemplo.com</span></p>
+                <p th:if="${socio.telefono}" th:text="'Tel: ' + ${socio.telefono}">Tel: +34 600 000 000</p>
+                <p>Membresía: <span th:text="${socio.membresia?.nombre ?: 'No asignada'}">Premium</span></p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <span class="payment-status" 
+                  th:classappend="${factura.pagada} ? 'status-paid' : 'status-pending'"
+                  th:text="${factura.pagada} ? '✓ PAGADA' : '⏳ PENDIENTE DE PAGO'">
+                ESTADO
+            </span>
+        </div>
+        
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th class="text-right">Cantidad</th>
+                    <th class="text-right">Precio Unit.</th>
+                    <th class="text-right">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="detalle : ${detalles}">
+                    <td th:text="${detalle.descripcion}">Descripción del servicio</td>
+                    <td class="text-right" th:text="${detalle.cantidad}">1</td>
+                    <td class="text-right" th:text="${#numbers.formatDecimal(detalle.precioUnitario, 1, 2)} + ' €'">0.00 €</td>
+                    <td class="text-right" th:text="${#numbers.formatDecimal(detalle.subtotal, 1, 2)} + ' €'">0.00 €</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="totals-section">
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span th:text="${#numbers.formatDecimal(factura.total, 1, 2)} + ' €'">0.00 €</span>
+            </div>
+            <div class="total-row">
+                <span>IVA (21%):</span>
+                <span th:text="${#numbers.formatDecimal(factura.total * 0.21, 1, 2)} + ' €'">0.00 €</span>
+            </div>
+            <div class="total-row final">
+                <span>TOTAL:</span>
+                <span th:text="${#numbers.formatDecimal(factura.total * 1.21, 1, 2)} + ' €'">0.00 €</span>
+            </div>
+        </div>
+        
+        <div class="footer-note">
+            <h3 style="margin-top: 0; color: #0066cc;">📝 Información Importante</h3>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li>Esta factura ha sido generada electrónicamente y es válida sin firma</li>
+                <li>Puedes descargar una copia en PDF desde tu panel de usuario</li>
+                <li>Si tienes alguna consulta, no dudes en contactarnos</li>
+                <li th:if="${!factura.pagada}">Recuerda realizar el pago antes de la fecha de vencimiento</li>
+            </ul>
+        </div>
+        
+        <div th:if="${!factura.pagada}" style="text-align: center; margin: 20px 0;">
+            <a href="http://localhost:8080/socio/facturas" 
+               style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                Pagar Ahora
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Gracias por confiar en Inca Fit</strong></p>
+            <p>📧 incafit.soporte@gmail.com | 📞 +34 123 456 789</p>
+            <p style="font-size: 12px; color: #999; margin-top: 20px;">
+                Este correo fue enviado automáticamente. Por favor, no respondas a este mensaje.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

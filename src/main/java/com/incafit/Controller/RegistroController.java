@@ -3,6 +3,7 @@ package com.incafit.Controller;
 import com.incafit.Model.*;
 import com.incafit.Repository.DetalleFacturaRepository;
 import com.incafit.Repository.FacturaRepository;
+import com.incafit.service.EmailService;
 import com.incafit.service.MembresiaService;
 import com.incafit.service.SocioService;
 import com.incafit.dto.RegistroSocioDto;
@@ -28,17 +29,20 @@ public class RegistroController {
     private final MembresiaService membresiaService;
     private final FacturaRepository facturaRepository;
     private final DetalleFacturaRepository detalleFacturaRepository;
+    private final EmailService emailService;
 
     public RegistroController(SocioService socioService,
                               PasswordEncoder passwordEncoder,
                               MembresiaService membresiaService,
                               FacturaRepository facturaRepository,
-                              DetalleFacturaRepository detalleFacturaRepository) {
+                              DetalleFacturaRepository detalleFacturaRepository,
+                              EmailService emailService) {
         this.socioService = socioService;
         this.passwordEncoder = passwordEncoder;
         this.membresiaService = membresiaService;
         this.facturaRepository = facturaRepository;
         this.detalleFacturaRepository = detalleFacturaRepository;
+        this.emailService = emailService;
     }
 
     @ModelAttribute("registroDto")
@@ -171,6 +175,15 @@ public class RegistroController {
         System.out.println("Socio creado: " + nuevoSocio.getNombre() + " (" + nuevoSocio.getEmail() + ")");
         System.out.println("Membresía: " + membresiaSeleccionada.getTipoMembresia());
         System.out.println("Factura creada: " + factura.getId() + " - Total: €" + factura.getTotal());
+
+        // Enviar email de bienvenida
+        try {
+            emailService.sendWelcomeEmail(nuevoSocio);
+            System.out.println("✅ Email de bienvenida enviado a: " + nuevoSocio.getEmail());
+        } catch (Exception e) {
+            System.err.println("⚠️ Error al enviar email de bienvenida: " + e.getMessage());
+            // No detenemos el proceso de registro si falla el email
+        }
 
         status.setComplete(); // Limpiar la sesión
         return "redirect:/login?registroExitoso=true";

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Pruebas de Email - Inca Fit Admin</title>
+    <style>
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+        .btn-test {
+            margin: 5px;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .test-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <h1 class="mb-4">🧪 Panel de Pruebas de Email</h1>
+
+            <!-- Mensajes de éxito/error -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Información importante -->
+            <div class="warning-box">
+                <h5><i class="fas fa-exclamation-triangle"></i> Advertencia</h5>
+                <p>Esta sección es solo para pruebas. Los emails se enviarán realmente a las direcciones de los socios seleccionados.</p>
+            </div>
+
+            <div class="info-box">
+                <h5><i class="fas fa-info-circle"></i> Información</h5>
+                <ul>
+                    <li>Los emails HTML utilizan templates profesionales con diseño atractivo</li>
+                    <li>Los emails de texto son más simples pero compatibles con todos los clientes de correo</li>
+                    <li>Selecciona un socio para enviar emails de prueba</li>
+                </ul>
+            </div>
+
+            <!-- Selector de Socio -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user"></i> Seleccionar Socio
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="socioSelect" class="form-label">Socio:</label>
+                        <select id="socioSelect" class="form-select" required>
+                            <option value="">-- Selecciona un socio --</option>
+                            <option th:each="socio : ${socios}" 
+                                    th:value="${socio.id}" 
+                                    th:text="${socio.nombre + ' (' + socio.email + ')'}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email de Bienvenida -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-hand-wave"></i> Email de Bienvenida
+                </div>
+                <div class="card-body">
+                    <p>Envía un email de bienvenida al socio seleccionado.</p>
+                    <form th:action="@{/admin/email-test/enviar-bienvenida}" method="post" class="d-inline">
+                        <input type="hidden" name="socioId" id="bienvenidaSocioId">
+                        <button type="submit" name="html" value="true" class="btn btn-primary btn-test">
+                            <i class="fas fa-envelope"></i> Enviar HTML
+                        </button>
+                        <button type="submit" name="html" value="false" class="btn btn-secondary btn-test">
+                            <i class="fas fa-file-alt"></i> Enviar Texto
+                        </button>
+                    </form>
+                    <small class="text-muted d-block mt-2">
+                        Incluye: Saludo, datos de cuenta, membresía, funcionalidades disponibles
+                    </small>
+                </div>
+            </div>
+
+            <!-- Email de Confirmación de Reserva -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-check-circle"></i> Email de Confirmación de Reserva
+                </div>
+                <div class="card-body">
+                    <p>Envía un email de confirmación de reserva (con datos de prueba).</p>
+                    <form th:action="@{/admin/email-test/enviar-confirmacion-reserva}" method="post" class="d-inline">
+                        <input type="hidden" name="socioId" id="confirmacionSocioId">
+                        <button type="submit" name="html" value="true" class="btn btn-success btn-test">
+                            <i class="fas fa-envelope"></i> Enviar HTML
+                        </button>
+                        <button type="submit" name="html" value="false" class="btn btn-secondary btn-test">
+                            <i class="fas fa-file-alt"></i> Enviar Texto
+                        </button>
+                    </form>
+                    <small class="text-muted d-block mt-2">
+                        Datos de prueba: Yoga Matutino - 25/10/2024 - 10:00
+                    </small>
+                </div>
+            </div>
+
+            <!-- Email de Cancelación -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-times-circle"></i> Email de Cancelación de Reserva
+                </div>
+                <div class="card-body">
+                    <p>Envía un email de cancelación de reserva (con datos de prueba).</p>
+                    <form th:action="@{/admin/email-test/enviar-cancelacion}" method="post" class="d-inline">
+                        <input type="hidden" name="socioId" id="cancelacionSocioId">
+                        <button type="submit" class="btn btn-danger btn-test">
+                            <i class="fas fa-envelope"></i> Enviar Email
+                        </button>
+                    </form>
+                    <small class="text-muted d-block mt-2">
+                        Datos de prueba: CrossFit Avanzado - 26/10/2024 - 18:00
+                    </small>
+                </div>
+            </div>
+
+            <!-- Email de Recordatorio de Membresía -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bell"></i> Recordatorio de Membresía
+                </div>
+                <div class="card-body">
+                    <p>Envía un recordatorio de vencimiento de membresía.</p>
+                    <form th:action="@{/admin/email-test/enviar-recordatorio}" method="post" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="hidden" name="socioId" id="recordatorioSocioId">
+                            <label class="form-label">Días restantes:</label>
+                            <select name="dias" class="form-select">
+                                <option value="7">7 días</option>
+                                <option value="3">3 días</option>
+                                <option value="1">1 día</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-warning btn-test d-block">
+                                <i class="fas fa-envelope"></i> Enviar Recordatorio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Email Personalizado -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-edit"></i> Email Personalizado
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/email-test/enviar-personalizado}" method="post">
+                        <input type="hidden" name="socioId" id="personalizadoSocioId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Asunto:</label>
+                            <input type="text" name="asunto" class="form-control" required 
+                                   placeholder="Asunto del email">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Mensaje:</label>
+                            <textarea name="mensaje" class="form-control" rows="6" required 
+                                      placeholder="Escribe tu mensaje aquí..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-paper-plane"></i> Enviar Email Personalizado
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cog"></i> Configuración Actual
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Servidor SMTP:</th>
+                            <td>smtp.gmail.com:587</td>
+                        </tr>
+                        <tr>
+                            <th>Email remitente:</th>
+                            <td>incafit.soporte@gmail.com</td>
+                        </tr>
+                        <tr>
+                            <th>Estado:</th>
+                            <td><span class="badge bg-success">Activo</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Script para sincronizar el socio seleccionado en todos los formularios
+            document.getElementById('socioSelect').addEventListener('change', function() {
+                const socioId = this.value;
+                document.getElementById('bienvenidaSocioId').value = socioId;
+                document.getElementById('confirmacionSocioId').value = socioId;
+                document.getElementById('cancelacionSocioId').value = socioId;
+                document.getElementById('recordatorioSocioId').value = socioId;
+                document.getElementById('personalizadoSocioId').value = socioId;
+            });
+
+            // Validación antes de enviar
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const socioId = this.querySelector('input[name="socioId"]').value;
+                    if (!socioId) {
+                        e.preventDefault();
+                        alert('Por favor, selecciona un socio primero.');
+                        return false;
+                    }
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin: -30px -30px 20px -30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+        .check-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        .reservation-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .reservation-card h2 {
+            margin-top: 0;
+            font-size: 24px;
+            text-align: center;
+        }
+        .reservation-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .reservation-detail:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: normal;
+            opacity: 0.9;
+        }
+        .detail-value {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .important-info {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .important-info h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .tips-box {
+            background-color: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .tips-box h3 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        .tips-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .tips-box li {
+            padding: 5px 0;
+        }
+        .cancel-policy {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .cancel-policy h3 {
+            margin-top: 0;
+            color: #721c24;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="check-icon">✅</div>
+            <h1>¡Reserva Confirmada!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hola <strong th:text="${socio.nombre}">Nombre</strong>,</p>
+            
+            <p>Tu reserva ha sido confirmada exitosamente. ¡Te esperamos! 💪</p>
+            
+            <div class="reservation-card">
+                <h2 th:text="${nombreClase}">Nombre de la Clase</h2>
+                <div class="reservation-detail">
+                    <span class="detail-label">📅 Fecha:</span>
+                    <span class="detail-value" th:text="${fecha}">01/01/2024</span>
+                </div>
+                <div class="reservation-detail">
+                    <span class="detail-label">🕐 Hora:</span>
+                    <span class="detail-value" th:text="${hora}">10:00</span>
+                </div>
+                <div class="reservation-detail">
+                    <span class="detail-label">👤 Participante:</span>
+                    <span class="detail-value" th:text="${socio.nombre}">Nombre Completo</span>
+                </div>
+            </div>
+            
+            <div class="important-info">
+                <h3>⏰ Recordatorio Importante</h3>
+                <p><strong>Llega 10-15 minutos antes del inicio de la clase</strong> para:</p>
+                <ul>
+                    <li>Cambiarte y prepararte adecuadamente</li>
+                    <li>Realizar un calentamiento previo</li>
+                    <li>Consultar al instructor si tienes dudas</li>
+                    <li>Familiarizarte con el espacio si es tu primera vez</li>
+                </ul>
+            </div>
+            
+            <div class="tips-box">
+                <h3>📝 ¿Qué debes traer?</h3>
+                <ul>
+                    <li>🥤 Botella de agua para mantenerte hidratado</li>
+                    <li>🧖 Toalla personal</li>
+                    <li>👟 Calzado deportivo adecuado</li>
+                    <li>👕 Ropa cómoda y transpirable</li>
+                    <li>🔒 Candado para tu casillero (opcional)</li>
+                </ul>
+            </div>
+            
+            <div class="cancel-policy">
+                <h3>❌ Política de Cancelación</h3>
+                <p><strong>Si necesitas cancelar tu reserva:</strong></p>
+                <ul>
+                    <li>Hazlo con <strong>al menos 2 horas de anticipación</strong></li>
+                    <li>Accede a tu panel de reservas en la plataforma</li>
+                    <li>Esto permite que otro socio pueda tomar tu lugar</li>
+                    <li>Las cancelaciones tardías pueden afectar tu historial</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="font-size: 18px; color: #667eea; font-weight: bold;">
+                    ¡Nos vemos en la clase! 🏋️‍♀️
+                </p>
+            </div>
+            
+            <p style="background-color: #d4edda; padding: 15px; border-radius: 5px; border-left: 4px solid #28a745;">
+                <strong>✨ Consejo del día:</strong> Escucha a tu cuerpo y no tengas miedo de pedir modificaciones al instructor si algún ejercicio te resulta muy difícil. ¡Todos empezamos desde algún lugar!
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Inca Fit - Tu Gimnasio de Confianza</strong></p>
+            <p>¿Necesitas ayuda? Contáctanos:</p>
+            <p>
+                📧 <a href="mailto:incafit.soporte@gmail.com">incafit.soporte@gmail.com</a><br>
+                📞 Teléfono: +34 123 456 789
+            </p>
+            <p style="font-size: 12px; color: #999; margin-top: 20px;">
+                Este correo fue enviado automáticamente. Por favor, no respondas a este mensaje.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

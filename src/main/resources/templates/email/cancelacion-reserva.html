@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin: -30px -30px 20px -30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+        .cancel-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        .cancelled-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .cancelled-card h2 {
+            margin-top: 0;
+            color: #dc3545;
+        }
+        .detail-row {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .next-steps {
+            background-color: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .next-steps h3 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="cancel-icon">🚫</div>
+            <h1>Reserva Cancelada</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hola <strong th:text="${socio.nombre}">Nombre</strong>,</p>
+            
+            <p>Tu reserva ha sido <strong>cancelada exitosamente</strong>.</p>
+            
+            <div class="cancelled-card">
+                <h2>Detalles de la Reserva Cancelada</h2>
+                <div class="detail-row">
+                    <span class="detail-label">Clase:</span> 
+                    <span th:text="${nombreClase}">Nombre de la Clase</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Fecha:</span> 
+                    <span th:text="${fecha}">01/01/2024</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Hora:</span> 
+                    <span th:text="${hora}">10:00</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Cancelado el:</span> 
+                    <span th:text="${#temporals.format(fechaCancelacion, 'dd/MM/yyyy HH:mm')}">01/01/2024 09:00</span>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h3>🔄 ¿Qué hacer ahora?</h3>
+                <p>No te preocupes, hay muchas otras opciones disponibles:</p>
+                <ul>
+                    <li>Explora otras clases disponibles en nuestro calendario</li>
+                    <li>Reserva la misma clase en otro horario</li>
+                    <li>Prueba nuevas disciplinas y descubre nuevas pasiones</li>
+                    <li>Consulta las promociones especiales de este mes</li>
+                </ul>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="http://localhost:8080/socio/reservas/nueva" class="cta-button">
+                        Ver Clases Disponibles
+                    </a>
+                    <a href="http://localhost:8080/socio/reservas" class="cta-button">
+                        Mis Reservas
+                    </a>
+                </div>
+            </div>
+            
+            <p style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; border-left: 4px solid #17a2b8;">
+                <strong>ℹ️ Información:</strong> Este espacio ahora está disponible para otros socios. Si cambias de opinión, puedes hacer una nueva reserva en cualquier momento.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Inca Fit - Tu Gimnasio de Confianza</strong></p>
+            <p>¿Necesitas ayuda? Contáctanos:</p>
+            <p>
+                📧 <a href="mailto:incafit.soporte@gmail.com">incafit.soporte@gmail.com</a><br>
+                📞 Teléfono: +34 123 456 789
+            </p>
+            <p style="font-size: 12px; color: #999; margin-top: 20px;">
+                Este correo fue enviado automáticamente. Por favor, no respondas a este mensaje.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
