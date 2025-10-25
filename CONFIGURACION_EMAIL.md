@@ -184,3 +184,4 @@ Email configurado: `incafit.soporte@gmail.com`
 
 Este email será el remitente de todas las notificaciones automáticas del sistema.
 
+

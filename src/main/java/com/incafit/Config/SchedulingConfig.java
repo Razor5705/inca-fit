@@ -13,3 +13,4 @@ public class SchedulingConfig {
     // Esta clase habilita las anotaciones @Scheduled en toda la aplicación
 }
 
+
