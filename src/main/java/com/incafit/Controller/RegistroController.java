@@ -171,17 +171,25 @@ public class RegistroController {
         detalle.setSubtotal(membresiaSeleccionada.getPrecio());
         detalleFacturaRepository.save(detalle);
 
+        // Enviar email de factura al socio con el detalle generado
+        try {
+            emailService.sendFacturaEmail(nuevoSocio, factura, List.of(detalle));
+            System.out.println("[INFO] Email HTML de factura enviado a: " + nuevoSocio.getEmail());
+        } catch (Exception e) {
+            System.err.println("[WARN] Error al enviar email HTML de factura: " + e.getMessage());
+        }
+
         System.out.println("✅ DEBUG - Registro completado exitosamente:");
         System.out.println("Socio creado: " + nuevoSocio.getNombre() + " (" + nuevoSocio.getEmail() + ")");
         System.out.println("Membresía: " + membresiaSeleccionada.getTipoMembresia());
         System.out.println("Factura creada: " + factura.getId() + " - Total: €" + factura.getTotal());
 
-        // Enviar email de bienvenida
+        // Enviar email de bienvenida en formato HTML
         try {
-            emailService.sendWelcomeEmail(nuevoSocio);
-            System.out.println("✅ Email de bienvenida enviado a: " + nuevoSocio.getEmail());
+            emailService.sendWelcomeEmailHtml(nuevoSocio);
+            System.out.println("[INFO] Email HTML de bienvenida enviado a: " + nuevoSocio.getEmail());
         } catch (Exception e) {
-            System.err.println("⚠️ Error al enviar email de bienvenida: " + e.getMessage());
+            System.err.println("[WARN] Error al enviar email HTML de bienvenida: " + e.getMessage());
             // No detenemos el proceso de registro si falla el email
         }
 

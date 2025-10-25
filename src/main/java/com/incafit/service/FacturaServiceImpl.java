@@ -18,10 +18,13 @@ import java.util.List;
 public class FacturaServiceImpl implements FacturaService {
 
     private final FacturaRepository facturaRepository;
+    private final EmailService emailService;
 
     @Autowired
-    public FacturaServiceImpl(FacturaRepository facturaRepository) {
+    public FacturaServiceImpl(FacturaRepository facturaRepository,
+                              EmailService emailService) {
         this.facturaRepository = facturaRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -42,7 +45,9 @@ public class FacturaServiceImpl implements FacturaService {
 
         factura.getDetalles().add(detalle);
 
-        return facturaRepository.save(factura);
+        Factura facturaGuardada = facturaRepository.save(factura);
+        notificarFacturaPorEmail(socio, facturaGuardada);
+        return facturaGuardada;
     }
 
     @Override
@@ -63,7 +68,9 @@ public class FacturaServiceImpl implements FacturaService {
 
         factura.getDetalles().add(detalle);
 
-        return facturaRepository.save(factura);
+        Factura facturaGuardada = facturaRepository.save(factura);
+        notificarFacturaPorEmail(socio, facturaGuardada);
+        return facturaGuardada;
     }
 
     @Override
@@ -109,5 +116,17 @@ public class FacturaServiceImpl implements FacturaService {
 
         return facturaRepository.findByEstadoAndFechaBetween(
                 "PAGADA", inicioMes, finMes); // Filtra por estado y rango de fechas
+    }
+
+    private void notificarFacturaPorEmail(Socio socio, Factura factura) {
+        if (socio == null || factura == null) {
+            return;
+        }
+        try {
+            emailService.sendFacturaEmail(socio, factura, factura.getDetalles());
+            System.out.println("[INFO] Email de factura enviado a: " + socio.getEmail());
+        } catch (Exception e) {
+            System.err.println("[WARN] Error al enviar email de factura: " + e.getMessage());
+        }
     }
 }

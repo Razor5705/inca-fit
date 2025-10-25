@@ -55,16 +55,16 @@ public class ReservaServiceImpl implements ReservaService {
         asistencia.setFecha(fechaHora.toLocalDate());
         asistenciaRepository.save(asistencia);
 
-        // Enviar email de confirmación de reserva
+        // Enviar email de confirmacion de reserva en formato HTML
         try {
             DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm");
             String fecha = fechaHora.format(formatoFecha);
             String hora = fechaHora.format(formatoHora);
-            emailService.sendReservaConfirmacionEmail(socio, clase.getNombre(), fecha, hora);
-            System.out.println("✅ Email de confirmación de reserva enviado a: " + socio.getEmail());
+            emailService.sendReservaConfirmacionEmailHtml(socio, clase.getNombre(), fecha, hora);
+            System.out.println("[INFO] Email HTML de confirmacion de reserva enviado a: " + socio.getEmail());
         } catch (Exception e) {
-            System.err.println("⚠️ Error al enviar email de confirmación de reserva: " + e.getMessage());
+            System.err.println("[WARN] Error al enviar email HTML de confirmacion de reserva: " + e.getMessage());
             // No detenemos el proceso si falla el email
         }
 
@@ -77,6 +77,27 @@ public class ReservaServiceImpl implements ReservaService {
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
         reserva.setEstado("CANCELADA");
         reservaRepository.save(reserva);
+
+        // Enviar email de cancelacion de reserva sin interrumpir el flujo
+        try {
+            DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm");
+            LocalDateTime fechaHora = reserva.getFechaHora();
+            String fecha = fechaHora != null ? fechaHora.format(formatoFecha) : "N/A";
+            String hora = fechaHora != null ? fechaHora.format(formatoHora) : "N/A";
+
+            emailService.sendCancelacionReservaEmail(
+                    reserva.getSocio(),
+                    reserva.getClase() != null ? reserva.getClase().getNombre() : "Clase",
+                    fecha,
+                    hora
+            );
+            System.out.println("[INFO] Email de cancelacion de reserva enviado a: "
+                    + reserva.getSocio().getEmail());
+        } catch (Exception e) {
+            System.err.println("[WARN] Error al enviar email de cancelacion de reserva: "
+                    + e.getMessage());
+        }
     }
 
     @Override
