@@ -26,7 +26,7 @@
             </thead>
             <tbody>
             <tr th:each="reserva : ${reservas}">
-                <td th:text="${reserva.clase}"></td>
+                <td th:text="${reserva.clase != null ? reserva.clase.nombre : 'Clase no disponible'}"></td>
                 <td th:text="${#temporals.format(reserva.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
                 <td>
                     <span th:if="${reserva.estado == 'CONFIRMADA'}" class="badge bg-success">Confirmada</span>

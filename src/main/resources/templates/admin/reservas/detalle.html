@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout.html}">
+<head>
+    <title>Detalle de Reserva</title>
+</head>
+<body>
+<div layout:fragment="adminContent" class="container-fluid py-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="fas fa-calendar-check me-2"></i>Detalle de Reserva
+            </h4>
+            <a th:href="@{/admin/reservas}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Volver
+            </a>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">ID</dt>
+                <dd class="col-sm-9" th:text="${reserva.id}">1</dd>
+
+                <dt class="col-sm-3">Socio</dt>
+                <dd class="col-sm-9" th:text="${reserva.socio != null ? reserva.socio.nombre : 'No asignado'}">Nombre del socio</dd>
+
+                <dt class="col-sm-3">Clase</dt>
+                <dd class="col-sm-9" th:text="${reserva.clase != null ? reserva.clase.nombre : 'No asignada'}">Nombre de la clase</dd>
+
+                <dt class="col-sm-3">Instructor</dt>
+                <dd class="col-sm-9"
+                    th:text="${reserva.clase != null && reserva.clase.instructor != null ? reserva.clase.instructor.nombreCompleto : 'No asignado'}">
+                    Instructor
+                </dd>
+
+                <dt class="col-sm-3">Fecha y Hora</dt>
+                <dd class="col-sm-9"
+                    th:text="${reserva.fechaHora != null ? #temporals.format(reserva.fechaHora, 'dd/MM/yyyy HH:mm') : 'No programada'}">
+                    01/01/2025 10:00
+                </dd>
+
+                <dt class="col-sm-3">Estado</dt>
+                <dd class="col-sm-9">
+                    <span th:if="${reserva.estado == 'CONFIRMADA'}" class="badge bg-success">Confirmada</span>
+                    <span th:if="${reserva.estado == 'PENDIENTE'}" class="badge bg-warning text-dark">Pendiente</span>
+                    <span th:if="${reserva.estado == 'CANCELADA'}" class="badge bg-danger">Cancelada</span>
+                    <span th:if="${reserva.estado == null}" class="badge bg-secondary">Sin estado</span>
+                </dd>
+
+                <dt class="col-sm-3">Creación</dt>
+                <dd class="col-sm-9"
+                    th:text="${reserva.fechaHora != null ? #temporals.format(reserva.fechaHora, 'EEEE, dd MMMM yyyy', new java.util.Locale('es')) : 'No disponible'}">
+                    Fecha larga
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+</body>
+</html>

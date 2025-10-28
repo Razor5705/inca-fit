@@ -14,6 +14,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Controller
 @RequestMapping("/socio")
@@ -49,10 +52,31 @@ public class SocioReservaController {
     }
 
     @PostMapping("/reservas/guardar")
-    public String guardarReserva(@RequestParam("claseId") Long claseId, @ModelAttribute Reserva reserva, RedirectAttributes redirect) {
+    public String guardarReserva(@RequestParam("claseId") Long claseId,
+                                 @RequestParam(value = "fechaReserva", required = false) String fechaReserva,
+                                 @ModelAttribute Reserva reserva,
+                                 RedirectAttributes redirect) {
         try {
             Socio socio = obtenerSocioActual();
-            reservaService.crearReserva(socio, claseId, reserva.getFechaHora());
+            Clase claseSeleccionada = claseService.obtenerClasePorId(claseId);
+            if (claseSeleccionada == null) {
+                throw new IllegalArgumentException("Clase no encontrada");
+            }
+
+            LocalDateTime fechaHora = reserva.getFechaHora();
+            if (fechaHora == null) {
+                if (fechaReserva == null || fechaReserva.isBlank()) {
+                    throw new IllegalArgumentException("Debe seleccionar una fecha para la clase");
+                }
+                LocalDate fecha = LocalDate.parse(fechaReserva);
+                LocalTime hora = claseSeleccionada.getHora();
+                if (hora == null) {
+                    throw new IllegalStateException("La clase seleccionada no tiene una hora configurada");
+                }
+                fechaHora = LocalDateTime.of(fecha, hora);
+            }
+
+            reservaService.crearReserva(socio, claseId, fechaHora);
             redirect.addFlashAttribute("success", "Reserva creada correctamente");
         } catch (Exception e) {
             redirect.addFlashAttribute("error", "Error al crear reserva: " + e.getMessage());

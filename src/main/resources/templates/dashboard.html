@@ -172,9 +172,13 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-danger" th:if="${reserva.estado == 'CONFIRMADA'}">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </button>
+                                    <form th:if="${reserva.estado == 'CONFIRMADA'}"
+                                          th:action="@{/socio/reservas/{id}/cancelar(id=${reserva.id})}"
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             </tbody>

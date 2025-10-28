@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
-<head>
+<head th:replace="~{fragments/head :: head(~{::title})}">
     <title>Panel de Administración</title>
 </head>
 <body>

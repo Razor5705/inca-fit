@@ -44,6 +44,14 @@ public class ReservaController {
         return "admin/reservas/formulario";
     }
 
+    @GetMapping("/ver/{id}")
+    public String verReserva(@PathVariable Long id, Model model) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        model.addAttribute("reserva", reserva);
+        return "admin/reservas/detalle";
+    }
+
     @PostMapping("/nueva")
     public String guardarReserva(@Valid @ModelAttribute Reserva reserva, 
                                 BindingResult result,

@@ -39,6 +39,14 @@ public class AdminAsistenciaController {
         return "admin/asistencias/formulario";
     }
 
+    @GetMapping("/ver/{id}")
+    public String verAsistencia(@PathVariable Long id, Model model) {
+        Asistencia asistencia = asistenciaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID de asistencia invǭlido:" + id));
+        model.addAttribute("asistencia", asistencia);
+        return "admin/asistencias/detalle";
+    }
+
     @PostMapping("/nueva")
     public String registrarAsistencia(@Valid @ModelAttribute Asistencia asistencia, 
                                      BindingResult result,

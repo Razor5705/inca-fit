@@ -56,7 +56,7 @@
                   <td th:text="${clase.id}"></td>
                   <td th:text="${clase.nombre}"></td>
                   <td th:text="${clase.descripcion}"></td>
-                  <td th:text="${clase.instructor.nombreCompleto}"></td>
+                  <td th:text="${clase.instructor != null ? clase.instructor.nombreCompleto : 'Sin instructor'}"></td>
                   <td th:text="${#temporals.format(clase.hora, 'HH:mm')}"></td>
                   <td th:text="${clase.duracionMinutos}"></td>
                   <td th:text="${clase.capacidadMaxima}"></td>

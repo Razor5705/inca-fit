@@ -15,12 +15,15 @@
                 </div>
                 <div class="card-body p-4">
                     <form th:action="@{/socio/reservas/guardar}" th:object="${reserva}" method="post">
+                        <input type="hidden" id="fechaHora" th:field="*{fechaHora}">
+
                         <div class="form-floating mb-3">
                             <select class="form-select" id="claseId" name="claseId" required>
                                 <option value="">Selecciona una clase</option>
                                 <option th:each="clase : ${clases}"
                                         th:value="${clase.id}"
-                                        th:text="${clase.nombre} + ' - ' + ${clase.instructor.nombreCompleto}">
+                                        th:data-hora="${#temporals.format(clase.hora, 'HH:mm')}"
+                                        th:text="${clase.instructor != null ? clase.nombre + ' - ' + clase.instructor.nombreCompleto : clase.nombre + ' - Sin instructor'}">
                                     Nombre de la Clase
                                 </option>
                             </select>
@@ -28,8 +31,16 @@
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="datetime-local" class="form-control" id="fechaHora" th:field="*{fechaHora}" required>
-                            <label for="fechaHora">Fecha y Hora</label>
+                            <input type="date" class="form-control" id="fechaReserva" name="fechaReserva" required>
+                            <label for="fechaReserva">Fecha</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="horaClase" placeholder="Hora de la clase" readonly>
+                            <label for="horaClase">Hora de la clase</label>
+                            <div class="form-text text-muted">
+                                La hora se asigna autom��ticamente seg��n el horario de la clase seleccionada.
+                            </div>
                         </div>
 
                         <div class="d-grid mt-4">
@@ -46,5 +57,58 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const claseSelect = document.getElementById('claseId');
+        const fechaInput = document.getElementById('fechaReserva');
+        const horaDisplay = document.getElementById('horaClase');
+        const fechaHoraHidden = document.getElementById('fechaHora');
+
+        const horasPorClase = {};
+        claseSelect.querySelectorAll('option[data-hora]').forEach(option => {
+            if (option.value) {
+                horasPorClase[option.value] = option.dataset.hora;
+            }
+        });
+
+        function actualizarCampos() {
+            const claseId = claseSelect.value;
+            const fecha = fechaInput.value;
+            const hora = claseId && horasPorClase[claseId] ? horasPorClase[claseId] : '';
+
+            horaDisplay.value = hora ? hora : '';
+
+            if (fecha && hora) {
+                fechaHoraHidden.value = `${fecha}T${hora}`;
+            } else {
+                fechaHoraHidden.value = '';
+            }
+        }
+
+        claseSelect.addEventListener('change', actualizarCampos);
+        fechaInput.addEventListener('change', actualizarCampos);
+        const formulario = claseSelect.closest('form');
+        if (formulario) {
+            formulario.addEventListener('submit', function (event) {
+                actualizarCampos();
+                if (!fechaHoraHidden.value) {
+                    event.preventDefault();
+                    alert('Selecciona una clase y una fecha para generar la reserva.');
+                }
+            });
+        }
+
+        // Inicializar valores si ya existen (e.g. tras validaci��n fallida)
+        if (fechaHoraHidden.value) {
+            const partes = fechaHoraHidden.value.split('T');
+            if (partes.length === 2) {
+                fechaInput.value = partes[0];
+                horaDisplay.value = partes[1].substring(0, 5);
+            }
+        }
+
+        actualizarCampos();
+    });
+</script>
 </body>
 </html>

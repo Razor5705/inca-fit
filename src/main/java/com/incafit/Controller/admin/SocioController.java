@@ -31,14 +31,14 @@ public class SocioController {
         return "admin/socios/lista";
     }
 
-    @GetMapping("/nueva")
+    @GetMapping({"/nueva", "/nuevo"})
     public String mostrarFormularioNueva(Model model) {
         model.addAttribute("socio", new Socio());
         model.addAttribute("membresias", membresiaRepository.findAll());
         return "admin/socios/formulario";
     }
 
-    @PostMapping("/nueva")
+    @PostMapping({"/nueva", "/nuevo"})
     public String guardarSocio(@Valid @ModelAttribute Socio socio, 
                               BindingResult result,
                               RedirectAttributes redirectAttributes) {
@@ -92,6 +92,23 @@ public class SocioController {
             redirectAttributes.addFlashAttribute("successMessage", "Socio eliminado exitosamente");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar el socio: " + e.getMessage());
+        }
+        return "redirect:/admin/socios";
+    }
+
+    @PostMapping("/{id}/estado")
+    public String actualizarEstado(@PathVariable Long id,
+                                   @RequestParam("activo") boolean activo,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            Socio socio = socioRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
+            socio.setActivo(activo);
+            socioRepository.save(socio);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    activo ? "Socio activado exitosamente" : "Socio desactivado exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar el estado del socio: " + e.getMessage());
         }
         return "redirect:/admin/socios";
     }

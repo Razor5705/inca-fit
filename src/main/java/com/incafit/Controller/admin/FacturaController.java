@@ -38,6 +38,14 @@ public class FacturaController {
         return "admin/facturas/formulario";
     }
 
+    @GetMapping("/ver/{id}")
+    public String verFactura(@PathVariable Long id, Model model) {
+        Factura factura = facturaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+        model.addAttribute("factura", factura);
+        return "admin/facturas/detalle";
+    }
+
     @PostMapping("/nueva")
     public String guardarFactura(@Valid @ModelAttribute Factura factura, 
                                 BindingResult result,

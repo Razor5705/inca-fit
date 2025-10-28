@@ -11,7 +11,7 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form th:action="${factura.id == null ? @{/admin/facturas/nueva} : @{/admin/facturas/editar/{id}(id=${factura.id})}}" th:object="${factura}" method="post">
+            <form th:action="${factura.id == null ? '/admin/facturas/nueva' : '/admin/facturas/editar/' + factura.id}" th:object="${factura}" method="post">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
