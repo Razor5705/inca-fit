@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -149,7 +149,7 @@
     <div class="container">
         <div class="header">
             <div class="header-left">
-                <h1>💪 INCA FIT</h1>
+                <h1>INCA FIT</h1>
                 <p style="margin: 5px 0 0 0; color: #666;">Tu Gimnasio de Confianza</p>
             </div>
             <div class="header-right">
@@ -160,17 +160,17 @@
         
         <div class="info-section">
             <div class="info-box">
-                <h3>📍 Datos del Gimnasio</h3>
+                <h3>Datos del Gimnasio</h3>
                 <p><strong>Inca Fit S.L.</strong></p>
                 <p>CIF: B-12345678</p>
                 <p>Av. Principal, 123</p>
                 <p>28001 Madrid, España</p>
-                <p>Tel: +34 123 456 789</p>
+                <p>Tel: +34 603 180 852</p>
                 <p>Email: incafit.soporte@gmail.com</p>
             </div>
             
             <div class="info-box">
-                <h3>👤 Datos del Cliente</h3>
+                <h3>Datos del Cliente</h3>
                 <p><strong th:text="${socio.nombre}">Nombre del Cliente</strong></p>
                 <p>DNI: <span th:text="${socio.dni}">12345678X</span></p>
                 <p>Email: <span th:text="${socio.email}">email@ejemplo.com</span></p>
@@ -181,8 +181,8 @@
         
         <div style="text-align: center; margin: 20px 0;">
             <span class="payment-status" 
-                  th:classappend="${factura.pagada} ? 'status-paid' : 'status-pending'"
-                  th:text="${factura.pagada} ? '✓ PAGADA' : '⏳ PENDIENTE DE PAGO'">
+                  th:classappend="${#strings.equalsIgnoreCase(factura.estado, 'PAGADA')} ? 'status-paid' : 'status-pending'"
+                  th:text="${#strings.equalsIgnoreCase(factura.estado, 'PAGADA')} ? 'PAGADA' : 'PENDIENTE DE PAGO'">
                 ESTADO
             </span>
         </div>
@@ -222,16 +222,16 @@
         </div>
         
         <div class="footer-note">
-            <h3 style="margin-top: 0; color: #0066cc;">📝 Información Importante</h3>
+            <h3 style="margin-top: 0; color: #0066cc;">Información Importante</h3>
             <ul style="margin: 0; padding-left: 20px;">
                 <li>Esta factura ha sido generada electrónicamente y es válida sin firma</li>
                 <li>Puedes descargar una copia en PDF desde tu panel de usuario</li>
                 <li>Si tienes alguna consulta, no dudes en contactarnos</li>
-                <li th:if="${!factura.pagada}">Recuerda realizar el pago antes de la fecha de vencimiento</li>
+                <li th:if="${!#strings.equalsIgnoreCase(factura.estado, 'PAGADA')}">Recuerda realizar el pago antes de la fecha de vencimiento</li>
             </ul>
         </div>
         
-        <div th:if="${!factura.pagada}" style="text-align: center; margin: 20px 0;">
+        <div th:if="${!#strings.equalsIgnoreCase(factura.estado, 'PAGADA')}" style="text-align: center; margin: 20px 0;">
             <a href="http://localhost:8080/socio/facturas" 
                style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
                 Pagar Ahora
@@ -240,7 +240,7 @@
         
         <div class="footer">
             <p><strong>Gracias por confiar en Inca Fit</strong></p>
-            <p>📧 incafit.soporte@gmail.com | 📞 +34 123 456 789</p>
+            <p>incafit.soporte@gmail.com | +34 603 180 852</p>
             <p style="font-size: 12px; color: #999; margin-top: 20px;">
                 Este correo fue enviado automáticamente. Por favor, no respondas a este mensaje.
             </p>
@@ -248,9 +248,3 @@
     </div>
 </body>
 </html>
-
-
-
-
-
-

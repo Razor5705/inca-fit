@@ -34,7 +34,16 @@
                             <div th:if="${#fields.hasErrors('email')}" class="text-danger" th:errors="*{email}"></div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="tel" class="form-control" id="telefono" th:field="*{telefono}" placeholder="Teléfono" pattern="\d{9}" title="Debe tener 9 dígitos" required>
+                            <input type="tel"
+                                   class="form-control"
+                                   id="telefono"
+                                   th:field="*{telefono}"
+                                   placeholder="Teléfono"
+                                   pattern="\d{9}"
+                                   inputmode="numeric"
+                                   autocomplete="tel"
+                                   title="Debe tener 9 dígitos"
+                                   required>
                             <label for="telefono">Teléfono (9 dígitos)</label>
                             <div th:if="${#fields.hasErrors('telefono')}" class="text-danger" th:errors="*{telefono}"></div>
                         </div>

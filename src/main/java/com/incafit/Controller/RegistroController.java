@@ -16,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -118,7 +119,8 @@ public class RegistroController {
     @PostMapping("/paso3")
     public String procesarPaso3(@Validated({BasicInfo.class, PaymentInfo.class}) @ModelAttribute("registroDto") RegistroSocioDto registroDto,
                                 BindingResult result,
-                                SessionStatus status) {
+                                SessionStatus status,
+                                RedirectAttributes redirectAttributes) {
 
         System.out.println("🔍 DEBUG - Procesando Paso 3:");
         System.out.println("Nombre Tarjeta: " + registroDto.getNombreTarjeta());
@@ -194,6 +196,12 @@ public class RegistroController {
         }
 
         status.setComplete(); // Limpiar la sesión
-        return "redirect:/login?registroExitoso=true";
+        redirectAttributes.addFlashAttribute("registroEmail", nuevoSocio.getEmail());
+        return "redirect:/registro/exito";
+    }
+
+    @GetMapping("/exito")
+    public String mostrarConfirmacion() {
+        return "registro-exito";
     }
 }

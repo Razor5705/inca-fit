@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/layout.html}">
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <!-- Estadísticas Generales -->
+    <!-- EstadI­sticas Generales -->
     <div class="row mb-4" th:if="${estadisticas}">
         <div class="col-md-3 mb-3">
             <div class="card bg-primary text-white shadow-sm">
@@ -85,13 +85,13 @@
         </div>
     </div>
 
-    <!-- Accesos Rápidos -->
+    <!-- Accesos Rapidos -->
     <div class="row">
         <div class="col-lg-8">
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-tachometer-alt me-2"></i>Gestión Principal
+                        <i class="fas fa-tachometer-alt me-2"></i>Gestón Principal
                     </h5>
                 </div>
                 <div class="card-body">
@@ -139,7 +139,7 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a th:href="@{/admin/membresias}" class="btn btn-outline-secondary">
-                            <i class="fas fa-id-card me-2"></i>Membresías
+                            <i class="fas fa-id-card me-2"></i>Membresí­as
                         </a>
                         <a th:href="@{/admin/facturas}" class="btn btn-outline-secondary">
                             <i class="fas fa-file-invoice me-2"></i>Facturas
@@ -173,7 +173,7 @@
         </div>
     </div>
     
-    <!-- Gráficos -->
+    <!-- Graficos -->
     <div class="row mt-4">
         <div class="col-lg-6 mb-4">
             <div class="card shadow-sm h-100">
@@ -191,7 +191,7 @@
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-light">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-coins me-2"></i>Ingresos mensuales (últimos 6 meses)
+                        <i class="fas fa-coins me-2"></i>Ingresos mensuales (Últimos 6 meses)
                     </h5>
                 </div>
                 <div class="card-body">
@@ -217,174 +217,246 @@
     </div>
 </div>
 
-<script th:src="@{/webjars/chart.js/4.4.4/dist/chart.umd.js}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const showEmptyState = (canvas, message) => {
-            const container = canvas.closest('.card-body');
-            if (!container) {
-                return;
-            }
-            const placeholder = document.createElement('div');
-            placeholder.className = 'text-muted text-center py-4';
-            placeholder.innerHTML = `<i class="fas fa-info-circle me-2"></i>${message}`;
-            container.appendChild(placeholder);
-        };
-
-        const palette = ['#0d6efd', '#20c997', '#ffc107', '#fd7e14', '#dc3545', '#6f42c1', '#198754'];
-
-        const fetchJson = async (url) => {
-            const response = await fetch(url, {
-                headers: {'Accept': 'application/json'},
-                credentials: 'same-origin'
-            });
-            if (!response.ok) {
-                throw new Error('Error al obtener datos desde ' + url + '. Estado: ' + response.status);
-            }
-            return response.json();
-        };
-
-        const initSociosChart = async () => {
-            const ctx = document.getElementById('chartSociosMes');
-            if (!ctx) {
-                return;
-            }
-            try {
-                const data = await fetchJson('/admin/dashboard/datos/socios-mes');
-                const total = Array.isArray(data.data) ? data.data.reduce((acc, val) => acc + val, 0) : 0;
-                if (!total) {
-                    showEmptyState(ctx, 'Aún no hay registros de socios nuevos en los últimos meses.');
+<th:block layout:fragment="adminScripts">
+    <script th:src="@{/webjars/chart.js/4.4.4/dist/chart.umd.js}" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ensureCanvasVisible = (canvas) => {
+                if (!canvas) {
                     return;
                 }
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            label: 'Socios nuevos',
-                            data: data.data,
-                            backgroundColor: 'rgba(13, 110, 253, 0.4)',
-                            borderColor: '#0d6efd',
-                            borderWidth: 2,
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
+                canvas.classList.remove('d-none');
+                const container = canvas.closest('.card-body');
+                const placeholder = container ? container.querySelector('.empty-state') : null;
+                if (placeholder) {
+                    placeholder.remove();
+                }
+            };
+
+            const showEmptyState = (canvas, message) => {
+                if (!canvas) {
+                    return;
+                }
+                const container = canvas.closest('.card-body');
+                if (!container) {
+                    return;
+                }
+                const placeholder = document.createElement('div');
+                placeholder.className = 'empty-state text-muted text-center py-4';
+                placeholder.innerHTML = `
+                    <i class="fas fa-info-circle fa-2x mb-3 d-block"></i>
+                    <span>${message}</span>
+                `;
+                canvas.classList.add('d-none');
+                const previous = container.querySelector('.empty-state');
+                if (previous) {
+                    previous.remove();
+                }
+                container.appendChild(placeholder);
+            };
+
+            const fetchJson = async (url) => {
+                const response = await fetch(url, {
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'same-origin'
                 });
-            } catch (error) {
-                console.error('No se pudo renderizar el gráfico de socios por mes:', error);
-            }
-        };
+                if (!response.ok) {
+                    throw new Error('Error al obtener datos desde ' + url + '. Estado: ' + response.status);
+                }
+                const contentType = response.headers.get('content-type') || '';
+                const raw = await response.text();
+                if (!contentType.includes('application/json')) {
+                    const preview = raw.slice(0, 200).replace(/\s+/g, ' ').trim();
+                    throw new Error('La respuesta no es JSON. Vista previa: ' + preview);
+                }
+                try {
+                    return JSON.parse(raw);
+                } catch (parseError) {
+                    console.error('No se pudo parsear JSON desde ' + url, parseError, raw);
+                    throw parseError;
+                }
+            };
 
-        const initIngresosChart = async () => {
-            const ctx = document.getElementById('chartIngresosMes');
-            if (!ctx) {
-                return;
-            }
-            try {
-                const data = await fetchJson('/admin/dashboard/datos/ingresos-mes');
-                const total = Array.isArray(data.data) ? data.data.reduce((acc, val) => acc + val, 0) : 0;
-                if (!total) {
-                    showEmptyState(ctx, 'No se registran ingresos en los últimos meses.');
+            const palette = [
+                '#0d6efd', '#6610f2', '#1abc9c',
+                '#fd7e14', '#6f42c1', '#20c997',
+                '#343a40', '#d63384', '#ffc107'
+            ];
+
+            const initSociosChart = async () => {
+                const canvas = document.getElementById('chartSociosMes');
+                if (!canvas) {
                     return;
                 }
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            label: 'Ingresos (€)',
-                            data: data.data,
-                            borderColor: '#20c997',
-                            backgroundColor: 'rgba(32, 201, 151, 0.2)',
-                            fill: true,
-                            tension: 0.35,
-                            borderWidth: 3,
-                            pointRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: (value) => '€' + value.toLocaleString('es-ES', {minimumFractionDigits: 0})
-                                }
-                            }
+                try {
+                    const data = await fetchJson('/admin/dashboard/datos/socios-mes');
+                    console.debug('Socios por mes', data);
+                    const total = Array.isArray(data.data) ? data.data.reduce((acc, val) => acc + Number(val || 0), 0) : 0;
+                    if (!total) {
+                        showEmptyState(canvas, 'Aún no hay socios registrados en los últimos meses.');
+                        return;
+                    }
+                    ensureCanvasVisible(canvas);
+                    const ctx = canvas.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'Socios nuevos',
+                                data: data.data,
+                                backgroundColor: 'rgba(13, 110, 253, 0.4)',
+                                borderColor: '#0d6efd',
+                                borderWidth: 2,
+                                borderRadius: 6
+                            }]
                         },
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: (context) => {
-                                        const valor = context.parsed.y ?? 0;
-                                        return 'Ingresos: €' + valor.toLocaleString('es-ES', {minimumFractionDigits: 2});
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
                                     }
                                 }
                             }
                         }
-                    }
-                });
-            } catch (error) {
-                console.error('No se pudo renderizar el gráfico de ingresos mensuales:', error);
-            }
-        };
+                    });
+                } catch (error) {
+                    console.error('No se pudo renderizar el gráfico de socios por mes:', error);
+                    showEmptyState(canvas, 'No se pudieron cargar los datos de socios.');
+                }
+            };
 
-        const initReservasEstadoChart = async () => {
-            const ctx = document.getElementById('chartReservasEstado');
-            if (!ctx) {
-                return;
-            }
-            try {
-                const data = await fetchJson('/admin/dashboard/datos/reservas-estado');
-                const total = Array.isArray(data.data) ? data.data.reduce((acc, val) => acc + val, 0) : 0;
-                if (!total) {
-                    showEmptyState(ctx, 'Aún no hay reservas registradas.');
+            const initIngresosChart = async () => {
+                const canvas = document.getElementById('chartIngresosMes');
+                if (!canvas) {
                     return;
                 }
-                const colors = palette.slice(0, data.labels.length);
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            data: data.data,
-                            backgroundColor: colors,
-                            borderColor: '#ffffff',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
+                try {
+                    const data = await fetchJson('/admin/dashboard/datos/ingresos-mes');
+                    console.debug('Ingresos por mes', data);
+                    const total = Array.isArray(data.data) ? data.data.reduce((acc, val) => acc + Number(val || 0), 0) : 0;
+                    if (!total) {
+                        showEmptyState(canvas, 'No se registran ingresos en los últimos meses.');
+                        return;
+                    }
+                    ensureCanvasVisible(canvas);
+                    const ctx = canvas.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'Ingresos (EUR)',
+                                data: data.data,
+                                borderColor: '#20c997',
+                                backgroundColor: 'rgba(32, 201, 151, 0.2)',
+                                fill: true,
+                                tension: 0.35,
+                                borderWidth: 3,
+                                pointRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: (value) => '€' + Number(value ?? 0).toLocaleString('es-ES', { minimumFractionDigits: 0 })
+                                    }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => {
+                                            const valor = context.parsed.y ?? 0;
+                                            return 'Ingresos: €' + Number(valor).toLocaleString('es-ES', { minimumFractionDigits: 2 });
+                                        }
+                                    }
+                                }
                             }
                         }
-                    }
-                });
-            } catch (error) {
-                console.error('No se pudo renderizar el gráfico de reservas por estado:', error);
-            }
-        };
+                    });
+                } catch (error) {
+                    console.error('No se pudo renderizar el gráfico de ingresos mensuales:', error);
+                    showEmptyState(canvas, 'No se pudieron cargar los ingresos recientes.');
+                }
+            };
 
-        initSociosChart();
-        initIngresosChart();
-        initReservasEstadoChart();
-    });
-</script>
+            const initReservasEstadoChart = async () => {
+                const canvas = document.getElementById('chartReservasEstado');
+                if (!canvas) {
+                    return;
+                }
+                try {
+                    const data = await fetchJson('/admin/dashboard/datos/reservas-estado');
+                    console.debug('Reservas por estado', data);
+                    const total = Array.isArray(data.data) ? data.data.reduce((acc, val) => acc + Number(val || 0), 0) : 0;
+                    if (!total) {
+                        showEmptyState(canvas, 'Aún no hay reservas registradas.');
+                        return;
+                    }
+                    ensureCanvasVisible(canvas);
+                    const ctx = canvas.getContext('2d');
+                    const colors = palette.slice(0, data.labels.length);
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                data: data.data,
+                                backgroundColor: colors,
+                                borderColor: '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('No se pudo renderizar el gráfico de reservas por estado:', error);
+                    showEmptyState(canvas, 'No se pudieron cargar las reservas.');
+                }
+            };
+
+            const initializeDashboardCharts = () => {
+                if (typeof Chart === 'undefined') {
+                    console.error('Chart.js no está disponible. Revisa la carga del recurso.');
+                    return;
+                }
+                initSociosChart();
+                initIngresosChart();
+                initReservasEstadoChart();
+            };
+
+            if (typeof Chart === 'undefined') {
+                const fallback = document.createElement('script');
+                fallback.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+                fallback.onload = () => {
+                    console.info('Chart.js cargado desde CDN como respaldo.');
+                    initializeDashboardCharts();
+                };
+                fallback.onerror = () => console.error('No se pudo cargar Chart.js desde el CDN. Verifica la conexión o los permisos.');
+                document.body.appendChild(fallback);
+            } else {
+                initializeDashboardCharts();
+            }
+        });
+    </script>
+</th:block>
 </body>
 </html>
+

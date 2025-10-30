@@ -24,8 +24,8 @@ public class Factura {
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleFactura> detalles = new ArrayList<>();
 
-    // Getters y setters
-
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pago> pagos = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -75,9 +75,26 @@ public class Factura {
         this.detalles = detalles;
     }
 
-    // Método de conveniencia para agregar detalles
+    public List<Pago> getPagos() {
+        return pagos;
+    }
+
+    public void setPagos(List<Pago> pagos) {
+        this.pagos = pagos;
+    }
+
     public void agregarDetalle(DetalleFactura detalle) {
         detalles.add(detalle);
         detalle.setFactura(this);
+    }
+
+    public void agregarPago(Pago pago) {
+        pagos.add(pago);
+        pago.setFactura(this);
+    }
+
+    public void eliminarPago(Pago pago) {
+        pagos.remove(pago);
+        pago.setFactura(null);
     }
 }

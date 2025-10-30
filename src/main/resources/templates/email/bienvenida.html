@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido a Inca Fit</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6fb;
+            margin: 0;
+            padding: 0;
+            color: #2c3e50;
+        }
+        .wrapper {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+            overflow: hidden;
+        }
+        .hero {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 40px 35px;
+            text-align: center;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .hero p {
+            margin: 12px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 35px;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        .details-box {
+            background-color: #f7f9ff;
+            border: 1px solid #d8defa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .details-box h3 {
+            margin-top: 0;
+            color: #4c5bd4;
+            font-size: 18px;
+        }
+        .cta {
+            text-align: center;
+            margin: 35px 0 15px 0;
+        }
+        .cta a {
+            display: inline-block;
+            background: linear-gradient(120deg, #54c0ff 0%, #4f9dff 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            color: #7f8c8d;
+            padding: 0 20px 20px 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="card">
+        <div class="hero">
+            <h1>¡Bienvenido a Inca Fit!</h1>
+            <p>Tu nueva etapa fitness comienza hoy</p>
+        </div>
+        <div class="content">
+            <p>Hola <strong th:text="${socio.nombre}">Nombre del socio</strong>,</p>
+            <p>Gracias por unirte a la comunidad de Inca Fit. Tu registro se ha completado correctamente y ya puedes acceder a tu panel para reservar clases, gestionar tus pagos y seguir tu progreso.</p>
+
+            <div class="details-box">
+                <h3>Tus datos de acceso</h3>
+                <p><strong>Email:</strong> <span th:text="${socio.email}">usuario@incafit.com</span></p>
+                <p>
+                    <strong>Membresía:</strong>
+                    <span th:text="${socio.membresia != null ? socio.membresia.nombre : 'Aún no asignada'}">
+                        Mensual
+                    </span>
+                </p>
+                <p th:if="${socio.fechaFinMembresia != null}">
+                    <strong>Vigencia:</strong>
+                    <span th:text="${#temporals.format(socio.fechaInicioMembresia, 'dd/MM/yyyy')}">01/01/2025</span>
+                    -
+                    <span th:text="${#temporals.format(socio.fechaFinMembresia, 'dd/MM/yyyy')}">31/01/2025</span>
+                </p>
+            </div>
+
+            <p>Estamos listos para acompañarte en cada entreno. Desde tu área privada podrás:</p>
+            <ul>
+                <li>Reservar y cancelar clases con un clic.</li>
+                <li>Consultar historial de asistencias y próximos eventos.</li>
+                <li>Descargar facturas y ver el estado de tus pagos.</li>
+                <li>Actualizar tus datos personales en cualquier momento.</li>
+            </ul>
+
+            <div class="cta">
+                <a th:href="${loginUrl}">Acceder al panel de socios</a>
+            </div>
+
+            <p>Si tienes alguna duda, responde a este correo o escríbenos a <a href="mailto:soporte@incafit.com">soporte@incafit.com</a>. Estamos encantados de ayudarte.</p>
+
+            <p style="margin-top: 30px;">¡Nos vemos en Inca Fit!<br>
+                <em>Equipo Inca Fit</em>
+            </p>
+        </div>
+    </div>
+    <p class="footer">
+        © <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2025</span> Inca Fit. Todos los derechos reservados.
+    </p>
+</div>
+</body>
+</html>
