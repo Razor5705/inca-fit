@@ -1,5 +1,5 @@
 /* ============================================================
-   INCA FIT – ESQUEMA + DATOS DE DEMO (ACTUALIZADO)
+   INCA FIT – ESQUEMA + DATOS DE DEMO
    ============================================================ */
 CREATE DATABASE IF NOT EXISTS incafit_db
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS pagos (
 /* -------------------
    DATOS DE REFERENCIA
    ------------------- */
+
 INSERT INTO membresias (id, tipo_membresia, precio, duracion_dias, descripcion) VALUES
     (1, 'Mensual',    45.00,  30, 'Acceso ilimitado 30 días'),
     (2, 'Trimestral', 120.00, 90, 'Acceso trimestral con descuento'),
@@ -150,30 +151,44 @@ ON DUPLICATE KEY UPDATE
     fecha_fin = VALUES(fecha_fin),
     precio_adicional = VALUES(precio_adicional);
 
-/* ------------ SOCIOS DEMO (admin + usuarios) ------------ */
-INSERT INTO socios (id, dni, nombre, email, password, rol, activo, fecha_registro, telefono,
-                    membresia_id, fecha_inicio_membresia, fecha_fin_membresia)
-VALUES
+/* ----------- SOCIOS (ADMIN + USUARIOS) ----------- */
+INSERT INTO socios (
+    id, dni, nombre, email, password, rol, activo,
+    fecha_registro, telefono, membresia_id,
+    fecha_inicio_membresia, fecha_fin_membresia
+) VALUES
+    -- Contraseña original: admin123
     (1, '00000001', 'Administrador IncaFit', 'admin@incafit.com',
-        '$2a$10$F1dx7V1u2SMxjF5pXJ51GuMjY6h3JH4fiUowq3hhVz3VyoKoG8vNG', 'ADMIN', 1,
-        CURDATE(), '600111222', 1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+        '$2a$10$F1dx7V1u2SMxjF5pXJ51GuMjY6h3JH4fiUowq3hhVz3VyoKoG8vNG',
+        'ADMIN', 1, CURDATE(), '600111222', 1,
+        CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+
+    -- Contraseña original: TestGym!24
     (2, '00000002', 'Usuario Test', 'test@example.com',
-        '$2a$10$gtT3BGJd4Y1RRG.Xcuv6HOpFwLtn86IExBPOQfi4X.gawjV9N3laK', 'USUARIO', 0,
-        DATE_SUB(CURDATE(), INTERVAL 180 DAY), '600123456', NULL, NULL, NULL),
+        '$2a$10$gtT3BGJd4Y1RRG.Xcuv6HOpFwLtn86IExBPOQfi4X.gawjV9N3laK',
+        'USUARIO', 0, DATE_SUB(CURDATE(), INTERVAL 180 DAY), '600123456', NULL, NULL, NULL),
+
+    -- Contraseña original: nickyreny22
     (3, '00000003', 'Nikolas Adriano Medina Ricra', 'nikkmed805@gmail.com',
-        '$2a$10$Q5PwWKpQ9ju7GZLaSGMS2OF5m2LgN1J53wda8opeNIF8Jx3Yse7u2', 'ADMIN', 1,
-        DATE_SUB(CURDATE(), INTERVAL 150 DAY), '600987654', 1,
+        '$2a$10$Q5PwWKpQ9ju7GZLaSGMS2OF5m2LgN1J53wda8opeNIF8Jx3Yse7u2',
+        'ADMIN', 1, DATE_SUB(CURDATE(), INTERVAL 150 DAY), '600987654', 1,
         DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 10 DAY)),
+
+    -- Contraseña original: PruebaFit#24
     (4, '00000004', 'Prueba Prueba Prueba Prueba', 'prueba@yopmail.com',
-        '$2a$10$2V.Zkng1bUfy61p2.Oowsu9F91eVCGgZcFQXH7mC4c8j/SRdF1.KK', 'USUARIO', 1,
-        DATE_SUB(CURDATE(), INTERVAL 120 DAY), '600888777', 1,
+        '$2a$10$2V.Zkng1bUfy61p2.Oowsu9F91eVCGgZcFQXH7mC4c8j/SRdF1.KK',
+        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 120 DAY), '600888777', 1,
         DATE_SUB(CURDATE(), INTERVAL 15 DAY), DATE_ADD(CURDATE(), INTERVAL 15 DAY)),
+
+    -- Contraseña original: HolaGym#24
     (5, '00000005', 'prueba holaa', 'p@yopmail.com',
-        '$2a$10$hyePxBkuqvY6dXy2Hh2HaOwOlYrGZ7rRlR2Y7biwiW7v3S63LaOHG', 'USUARIO', 1,
-        DATE_SUB(CURDATE(), INTERVAL 90 DAY), '599999999', NULL, NULL, NULL),
+        '$2a$10$hyePxBkuqvY6dXy2Hh2HaOwOlYrGZ7rRlR2Y7biwiW7v3S63LaOHG',
+        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 90 DAY), '599999999', NULL, NULL, NULL),
+
+    -- Contraseña original: IncaHola#24
     (6, '00000006', 'Hola', 'holainca@yopmail.com',
-        '$2a$10$3Z7h72fL9EKC62XsfBKtne5o6ZBFZlZp7jd0QxsuNn.7F5N7EuArK', 'USUARIO', 1,
-        DATE_SUB(CURDATE(), INTERVAL 60 DAY), '666999330', 2,
+        '$2a$10$3Z7h72fL9EKC62XsfBKtne5o6ZBFZlZp7jd0QxsuNn.7F5N7EuArK',
+        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 60 DAY), '666999330', 2,
         DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 80 DAY))
 ON DUPLICATE KEY UPDATE
     nombre = VALUES(nombre),
@@ -186,7 +201,7 @@ ON DUPLICATE KEY UPDATE
     fecha_inicio_membresia = VALUES(fecha_inicio_membresia),
     fecha_fin_membresia = VALUES(fecha_fin_membresia);
 
-/* ------------ RESERVAS Y ASISTENCIAS DE PRUEBA ------------ */
+/* ----------- RESERVAS Y ASISTENCIAS ----------- */
 INSERT INTO reservas (socio_id, clase_id, fecha_hora, estado) VALUES
     (3, 1, DATE_ADD(CURDATE(), INTERVAL 2 DAY) + INTERVAL 18 HOUR + INTERVAL 30 MINUTE, 'CONFIRMADA'),
     (4, 2, DATE_ADD(CURDATE(), INTERVAL 3 DAY) + INTERVAL 20 HOUR, 'CONFIRMADA'),
@@ -200,12 +215,12 @@ INSERT INTO asistencias (socio_id, clase_id, fecha, presente) VALUES
     (5, 2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 0)
 ON DUPLICATE KEY UPDATE presente = VALUES(presente);
 
-/* ------------ FACTURAS, DETALLES Y PAGOS ------------ */
--- Genera montos repartidos por los últimos 6 meses para alimentar gráficos
+/* ----------- FACTURAS, DETALLES Y PAGOS ----------- */
+
+-- Limpieza opcional de facturas de demo previas
 DELETE FROM pagos          WHERE factura_id NOT IN (SELECT id FROM facturas);
 DELETE FROM detalles_factura WHERE factura_id NOT IN (SELECT id FROM facturas);
-
-DELETE FROM facturas WHERE id >= 1000; -- opcional por si repites script
+DELETE FROM facturas WHERE id >= 1000;
 
 INSERT INTO facturas (id, socio_id, fecha, total, estado) VALUES
     (1001, 3, DATE_SUB(CURDATE(), INTERVAL 5 MONTH),   39.90, 'PAGADA'),
@@ -223,7 +238,7 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO detalles_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal, tipo_item, membresia_id, reserva_id) VALUES
     (1001, 'Membresía Mensual',     1, 39.90, 39.90, 'MEMBRESIA', 1, NULL),
     (1002, 'Membresía Mensual',     1, 45.00, 45.00, 'MEMBRESIA', 1, NULL),
-    (1003, 'Membresía + clase HIIT',1, 52.50, 52.50, 'MIXTO',     1, NULL),
+    (1003, 'Membresía + Clase HIIT',1, 52.50, 52.50, 'MIXTO',     1, NULL),
     (1004, 'Membresía Mensual',     1, 45.00, 45.00, 'MEMBRESIA', 1, NULL),
     (1004, 'Clase HIIT Nocturno',   1, 13.50, 13.50, 'CLASE',     NULL, 2),
     (1005, 'Bono Clases + Mensual', 1, 68.00, 68.00, 'MIXTO',     1, 1),
@@ -246,3 +261,38 @@ ON DUPLICATE KEY UPDATE
     fecha_pago   = VALUES(fecha_pago),
     monto_pagado = VALUES(monto_pagado),
     metodo_pago  = VALUES(metodo_pago);
+
+
+/* Admin demo – contraseña: AdminDemo#24 */
+INSERT INTO socios (
+    dni, nombre, email, password, rol, activo,
+    fecha_registro, telefono, membresia_id,
+    fecha_inicio_membresia, fecha_fin_membresia
+)
+VALUES (
+    '00000007',
+    'Admin Demo',
+    'admindemo@incafit.com',
+    '$2a$12$1kuAJ7Ju7cl11mx6SaI9GOVbEw7ZcW6GlVRlJTMsKQdLWBnwD66wu', -- hash de AdminDemo#24
+    'ADMIN',
+    1,
+    CURDATE(),
+    '600777888',
+    NULL,
+    NULL,
+    NULL
+);
+
+-- Deja al admin demo con la contraseña: admin123
+UPDATE socios
+SET password = '$2a$10$OGLqZw8GBl/yw5vmb3r7EOB6MRgVuLewqgi4pYh8v7pLmeU20acg.'
+WHERE email = 'admindemo@incafit.com'
+;
+
+UPDATE socios
+SET password = '$2a$10$M7AlYmPn1QIPDultONJ2XOq8c6PfIL1eM/jDOxKMK7gf/CIEvdOGO',
+    rol = 'ADMIN',
+    activo = 1
+WHERE email = 'admindemo@incafit.com';
+
+select * from socios;

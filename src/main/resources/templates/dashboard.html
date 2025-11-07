@@ -96,7 +96,10 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title">Reservas Activas</h6>
-                                    <h3 class="mb-0">2</h3>
+                                    <h3 class="mb-0"
+                                        th:text="${socio.reservas != null ? #lists.size(socio.reservas.?[estado != null and estado.equalsIgnoreCase('CONFIRMADA')]) : 0}">
+                                        0
+                                    </h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-calendar-check fa-2x opacity-50"></i>
@@ -211,10 +214,15 @@
                             </ul>
                         </div>
                         <div class="col-md-4 text-end">
-                            <div class="mb-3">
-                                <h4 class="text-primary" th:text="${'€' + socio.membresia.precio + '/mes'}">€49.90/mes</h4>
-                                <small class="text-muted">Próximo pago: 
-                                    <span th:text="${#temporals.format(socio.fechaRegistro.plusMonths(1), 'dd/MM/yyyy')}">15/10/2024</span>
+                            <div class="mb-3" th:with="membresia=${socio.membresia}">
+                                <h4 class="text-primary"
+                                    th:text="${membresia != null ? '€' + #numbers.formatDecimal(membresia.precio, 1, 2) + '/mes' : 'Sin membresía'}">
+                                    €49.90/mes
+                                </h4>
+                                <small class="text-muted">Próximo pago:
+                                    <span th:text="${#temporals.format((socio.fechaFinMembresia != null ? socio.fechaFinMembresia : socio.fechaRegistro.plusMonths(1)), 'dd/MM/yyyy')}">
+                                        15/10/2024
+                                    </span>
                                 </small>
                             </div>
                             <a th:href="@{/socio/membresia/renovar}" class="btn btn-outline-primary btn-sm">
@@ -271,7 +279,10 @@
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-muted">Precio Mensual</h6>
-                            <p class="fs-5 text-success" th:text="${'€' + socio.membresia?.precio + '/mes'}">€49.90/mes</p>
+                            <p class="fs-5 text-success"
+                               th:text="${socio.membresia != null ? '€' + #numbers.formatDecimal(socio.membresia.precio, 1, 2) + '/mes' : 'Sin membresía'}">
+                                €49.90/mes
+                            </p>
                         </div>
                     </div>
                     <div class="row mb-3">

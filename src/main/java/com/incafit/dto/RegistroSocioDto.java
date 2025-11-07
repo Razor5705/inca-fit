@@ -111,7 +111,7 @@ public class RegistroSocioDto {
     private String nombreTarjeta;
     
     @NotBlank(message = "El número de tarjeta es obligatorio", groups = PaymentInfo.class)
-    @Pattern(regexp = "\\d{16}", message = "El número de tarjeta debe tener 16 dígitos", groups = PaymentInfo.class)
+    @Pattern(regexp = "(?:\\d{4}\\s?){4}", message = "Introduce 16 dígitos en grupos de 4", groups = PaymentInfo.class)
     private String numeroTarjeta;
     
     @NotBlank(message = "La fecha de caducidad es obligatoria", groups = PaymentInfo.class)

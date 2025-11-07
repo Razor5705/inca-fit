@@ -16,6 +16,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.validation.annotation.Validated;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.List;
@@ -122,15 +125,19 @@ public class RegistroController {
                                 SessionStatus status,
                                 RedirectAttributes redirectAttributes) {
 
-        System.out.println("🔍 DEBUG - Procesando Paso 3:");
+        System.out.println("⚙️ DEBUG - Procesando Paso 3:");
         System.out.println("Nombre Tarjeta: " + registroDto.getNombreTarjeta());
-        System.out.println("Número Tarjeta: " + (registroDto.getNumeroTarjeta() != null ? "***" + registroDto.getNumeroTarjeta().substring(registroDto.getNumeroTarjeta().length() - 4) : "null"));
+        System.out.println("Número Tarjeta: " + (registroDto.getNumeroTarjeta() != null && registroDto.getNumeroTarjeta().length() >= 4
+                ? "***" + registroDto.getNumeroTarjeta().substring(registroDto.getNumeroTarjeta().length() - 4)
+                : "null"));
         System.out.println("Fecha Caducidad: " + registroDto.getFechaCaducidad());
         System.out.println("CVV: " + (registroDto.getCvv() != null ? "***" : "null"));
         System.out.println("Membresía ID: " + registroDto.getMembresiaId());
 
+        validarDatosTarjeta(registroDto, result);
+
         if (result.hasErrors()) {
-            System.out.println("❌ DEBUG - Errores de validación en Paso 3:");
+            System.out.println("⚠️ DEBUG - Errores de validación en Paso 3:");
             result.getAllErrors().forEach(error -> System.out.println("Error: " + error.getDefaultMessage()));
             return "registro-paso3";
         }
@@ -140,9 +147,6 @@ public class RegistroController {
         if (membresiaSeleccionada == null) {
             return "redirect:/registro/paso2?error=true";
         }
-
-        // Aquí se simula el procesamiento del pago. En una aplicación real,
-        // se integraría con una pasarela de pago.
 
         Socio nuevoSocio = new Socio();
         nuevoSocio.setDni(registroDto.getDni());
@@ -157,14 +161,12 @@ public class RegistroController {
 
         socioService.guardarSocio(nuevoSocio);
 
-        // Crear la factura
         Factura factura = new Factura();
         factura.setSocio(nuevoSocio);
         factura.setFecha(LocalDate.now());
         factura.setTotal(membresiaSeleccionada.getPrecio());
         facturaRepository.save(factura);
 
-        // Crear el detalle de la factura
         DetalleFactura detalle = new DetalleFactura();
         detalle.setFactura(factura);
         detalle.setDescripcion("Membresía " + membresiaSeleccionada.getNombre());
@@ -173,7 +175,6 @@ public class RegistroController {
         detalle.setSubtotal(membresiaSeleccionada.getPrecio());
         detalleFacturaRepository.save(detalle);
 
-        // Enviar email de factura al socio con el detalle generado
         try {
             emailService.sendFacturaEmail(nuevoSocio, factura, List.of(detalle));
             System.out.println("[INFO] Email HTML de factura enviado a: " + nuevoSocio.getEmail());
@@ -181,23 +182,42 @@ public class RegistroController {
             System.err.println("[WARN] Error al enviar email HTML de factura: " + e.getMessage());
         }
 
-        System.out.println("✅ DEBUG - Registro completado exitosamente:");
-        System.out.println("Socio creado: " + nuevoSocio.getNombre() + " (" + nuevoSocio.getEmail() + ")");
-        System.out.println("Membresía: " + membresiaSeleccionada.getTipoMembresia());
-        System.out.println("Factura creada: " + factura.getId() + " - Total: €" + factura.getTotal());
-
-        // Enviar email de bienvenida en formato HTML
         try {
             emailService.sendWelcomeEmailHtml(nuevoSocio);
             System.out.println("[INFO] Email HTML de bienvenida enviado a: " + nuevoSocio.getEmail());
         } catch (Exception e) {
             System.err.println("[WARN] Error al enviar email HTML de bienvenida: " + e.getMessage());
-            // No detenemos el proceso de registro si falla el email
         }
 
-        status.setComplete(); // Limpiar la sesión
+        status.setComplete();
         redirectAttributes.addFlashAttribute("registroEmail", nuevoSocio.getEmail());
         return "redirect:/registro/exito";
+    }
+
+    private void validarDatosTarjeta(RegistroSocioDto registroDto, BindingResult result) {
+        if (registroDto.getNumeroTarjeta() != null) {
+            String normalizada = registroDto.getNumeroTarjeta().replaceAll("\\s", "");
+            registroDto.setNumeroTarjeta(normalizada);
+            if (!normalizada.matches("\\d{16}")) {
+                result.rejectValue("numeroTarjeta", "tarjeta.formato", "El número de tarjeta debe tener 16 dígitos.");
+            }
+        }
+
+        if (registroDto.getFechaCaducidad() != null && !registroDto.getFechaCaducidad().isBlank()) {
+            if (tarjetaCaducada(registroDto.getFechaCaducidad())) {
+                result.rejectValue("fechaCaducidad", "tarjeta.caducada", "La tarjeta indicada está caducada.");
+            }
+        }
+    }
+
+    private boolean tarjetaCaducada(String fechaCaducidad) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+            YearMonth expira = YearMonth.parse(fechaCaducidad, formatter);
+            return expira.isBefore(YearMonth.now());
+        } catch (DateTimeParseException ex) {
+            return true;
+        }
     }
 
     @GetMapping("/exito")

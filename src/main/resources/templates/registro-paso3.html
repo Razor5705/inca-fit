@@ -47,8 +47,7 @@
                                    id="numeroTarjeta"
                                    th:field="*{numeroTarjeta}"
                                    placeholder="Número de Tarjeta"
-                                   pattern="\d{16}"
-                                   maxlength="16"
+                                   maxlength="19"
                                    inputmode="numeric"
                                    autocomplete="cc-number"
                                    title="Debe tener 16 dígitos"
@@ -114,5 +113,31 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const numeroTarjetaInput = document.getElementById('numeroTarjeta');
+        const fechaCaducidadInput = document.getElementById('fechaCaducidad');
+
+        if (numeroTarjetaInput) {
+            const formatearTarjeta = () => {
+                const soloDigitos = numeroTarjetaInput.value.replace(/\D/g, '').slice(0, 16);
+                const conEspacios = soloDigitos.replace(/(.{4})/g, '$1 ').trim();
+                numeroTarjetaInput.value = conEspacios;
+            };
+            numeroTarjetaInput.addEventListener('input', formatearTarjeta);
+            formatearTarjeta();
+        }
+
+        if (fechaCaducidadInput) {
+            fechaCaducidadInput.addEventListener('input', () => {
+                let valor = fechaCaducidadInput.value.replace(/\D/g, '').slice(0, 4);
+                if (valor.length >= 3) {
+                    valor = valor.slice(0, 2) + '/' + valor.slice(2);
+                }
+                fechaCaducidadInput.value = valor;
+            });
+        }
+    });
+</script>
 </body>
 </html>

@@ -3,6 +3,7 @@ package com.incafit.Controller.admin;
 import com.incafit.Model.Socio;
 import com.incafit.Repository.SocioRepository;
 import com.incafit.Repository.MembresiaRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,10 +19,14 @@ public class SocioController {
 
     private final SocioRepository socioRepository;
     private final MembresiaRepository membresiaRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public SocioController(SocioRepository socioRepository, MembresiaRepository membresiaRepository) {
+    public SocioController(SocioRepository socioRepository,
+                           MembresiaRepository membresiaRepository,
+                           PasswordEncoder passwordEncoder) {
         this.socioRepository = socioRepository;
         this.membresiaRepository = membresiaRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping
@@ -47,6 +52,9 @@ public class SocioController {
         }
         
         try {
+            if (socio.getPassword() != null && !socio.getPassword().isBlank()) {
+                socio.setPassword(passwordEncoder.encode(socio.getPassword()));
+            }
             socioRepository.save(socio);
             redirectAttributes.addFlashAttribute("successMessage", "Socio guardado exitosamente");
         } catch (Exception e) {
@@ -75,6 +83,15 @@ public class SocioController {
         }
         
         try {
+            Socio existente = socioRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
+
+            if (socio.getPassword() == null || socio.getPassword().isBlank()) {
+                socio.setPassword(existente.getPassword());
+            } else {
+                socio.setPassword(passwordEncoder.encode(socio.getPassword()));
+            }
+
             socio.setId(id);
             socioRepository.save(socio);
             redirectAttributes.addFlashAttribute("successMessage", "Socio actualizado exitosamente");
