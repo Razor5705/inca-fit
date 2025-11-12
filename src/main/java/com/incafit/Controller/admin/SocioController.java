@@ -104,6 +104,15 @@ public class SocioController {
 
     @PostMapping("/eliminar/{id}")
     public String eliminarSocio(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return ejecutarEliminacion(id, redirectAttributes);
+    }
+
+    @PostMapping("/{id}/eliminar")
+    public String eliminarSocioLegacy(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return ejecutarEliminacion(id, redirectAttributes);
+    }
+
+    private String ejecutarEliminacion(Long id, RedirectAttributes redirectAttributes) {
         try {
             socioRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("successMessage", "Socio eliminado exitosamente");

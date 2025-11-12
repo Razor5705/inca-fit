@@ -17,22 +17,31 @@
                     <form th:action="@{/socio/reservas/guardar}" th:object="${reserva}" method="post">
                         <input type="hidden" id="fechaHora" th:field="*{fechaHora}">
 
-                        <div class="form-floating mb-3">
+                        <div class="form-floating mb-2">
                             <select class="form-select" id="claseId" name="claseId" required>
                                 <option value="">Selecciona una clase</option>
                                 <option th:each="clase : ${clases}"
                                         th:value="${clase.id}"
-                                        th:data-hora="${#temporals.format(clase.hora, 'HH:mm')}"
+                                        th:data-hora="${horasClases[clase.id]}"
+                                        th:data-info="${horariosClases[clase.id]}"
+                                        th:data-dias="${diasPorClase[clase.id]}"
                                         th:text="${clase.instructor != null ? clase.nombre + ' - ' + clase.instructor.nombreCompleto : clase.nombre + ' - Sin instructor'}">
                                     Nombre de la Clase
                                 </option>
                             </select>
                             <label for="claseId">Clase</label>
                         </div>
+                        <div id="infoHorario" class="alert alert-info py-2 px-3 small mb-3 d-none">
+                            <strong>Horario:</strong>
+                            <span id="infoHorarioTexto"></span>
+                        </div>
 
                         <div class="form-floating mb-3">
                             <input type="date" class="form-control" id="fechaReserva" name="fechaReserva" required>
                             <label for="fechaReserva">Fecha</label>
+                            <div class="form-text" id="ayudaFecha">
+                                Selecciona una fecha disponible segun el calendario de la clase.
+                            </div>
                         </div>
 
                         <div class="form-floating mb-3">
@@ -63,25 +72,82 @@
         const fechaInput = document.getElementById('fechaReserva');
         const horaDisplay = document.getElementById('horaClase');
         const fechaHoraHidden = document.getElementById('fechaHora');
+        const infoBox = document.getElementById('infoHorario');
+        const infoText = document.getElementById('infoHorarioTexto');
+        const ayudaFecha = document.getElementById('ayudaFecha');
 
         const horasPorClase = {};
+        const infoPorClase = {};
+        const diasPorClase = {};
         claseSelect.querySelectorAll('option[data-hora]').forEach(option => {
             if (option.value) {
                 horasPorClase[option.value] = option.dataset.hora;
+                infoPorClase[option.value] = option.dataset.info || '';
+                diasPorClase[option.value] = option.dataset.dias || '';
             }
         });
+
+        const mapaDias = {
+            'MONDAY': 1,
+            'TUESDAY': 2,
+            'WEDNESDAY': 3,
+            'THURSDAY': 4,
+            'FRIDAY': 5,
+            'SATURDAY': 6,
+            'SUNDAY': 0
+        };
+
+        function obtenerNombreDias(lista) {
+            if (!lista || lista.length === 0) {
+                return 'Cualquier dia';
+            }
+            return lista.join(', ');
+        }
+
+        function diaPermitido(fechaISO, claseId) {
+            if (!fechaISO || !claseId || !diasPorClase[claseId]) {
+                return true;
+            }
+            const fecha = new Date(fechaISO + 'T00:00:00');
+            const diaSemana = fecha.getDay();
+            return diasPorClase[claseId]
+                .split(',')
+                .map(d => mapaDias[d])
+                .includes(diaSemana);
+        }
 
         function actualizarCampos() {
             const claseId = claseSelect.value;
             const fecha = fechaInput.value;
             const hora = claseId && horasPorClase[claseId] ? horasPorClase[claseId] : '';
+            const info = claseId && infoPorClase[claseId] ? infoPorClase[claseId] : '';
 
             horaDisplay.value = hora ? hora : '';
+            if (info) {
+                infoText.textContent = info;
+                infoBox.classList.remove('d-none');
+            } else {
+                infoText.textContent = '';
+                infoBox.classList.add('d-none');
+            }
 
             if (fecha && hora) {
                 fechaHoraHidden.value = `${fecha}T${hora}`;
             } else {
                 fechaHoraHidden.value = '';
+            }
+
+            if (fecha && claseId) {
+                if (!diaPermitido(fecha, claseId)) {
+                    ayudaFecha.textContent = 'La clase seleccionada no se dicta ese dia. Elige uno de los dias disponibles.';
+                    fechaInput.setCustomValidity('La clase no se dicta este dia.');
+                } else {
+                    ayudaFecha.textContent = 'La fecha es valida para este horario.';
+                    fechaInput.setCustomValidity('');
+                }
+            } else {
+                ayudaFecha.textContent = 'Selecciona una fecha disponible segun el calendario de la clase.';
+                fechaInput.setCustomValidity('');
             }
         }
 

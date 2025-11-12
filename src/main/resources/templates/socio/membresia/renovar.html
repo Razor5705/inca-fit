@@ -3,70 +3,178 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
-    <title>Renovar Membresía - Inca Fit</title>
+    <title>Renovar membresia</title>
 </head>
 <body>
-<div layout:fragment="content" class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="card-title mb-0">
-                        <i class="fas fa-sync-alt me-2"></i>Renovar Membresía
-                    </h4>
+<div layout:fragment="content" class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Renovar membresia</h2>
+            <p class="text-muted mb-0">Elige el plan que mejor se ajuste y confirma el pago simulado.</p>
+        </div>
+        <a th:href="@{/socio/membresia}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Volver a mi membresia
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <form th:action="@{/socio/membresia/renovar}" method="post" id="formRenovacion">
+                <div class="row g-3">
+                    <div class="col-md-6" th:each="membresia : ${membresias}">
+                        <label class="card h-100 shadow-sm plan-card"
+                               th:classappend="${selectedMembresiaId == membresia.id} ? 'border-primary' : ''"
+                               th:attr="data-plan-id=${membresia.id},
+                                        data-plan-nombre=${membresia.nombre},
+                                        data-plan-precio=${membresia.precio},
+                                        data-plan-dias=${membresia.duracionDias}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-uppercase text-muted fw-semibold">Plan</small>
+                                    <input class="form-check-input" type="radio" name="membresiaId"
+                                           th:value="${membresia.id}"
+                                           th:checked="${selectedMembresiaId == membresia.id}">
+                                </div>
+                                <h5 class="card-title mb-1" th:text="${membresia.nombre}">Plan</h5>
+                                <p class="text-muted small mb-3" th:text="${membresia.descripcion}">Detalle</p>
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <div>
+                                        <span class="text-muted small">Duracion</span>
+                                        <p class="mb-0 fw-semibold" th:text="${membresia.duracionDias + ' dias'}">30 dias</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="text-muted small">Importe</span>
+                                        <p class="mb-0 fw-bold text-primary"
+                                           th:text="${#numbers.formatCurrency(membresia.precio)}">€0.00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Información:</strong> Al renovar tu membresía, se generará una factura que deberás pagar para activar la renovación.
-                    </div>
 
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h6 class="text-muted">Membresía Actual</h6>
-                            <h5 th:text="${socio.membresia.nombre}">Premium</h5>
-                            <p class="text-muted" th:text="${socio.membresia.descripcion}">Descripción de la membresía</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-muted">Detalles de Renovación</h6>
-                            <p><strong>Precio:</strong> <span th:text="${'€' + socio.membresia.precio}">€49.90</span></p>
-                            <p><strong>Duración:</strong> <span th:text="${socio.membresia.duracionDias + ' días'}">30 días</span></p>
-                            <p><strong>Fecha de Renovación:</strong> <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}">15/10/2024</span></p>
-                        </div>
-                    </div>
-
-                    <div class="card bg-light mb-4">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                <i class="fas fa-calendar-check me-2"></i>Resumen de la Renovación
-                            </h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p class="mb-1"><strong>Concepto:</strong></p>
-                                    <p th:text="'Renovación de ' + socio.membresia.nombre">Renovación de Premium</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="mb-1"><strong>Total a Pagar:</strong></p>
-                                    <h5 class="text-success" th:text="${'€' + socio.membresia.precio}">€49.90</h5>
-                                </div>
+                <div class="card shadow-sm mt-4" th:attr="data-start-date=${renovacionInicio}">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <p class="text-muted small mb-1">Inicio programado</p>
+                                <h5 class="mb-0" id="resumenInicio" th:text="${renovacionInicioTexto}">--/--/----</h5>
+                                <p class="text-success small mb-0" th:if="${diasRestantes > 0}"
+                                   th:text="${'Tu plan actual finaliza en ' + diasRestantes + ' dias'}"></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="text-muted small mb-1">Fin estimado</p>
+                                <h5 class="mb-0" id="resumenFin" th:text="${renovacionFinTexto}">--/--/----</h5>
+                                <p class="text-muted small mb-0">Calculado segun la duracion del plan.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="text-muted small mb-1">Total a pagar (simulado)</p>
+                                <h4 class="mb-1 text-primary" id="resumenImporte">--</h4>
+                                <select class="form-select" name="metodoPago">
+                                    <option value="Tarjeta guardada" selected>Tarjeta guardada</option>
+                                    <option value="Tarjeta nueva">Tarjeta nueva</option>
+                                    <option value="Transferencia bancaria">Transferencia bancaria</option>
+                                </select>
                             </div>
                         </div>
                     </div>
+                    <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Al confirmar se registra la renovacion y la factura como pagada.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sync-alt me-2"></i>Confirmar renovacion
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a th:href="@{/dashboard}" class="btn btn-outline-secondary me-md-2">
-                            <i class="fas fa-arrow-left me-2"></i>Cancelar
-                        </a>
-                        <form th:action="@{/socio/membresia/renovar}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-credit-card me-2"></i>Confirmar Renovación
-                            </button>
-                        </form>
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Resumen de mi plan</h5>
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Acceso ilimitado durante la vigencia del plan.
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Control automatico de fechas para evitar solapamientos.
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Factura disponible inmediatamente despues de confirmar.
+                        </li>
+                    </ul>
+                    <div class="alert alert-info mb-0">
+                        <strong>Consejo:</strong> Puedes renovar antes de que venza tu plan. El nuevo periodo comenzara
+                        automaticamente despues de la fecha actual de finalizacion.
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const planCards = document.querySelectorAll('.plan-card');
+        const resumenFin = document.getElementById('resumenFin');
+        const resumenImporte = document.getElementById('resumenImporte');
+        const startDateContainer = document.querySelector('[data-start-date]');
+        const startDateValue = startDateContainer ? startDateContainer.dataset.startDate : null;
+
+        const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+
+        function formatearNumero(valor) {
+            return new Intl.NumberFormat('es-ES', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(valor);
+        }
+
+        function calcularFin(dias) {
+            if (!startDateValue) {
+                return '';
+            }
+            const fecha = new Date(startDateValue + 'T00:00:00');
+            if (Number.isNaN(fecha.getTime())) {
+                return '';
+            }
+            const resultado = new Date(fecha);
+            resultado.setDate(resultado.getDate() + Math.max(dias - 1, 0));
+            return resultado.toLocaleDateString('es-ES', opcionesFecha);
+        }
+
+        function marcarSeleccion(card) {
+            planCards.forEach(c => c.classList.remove('border-primary', 'shadow'));
+            card.classList.add('border-primary', 'shadow');
+
+            const dias = parseInt(card.dataset.planDias || '0', 10);
+            const precio = parseFloat(card.dataset.planPrecio || '0');
+
+            resumenFin.textContent = calcularFin(dias) || '--/--/----';
+            resumenImporte.textContent = formatearNumero(precio || 0);
+
+            const input = card.querySelector('input[type="radio"]');
+            if (input) {
+                input.checked = true;
+            }
+        }
+
+        planCards.forEach(card => {
+            card.addEventListener('click', () => marcarSeleccion(card));
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.addEventListener('change', () => marcarSeleccion(card));
+                if (radio.checked) {
+                    marcarSeleccion(card);
+                }
+            }
+        });
+    });
+</script>
 </body>
 </html>

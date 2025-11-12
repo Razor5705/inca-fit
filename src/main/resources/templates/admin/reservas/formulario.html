@@ -31,8 +31,14 @@
                                 <option value="">Seleccionar clase...</option>
                                 <option th:each="clase : ${clases}" 
                                         th:value="${clase.id}" 
+                                        th:data-hora="${horasClases[clase.id]}"
+                                        th:data-info="${horariosClases[clase.id]}"
+                                        th:data-dias="${diasPorClase[clase.id]}"
                                         th:text="${clase.instructor != null ? clase.nombre + ' - ' + clase.instructor.nombreCompleto : clase.nombre + ' - Sin instructor'}"></option>
                             </select>
+                            <div id="infoClaseAdmin" class="alert alert-info mt-2 py-2 px-3 small d-none">
+                                <strong>Horario:</strong> <span id="infoClaseAdminTexto"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -42,6 +48,9 @@
                         <div class="mb-3">
                             <label for="fechaHora" class="form-label">Fecha y Hora</label>
                             <input type="datetime-local" class="form-control" id="fechaHora" th:field="*{fechaHora}" required>
+                            <div class="form-text" id="ayudaFechaAdmin">
+                                Selecciona un dia permitido para la clase; la hora sugerida se ajusta automaticamente.
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -64,5 +73,105 @@
         </div>
     </div>
 </div>
+<th:block layout:fragment="extraScripts">
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function () {
+    const claseSelect = document.getElementById('clase');
+    const fechaHoraInput = document.getElementById('fechaHora');
+    const infoBox = document.getElementById('infoClaseAdmin');
+    const infoText = document.getElementById('infoClaseAdminTexto');
+    const ayudaFecha = document.getElementById('ayudaFechaAdmin');
+
+    if (!claseSelect) {
+        return;
+    }
+
+    const mapaDias = {
+        'SUNDAY': 0,
+        'MONDAY': 1,
+        'TUESDAY': 2,
+        'WEDNESDAY': 3,
+        'THURSDAY': 4,
+        'FRIDAY': 5,
+        'SATURDAY': 6
+    };
+
+    function obtenerListaDias(option) {
+        const dias = option?.dataset?.dias || '';
+        return dias.split(',').filter(Boolean);
+    }
+
+    function primerDiaValido(diasPermitidos) {
+        if (!diasPermitidos || diasPermitidos.length === 0) {
+            return null;
+        }
+        const hoy = new Date();
+        for (let i = 0; i < 14; i++) {
+            const fecha = new Date(hoy);
+            fecha.setDate(hoy.getDate() + i);
+            const dia = fecha.getDay();
+            if (diasPermitidos.some(code => mapaDias[code] === dia)) {
+                return fecha;
+            }
+        }
+        return null;
+    }
+
+    function formatearFechaLocal(fecha, hora) {
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, '0');
+        const day = String(fecha.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hora}`;
+    }
+
+    function diaPermitido(fechaIso, diasPermitidos) {
+        if (!fechaIso || !diasPermitidos || diasPermitidos.length === 0) {
+            return true;
+        }
+        const fecha = new Date(fechaIso);
+        const dia = fecha.getDay();
+        return diasPermitidos.some(code => mapaDias[code] === dia);
+    }
+
+    function actualizarInfo() {
+        const option = claseSelect.selectedOptions[0];
+        const hora = option?.dataset?.hora || '';
+        const diasPermitidos = obtenerListaDias(option);
+        const info = option?.dataset?.info || '';
+
+        if (info) {
+            infoText.textContent = info;
+            infoBox.classList.remove('d-none');
+        } else {
+            infoText.textContent = '';
+            infoBox.classList.add('d-none');
+        }
+
+        if (!fechaHoraInput.value && hora) {
+            const fechaSugerida = primerDiaValido(diasPermitidos);
+            if (fechaSugerida) {
+                fechaHoraInput.value = formatearFechaLocal(fechaSugerida, hora);
+            }
+        } else if (fechaHoraInput.value && hora) {
+            const actual = new Date(fechaHoraInput.value);
+            const fecha = `${actual.getFullYear()}-${String(actual.getMonth() + 1).padStart(2, '0')}-${String(actual.getDate()).padStart(2, '0')}`;
+            fechaHoraInput.value = `${fecha}T${hora}`;
+        }
+
+        if (fechaHoraInput.value && !diaPermitido(fechaHoraInput.value, diasPermitidos)) {
+            ayudaFecha.textContent = 'El dia seleccionado no coincide con el horario de la clase.';
+            fechaHoraInput.setCustomValidity('La clase no se dicta en ese dia.');
+        } else {
+            ayudaFecha.textContent = 'Selecciona un dia permitido para la clase; la hora sugerida se ajusta automaticamente.';
+            fechaHoraInput.setCustomValidity('');
+        }
+    }
+
+    claseSelect.addEventListener('change', actualizarInfo);
+    fechaHoraInput.addEventListener('change', actualizarInfo);
+    actualizarInfo();
+});
+</script>
+</th:block>
 </body>
 </html>

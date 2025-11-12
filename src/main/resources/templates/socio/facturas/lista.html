@@ -3,43 +3,140 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
-    <title>Mis Facturas</title>
+    <title>Mis facturas</title>
 </head>
 <body>
-<div layout:fragment="content" class="container-fluid py-5" style="background-color: #f8f9fa;">
-    <div class="container my-5">
-        <h2>Mis Facturas</h2>
+<div layout:fragment="content" class="container py-5">
+    <div class="d-flex flex-column flex-md-row gap-3 justify-content-between align-items-start mb-4">
+        <div>
+            <h2 class="mb-1">Mis facturas</h2>
+            <p class="text-muted mb-0">Consulta el estado de tus pagos y accede al detalle de cada recibo.</p>
+        </div>
+        <a th:href="@{/dashboard}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Volver al panel
+        </a>
+    </div>
 
-        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">Importe pendiente</p>
+                    <h3 class="text-warning mb-0" th:text="${totalPendiente != null ? #numbers.formatCurrency(totalPendiente) : 'EUR 0,00'}">EUR 0,00</h3>
+                    <small class="text-muted">Incluye todas las facturas en estado pendiente.</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">Facturas pendientes</p>
+                    <h3 class="mb-0" th:text="${facturasPendientes}">0</h3>
+                    <small class="text-muted">A la espera de pago.</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">Facturas pagadas</p>
+                    <h3 class="text-success mb-0" th:text="${facturasPagadas}">0</h3>
+                    <small class="text-muted">Pagos confirmados.</small>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Fecha Emisión</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="factura : ${facturas}">
-                <td th:text="${#temporals.format(factura.fecha, 'dd/MM/yyyy')}"></td>
-                <td th:text="${#numbers.formatCurrency(factura.total)}"></td>
-                <td>
-                    <span th:if="${factura.estado == 'PENDIENTE'}" class="badge bg-warning">Pendiente</span>
-                    <span th:if="${factura.estado == 'PAGADA'}" class="badge bg-success">Pagada</span>
-                </td>
-                <td>
-                    <form th:if="${factura.estado == 'PENDIENTE'}"
-                          th:action="@{/socio/facturas/{id}/pagar(id=${factura.id})}"
-                          method="post" class="d-inline">
-                        <button type="submit" class="btn btn-success btn-sm">Pagar</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div th:if="${#lists.isEmpty(facturas)}" class="alert alert-light border">
+        <i class="fas fa-info-circle me-2"></i>No tienes facturas generadas todavia.
+    </div>
+
+    <div class="timeline" th:if="${!#lists.isEmpty(facturas)}">
+        <div class="card shadow-sm border-0 mb-4"
+             th:each="factura : ${facturas}"
+             th:classappend="${factura.estado == 'PENDIENTE'} ? 'border-warning' : ''">
+            <div class="card-body">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1"
+                           th:text="${'Factura #' + factura.id}">Factura #1</p>
+                        <h4 class="mb-1">
+                            <span th:text="${#lists.isEmpty(factura.detalles) ? 'Renovacion de membresia' : factura.detalles[0].descripcion}">Concepto</span>
+                        </h4>
+                        <p class="text-muted mb-0">
+                            Emitida el <strong th:text="${#temporals.format(factura.fecha, 'dd/MM/yyyy')}">01/11/2024</strong>
+                        </p>
+                    </div>
+                    <div class="text-md-end mt-3 mt-md-0">
+                        <span class="badge"
+                              th:classappend="${factura.estado == 'PAGADA'} ? ' bg-success' :
+                                              (factura.estado == 'PENDIENTE' ? ' bg-warning text-dark' : ' bg-secondary')"
+                              th:text="${factura.estado}">PENDIENTE</span>
+                        <h3 class="mb-0 mt-2 text-primary"
+                            th:text="${#numbers.formatCurrency(factura.total)}">EUR 0,00</h3>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-8">
+                        <p class="text-muted small mb-1">Informacion de interes</p>
+                        <ul class="small text-muted ps-3 mb-0">
+                            <li>Conceptos facturados detallados abajo.</li>
+                            <li th:if="${factura.estado == 'PENDIENTE'}">Puedes simular el pago al instante para mantener activa tu membresia.</li>
+                            <li th:if="${factura.estado == 'PAGADA'}">Esta factura ya figura como pagada en tu historial.</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    th:attr="data-bs-target=${'#detalle-' + factura.id}">
+                                <i class="fas fa-list me-1"></i>Ver detalle
+                            </button>
+                            <form th:if="${factura.estado == 'PENDIENTE'}"
+                                  th:action="@{/socio/facturas/{id}/pagar(id=${factura.id})}"
+                                  method="post">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-credit-card me-1"></i>Pagar ahora
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse mt-3" th:id="${'detalle-' + factura.id}">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-end">Precio unitario</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="detalle : ${factura.detalles}">
+                                <td th:text="${detalle.descripcion}">Renovacion membresia</td>
+                                <td class="text-center" th:text="${detalle.cantidad}">1</td>
+                                <td class="text-end" th:text="${#numbers.formatCurrency(detalle.precioUnitario)}">EUR 0,00</td>
+                                <td class="text-end" th:text="${#numbers.formatCurrency(detalle.subtotal)}">EUR 0,00</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(factura.detalles)}">
+                                <td colspan="4" class="text-center text-muted small">
+                                    No hay conceptos asociados a esta factura.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>

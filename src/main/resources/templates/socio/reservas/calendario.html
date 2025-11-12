@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>Horario de clases</title>
+    <style>
+        :root {
+            --page-bg: #f4f6fb;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #5f6b7b;
+            --border: #e2e8f0;
+            --border-strong: #cbd5f5;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --accent-strong: rgba(37, 99, 235, 0.25);
+            --accent-dark: #15337c;
+        }
+
+        body {
+            background: var(--page-bg);
+        }
+
+        .schedule-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: clamp(1.5rem, 5vw, 3rem);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .schedule-card {
+            background: var(--card-bg);
+            border-radius: 1.35rem;
+            padding: clamp(1rem, 3vw, 1.8rem);
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.07);
+            border: 1px solid rgba(15, 23, 42, 0.04);
+        }
+
+        .schedule-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .schedule-header h2 {
+            margin: 0;
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            color: var(--text-main);
+        }
+
+        .schedule-header p {
+            margin: 0.6rem 0 0;
+            color: var(--text-muted);
+            max-width: 520px;
+        }
+
+        .schedule-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .schedule-actions a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.65rem 1.35rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid transparent;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .schedule-actions a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+        }
+
+        .link-secondary {
+            background: var(--card-bg);
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        .link-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .schedule-tip {
+            background: var(--accent-soft);
+            border: 1px solid var(--accent-strong);
+            border-radius: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--text-main);
+            display: flex;
+            gap: 0.65rem;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .schedule-tip i {
+            color: var(--accent-dark);
+        }
+
+        .schedule-scroll {
+            overflow-x: auto;
+            border-radius: 1.35rem;
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), transparent);
+            padding: 0.5rem;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 780px;
+            table-layout: fixed;
+            font-size: 0.95rem;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 0.8rem;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.1);
+        }
+
+        .schedule-table caption {
+            caption-side: bottom;
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 0.75rem 1rem;
+        }
+
+        .schedule-table thead th {
+            background: linear-gradient(120deg, rgba(37, 99, 235, 0.18), rgba(37, 99, 235, 0.08));
+            color: var(--accent-dark);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--border-strong);
+            border-right: 1px solid var(--border-strong);
+            padding: 0.85rem;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .schedule-table thead th.day-head {
+            text-align: center;
+        }
+
+        .schedule-table thead th:last-child {
+            border-right: none;
+        }
+
+        .schedule-table th:first-child,
+        .schedule-table td:first-child {
+            background: rgba(15, 23, 42, 0.05);
+            font-weight: 700;
+            text-align: center;
+            width: 120px;
+            color: var(--text-main);
+        }
+
+        .schedule-table tbody td {
+            border-right: 1px solid rgba(15, 23, 42, 0.08);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            padding: 0.75rem;
+            vertical-align: top;
+            background: #fff;
+        }
+
+        .schedule-table tbody td.day-1 { background: linear-gradient(180deg, rgba(37, 99, 235, 0.04), rgba(37, 99, 235, 0)); }
+        .schedule-table tbody td.day-2 { background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), rgba(99, 102, 241, 0)); }
+        .schedule-table tbody td.day-3 { background: linear-gradient(180deg, rgba(56, 189, 248, 0.05), rgba(56, 189, 248, 0)); }
+        .schedule-table tbody td.day-4 { background: linear-gradient(180deg, rgba(34, 197, 94, 0.05), rgba(34, 197, 94, 0)); }
+        .schedule-table tbody td.day-5 { background: linear-gradient(180deg, rgba(251, 191, 36, 0.05), rgba(251, 191, 36, 0)); }
+        .schedule-table tbody td.day-6 { background: linear-gradient(180deg, rgba(244, 114, 182, 0.05), rgba(244, 114, 182, 0)); }
+        .schedule-table tbody td.day-7 { background: linear-gradient(180deg, rgba(14, 165, 233, 0.05), rgba(14, 165, 233, 0)); }
+        .schedule-table tbody td.day-td {
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .schedule-table tbody td.day-td:hover {
+            z-index: 5;
+            box-shadow: 0 8px 15px rgba(15, 23, 42, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .schedule-table tbody td:first-child {
+            border-right: 1px solid rgba(15, 23, 42, 0.12);
+            font-weight: 600;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: rgba(15, 23, 42, 0.035);
+            box-shadow: 5px 0 12px rgba(15, 23, 42, 0.06);
+        }
+
+        .schedule-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .schedule-table tbody td:last-child {
+            border-right: none;
+        }
+
+        .schedule-table tbody tr:nth-child(even) td:not(:first-child) {
+            background: rgba(248, 249, 255, 0.6);
+        }
+
+        .slot-content {
+            min-height: 130px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            padding: 0.35rem;
+        }
+
+        .slot-empty {
+            font-size: 0.85rem;
+            color: #8892a6;
+            text-align: center;
+            padding: 0.9rem 0.7rem;
+            border: 1px dashed rgba(15, 23, 42, 0.12);
+            border-radius: 0.9rem;
+            background: rgba(136, 146, 166, 0.08);
+            font-style: italic;
+        }
+
+        .class-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.07), rgba(255, 255, 255, 0.9));
+            border-radius: 0.9rem;
+            padding: 0.95rem 1.05rem;
+            border: 1px solid rgba(37, 99, 235, 0.18);
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+        }
+
+        .class-name {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.3rem;
+        }
+
+        .class-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .class-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 999px;
+            padding: 0.25rem 0.7rem;
+            font-size: 0.8rem;
+            color: var(--accent-dark);
+        }
+
+        .class-chip i {
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+
+        .class-description {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state a {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        @media (max-width: 640px) {
+            .schedule-actions a {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <section class="schedule-page"
+             th:with="locale=${T(java.util.Locale).forLanguageTag('es-ES')},
+                      timeFormatter=${T(java.time.format.DateTimeFormatter).ofPattern('HH:mm')}">
+        <div class="schedule-card">
+            <header class="schedule-header">
+                <div>
+                    <h2>Horario de clases</h2>
+                    <p>Revisa los dias y horas en los que dictamos cada clase antes de reservar.</p>
+                </div>
+                <div class="schedule-actions">
+                    <a th:href="@{/socio/reservas}" class="link-secondary">
+                        <i class="fas fa-list"></i>
+                        <span>Mis reservas</span>
+                    </a>
+                    <a th:href="@{/socio/reservas/nueva}" class="link-primary">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Nueva reserva</span>
+                    </a>
+                </div>
+            </header>
+
+            <div class="schedule-tip">
+                <i class="fas fa-lightbulb"></i>
+                <span><strong>Tip:</strong> identifica la clase que te interesa y reserva desde el boton superior para asegurar tu cupo.</span>
+            </div>
+        </div>
+
+        <div class="schedule-card schedule-scroll" th:if="${tieneClases}">
+            <table class="schedule-table">
+                <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th th:each="dia, iter : ${diasSemana}"
+                        th:class="'day-head day-' + ${iter.index + 1}"
+                        th:text="${#strings.capitalize(dia.getDisplayName(T(java.time.format.TextStyle).FULL, locale))}">
+                        Lunes
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="hora : ${horasDisponibles}">
+                    <td th:text="${hora.format(timeFormatter)}">09:00</td>
+                    <td th:each="dia, iter : ${diasSemana}"
+                        th:class="'day-td day-' + ${iter.index + 1}">
+                        <div class="slot-content"
+                             th:with="diaMapa=${matrizHorarios.get(dia)},
+                                      clasesSlot=${diaMapa != null ? diaMapa.get(hora) : null}">
+                            <div th:if="${clasesSlot == null || clasesSlot.isEmpty()}" class="slot-empty">Sin clases</div>
+                            <article class="class-card" th:each="clase : ${clasesSlot}">
+                                <div class="class-name" th:text="${clase.nombre}">Yoga</div>
+                                <div class="class-meta">
+                                    <span class="class-chip">
+                                        <i class="fas fa-user-circle"></i>
+                                        <span th:text="${clase.instructor != null ? clase.instructor.nombreCompleto : 'Instructor por asignar'}">
+                                            Instructor
+                                        </span>
+                                    </span>
+                                    <span class="class-chip" th:if="${clase.duracionMinutos > 0}">
+                                        <i class="fas fa-clock"></i>
+                                        <span th:text="|${clase.duracionMinutos} min|">60 min</span>
+                                    </span>
+                                </div>
+                                <div class="class-meta">
+                                    <span class="class-chip">
+                                        <i class="fas fa-users"></i>
+                                        <span th:text="|${clase.capacidadMaxima} plazas|">12 plazas</span>
+                                    </span>
+                                </div>
+                                <p class="class-description" th:if="${!#strings.isEmpty(clase.descripcion)}"
+                                   th:text="${clase.descripcion}">Descripcion</p>
+                            </article>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schedule-card empty-state" th:if="${!tieneClases}">
+            <p>Todavia no hay horarios publicados. Vuelve pronto o consulta con recepcion para conocer las proximas clases.</p>
+            <p><a th:href="@{/socio/reservas/nueva}">Ir al formulario de reserva</a></p>
+        </div>
+    </section>
+</div>
+</body>
+</html>

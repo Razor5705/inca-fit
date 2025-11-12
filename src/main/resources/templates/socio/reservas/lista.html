@@ -13,7 +13,14 @@
         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-        <a th:href="@{/socio/reservas/nueva}" class="btn btn-primary mb-3">Nueva Reserva</a>
+        <div class="d-flex flex-column flex-md-row gap-2 mb-3">
+            <a th:href="@{/socio/reservas/nueva}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-1"></i>Nueva Reserva
+            </a>
+            <a th:href="@{/socio/reservas/calendario}" class="btn btn-outline-primary">
+                <i class="fas fa-calendar-alt me-1"></i>Ver Calendario
+            </a>
+        </div>
 
         <table class="table table-striped">
             <thead>

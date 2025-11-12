@@ -44,15 +44,22 @@
                             <select class="form-select" id="reserva" th:field="*{reserva}" required>
                                 <option value="">Seleccionar reserva...</option>
                                 <option th:each="reserva : ${reservas}" 
-                                        th:value="${reserva.id}" 
-                                        th:text="${'Reserva #' + reserva.id + ' - ' + reserva.socio.nombre}"></option>
+                                        th:value="${reserva.id}"
+                                        th:data-socio="${reserva.socio.id}"
+                                        th:data-clase="${reserva.clase.id}"
+                                        th:data-fecha="${#temporals.format(reserva.fechaHora, 'yyyy-MM-dd')}"
+                                        th:text="${'Reserva #' + reserva.id + ' · ' + reserva.clase.nombre + ' · ' + #temporals.format(reserva.fechaHora, 'dd/MM/yyyy HH:mm')}"></option>
                             </select>
+                            <div class="form-text" id="ayudaReserva">
+                                Filtra la lista eligiendo primero al socio y la clase.
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="fecha" class="form-label">Fecha</label>
                             <input type="date" class="form-control" id="fecha" th:field="*{fecha}" required>
+                            <div class="form-text">Se recomienda utilizar la fecha de la reserva seleccionada.</div>
                         </div>
                     </div>
                 </div>
@@ -65,5 +72,75 @@
         </div>
     </div>
 </div>
+<th:block layout:fragment="extraScripts">
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const socioSelect = document.getElementById('socio');
+    const claseSelect = document.getElementById('clase');
+    const reservaSelect = document.getElementById('reserva');
+    const fechaInput = document.getElementById('fecha');
+    const ayudaReserva = document.getElementById('ayudaReserva');
+
+    if (!reservaSelect) {
+        return;
+    }
+
+    const opciones = Array.from(reservaSelect.querySelectorAll('option[value]'));
+
+    function actualizarOpciones() {
+        const socioId = socioSelect.value;
+        const claseId = claseSelect.value;
+        let visibles = 0;
+
+        opciones.forEach(op => {
+            const coincideSocio = !socioId || op.dataset.socio === socioId;
+            const coincideClase = !claseId || op.dataset.clase === claseId;
+            const mostrar = coincideSocio && coincideClase;
+            op.hidden = !mostrar;
+            if (!mostrar && op.selected) {
+                op.selected = false;
+            }
+            if (mostrar) {
+                visibles++;
+            }
+        });
+
+        if (visibles === 0) {
+            ayudaReserva.textContent = 'No hay reservas que coincidan con los filtros seleccionados.';
+        } else {
+            ayudaReserva.textContent = 'Resultados filtrados automaticamente por socio y clase.';
+        }
+    }
+
+    function sincronizarCampos() {
+        const opcion = reservaSelect.selectedOptions[0];
+        if (opcion) {
+            if (opcion.dataset.socio) {
+                socioSelect.value = opcion.dataset.socio;
+            }
+            if (opcion.dataset.clase) {
+                claseSelect.value = opcion.dataset.clase;
+            }
+            if (opcion.dataset.fecha) {
+                fechaInput.value = opcion.dataset.fecha;
+            }
+        }
+    }
+
+    socioSelect.addEventListener('change', () => {
+        actualizarOpciones();
+        sincronizarCampos();
+    });
+    claseSelect.addEventListener('change', () => {
+        actualizarOpciones();
+        sincronizarCampos();
+    });
+    reservaSelect.addEventListener('change', sincronizarCampos);
+
+    actualizarOpciones();
+    sincronizarCampos();
+});
+</script>
+</th:block>
 </body>
 </html>

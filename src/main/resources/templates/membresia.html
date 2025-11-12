@@ -3,61 +3,122 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
-    <title>Mi Membresía - Inca Fit</title>
+    <title>Mi membresia - Inca Fit</title>
 </head>
 <body>
 <div layout:fragment="content" class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-8">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0">
-                        <i class="fas fa-id-card me-2"></i>Mi Membresía
+                        <i class="fas fa-id-card me-2"></i>Mi membresia
                     </h4>
+                    <a th:href="@{/dashboard}" class="btn btn-sm btn-light text-primary">
+                        <i class="fas fa-arrow-left me-1"></i>Dashboard
+                    </a>
                 </div>
                 <div class="card-body">
                     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
                         <i class="fas fa-check-circle me-2"></i>
-                        <span th:text="${successMessage}">Mensaje de éxito</span>
+                        <span th:text="${successMessage}">Membresia renovada</span>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
 
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h5 class="text-primary" th:text="${socio.membresia.nombre}">Premium</h5>
-                            <p class="text-muted" th:text="${socio.membresia.descripcion}">Descripción de la membresía</p>
+                    <div th:if="${socio.membresia != null}">
+                        <div class="row mb-4">
+                            <div class="col-md-7">
+                                <h5 class="text-primary" th:text="${socio.membresia.nombre}">Plan Premium</h5>
+                                <p class="text-muted mb-0" th:text="${socio.membresia.descripcion}">Descripcion del plan.</p>
+                            </div>
+                            <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                                <span class="text-muted small d-block">Importe</span>
+                                <h3 class="mb-1 text-success" th:text="${#numbers.formatCurrency(socio.membresia.precio)}">€0.00</h3>
+                                <span class="text-muted small" th:text="${socio.membresia.duracionDias + ' dias'}">30 dias</span>
+                            </div>
                         </div>
-                        <div class="col-md-6 text-end">
-                            <h3 class="text-success" th:text="${'€' + socio.membresia.precio + '/mes'}">€49.90/mes</h3>
-                            <p class="text-muted" th:text="${socio.membresia.duracionDias + ' días'}">30 días</p>
-                        </div>
-                    </div>
 
-                    <div class="card bg-light mb-4">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                <i class="fas fa-info-circle me-2"></i>Información de la Membresía
-                            </h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Fecha de Registro:</strong></p>
-                                    <p th:text="${#temporals.format(socio.fechaRegistro, 'dd/MM/yyyy')}">15/10/2024</p>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <p class="text-muted small mb-1">Inicio del plan</p>
+                                    <h5 class="mb-0"
+                                        th:text="${socio.fechaInicioMembresia != null ? #temporals.format(socio.fechaInicioMembresia, 'dd/MM/yyyy') : 'Pendiente'}">
+                                        --/--/----
+                                    </h5>
                                 </div>
-                                <div class="col-md-6">
-                                    <p><strong>Estado:</strong></p>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <p class="text-muted small mb-1">Fin del plan</p>
+                                    <h5 class="mb-1 text-primary"
+                                        th:text="${socio.fechaFinMembresia != null ? #temporals.format(socio.fechaFinMembresia, 'dd/MM/yyyy') : 'Pendiente'}">
+                                        --/--/----
+                                    </h5>
                                     <span class="badge bg-success" th:if="${socio.activo}">Activa</span>
                                     <span class="badge bg-danger" th:unless="${socio.activo}">Inactiva</span>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Resumen del plan</h5>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Precio del ciclo</span>
+                                        <strong th:text="${#numbers.formatCurrency(socio.membresia.precio)}">EUR 0,00</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Duracion</span>
+                                        <strong th:text="${socio.membresia.duracionDias + ' dias'}">30 dias</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Proxima renovacion</span>
+                                        <strong th:text="${socio.fechaFinMembresia != null ? #temporals.format(socio.fechaFinMembresia, 'dd/MM/yyyy') : 'Pendiente'}">--/--/----</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="text-muted small d-block mb-1">Descripcion</span>
+                                        <p class="mb-0" th:text="${socio.membresia.descripcion}">Descripcion extendida del plan.</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a th:href="@{/dashboard}" class="btn btn-outline-secondary me-md-2">
-                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
-                        </a>
+                    <div th:if="${socio.membresia == null}" class="alert alert-warning mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aun no tienes una membresia asignada. Selecciona un plan para comenzar.
+                    </div>
+
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p class="text-muted small mb-1">Registrado el</p>
+                                    <h6 class="mb-0" th:text="${#temporals.format(socio.fechaRegistro, 'dd/MM/yyyy')}">--/--/----</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="text-muted small mb-1">Dias restantes</p>
+                                    <h6 class="mb-0"
+                                        th:text="${diasRestantes > 0 ? diasRestantes + ' dias' : (socio.fechaFinMembresia != null ? 'Finalizada' : 'Pendiente')}">
+                                        Pendiente
+                                    </h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="text-muted small mb-1">Estado</p>
+                                    <h6 class="mb-0">
+                                        <span class="badge bg-success" th:if="${socio.activo}">Activa</span>
+                                        <span class="badge bg-danger" th:unless="${socio.activo}">Inactiva</span>
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3 d-md-flex justify-content-md-end">
                         <a th:href="@{/socio/membresia/renovar}" class="btn btn-primary">
-                            <i class="fas fa-sync-alt me-2"></i>Renovar Membresía
+                            <i class="fas fa-sync-alt me-2"></i>Renovar membresia
                         </a>
                     </div>
                 </div>
