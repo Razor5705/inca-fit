@@ -10,11 +10,16 @@ USE incafit_db;
    ------------------- */
 
 CREATE TABLE IF NOT EXISTS membresias (
-    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
-    tipo_membresia  VARCHAR(100) NOT NULL,
-    precio          DECIMAL(10,2) NOT NULL,
-    duracion_dias   INT NOT NULL,
-    descripcion     TEXT
+    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre              VARCHAR(120) NOT NULL,
+    descripcion         TEXT,
+    tipo_membresia      VARCHAR(100) NOT NULL,
+    duracion_dias       INT NOT NULL,
+    clases_incluidas    INT DEFAULT 0,
+    precio              DECIMAL(10,2) NOT NULL,
+    precio_base         DECIMAL(10,2) DEFAULT 0,
+    precio_clase_extra  DECIMAL(10,2) DEFAULT 0,
+    tipo_cobro          VARCHAR(60)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS instructores (
@@ -65,10 +70,12 @@ CREATE TABLE IF NOT EXISTS asistencias (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     socio_id    BIGINT NOT NULL,
     clase_id    BIGINT NOT NULL,
+    reserva_id  BIGINT,
     fecha       DATE NOT NULL,
     presente    TINYINT(1) NOT NULL DEFAULT 1,
-    CONSTRAINT fk_asistencia_socio  FOREIGN KEY (socio_id) REFERENCES socios(id)  ON DELETE CASCADE,
-    CONSTRAINT fk_asistencia_clase  FOREIGN KEY (clase_id) REFERENCES clases(id) ON DELETE CASCADE
+    CONSTRAINT fk_asistencia_socio   FOREIGN KEY (socio_id)   REFERENCES socios(id)   ON DELETE CASCADE,
+    CONSTRAINT fk_asistencia_clase   FOREIGN KEY (clase_id)   REFERENCES clases(id)  ON DELETE CASCADE,
+    CONSTRAINT fk_asistencia_reserva FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS reservas (
@@ -97,6 +104,7 @@ CREATE TABLE IF NOT EXISTS detalles_factura (
     cantidad       INT NOT NULL DEFAULT 1,
     precio_unitario DECIMAL(10,2) NOT NULL,
     subtotal       DECIMAL(10,2) NOT NULL,
+    monto          DECIMAL(10,2),
     tipo_item      VARCHAR(50),
     membresia_id   BIGINT,
     reserva_id     BIGINT,

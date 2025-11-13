@@ -1,0 +1,60 @@
+===============================
+Inca Fit – Guía de Ejecución
+===============================
+
+Requisitos Previos
+------------------
+1. Instalar Git.
+2. Instalar Java JDK 21 (no JRE) y configurar JAVA_HOME + PATH.
+3. Instalar MySQL Server (o XAMPP) y tener acceso a phpMyAdmin.
+
+Preparar Base de Datos
+----------------------
+1. Clonar el repositorio:
+   git clone https://github.com/Razor5705/inca-fit.git
+   cd inca-fit
+2. Crear la base:
+   CREATE DATABASE incafit_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   USE incafit_db;
+3. Importar el script:
+   BBDD-DEFINIDO-TFG.sql (con todos los CREATE TABLE e INSERT).
+
+Configurar la Aplicación
+------------------------
+Editar src/main/resources/application.properties:
+spring.datasource.url=jdbc:mysql://localhost:3306/incafit_db?useSSL=false&serverTimezone=UTC
+spring.datasource.username=TU_USUARIO
+spring.datasource.password=TU_PASSWORD
+spring.jpa.hibernate.ddl-auto=none
+
+Ejecución
+---------
+Desde la carpeta del proyecto:
+Windows PowerShell:
+  .\mvnw clean spring-boot:run
+Linux/Mac:
+  ./mvnw clean spring-boot:run
+
+Opcional: Perfil dev para el usuario tutor
+------------------------------------------
+Antes de ejecutar:
+  $env:SPRING_PROFILES_ACTIVE='dev'
+  .\mvnw spring-boot:run
+Con este perfil se habilita tutor.admin@incafit.com / Tutor123*.
+
+Usuarios Disponibles
+--------------------
+1. admin@incafit.com / admin123  (lo crea DataInitializer cuando la tabla socios está vacía)
+2. tutor.admin@incafit.com / Tutor123*  (solo si se activa el perfil dev)
+
+Registro / Login
+----------------
+1. Acceder a http://localhost:8080/registro/paso1 y completar los 3 pasos.
+2. Verificar que el nuevo socio aparece en la tabla socios.
+3. Iniciar sesión en http://localhost:8080/login con el correo registrado.
+
+Notas
+-----
+- Si la base está vacía y se ejecuta sin perfil dev, DataInitializer crea datos demo (membresías, clases, admin).
+- Para Hash BCrypt, usar la clase PasswordHashRunner o cualquier generador externo.
+- Si aparece un error “No compiler is provided”, comprobar que se está usando un JDK (mvnw usa el JAVA_HOME configurado).
