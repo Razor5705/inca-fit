@@ -120,4 +120,9 @@ public class ReservaServiceImpl implements ReservaService {
     public List<Reserva> obtenerReservasPorFecha(LocalDate fecha) {
         return reservaRepository.findByFecha(fecha);
     }
+
+    @Override
+    public boolean existeReservaActiva(Socio socio, Long claseId, LocalDateTime fechaHora) {
+        return reservaRepository.existsReservaActiva(socio, claseId, fechaHora);
+    }
 }

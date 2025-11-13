@@ -70,11 +70,20 @@
                             <div class="col-md-4">
                                 <p class="text-muted small mb-1">Total a pagar (simulado)</p>
                                 <h4 class="mb-1 text-primary" id="resumenImporte">--</h4>
-                                <select class="form-select" name="metodoPago">
-                                    <option value="Tarjeta guardada" selected>Tarjeta guardada</option>
-                                    <option value="Tarjeta nueva">Tarjeta nueva</option>
-                                    <option value="Transferencia bancaria">Transferencia bancaria</option>
-                                </select>
+                                <div class="mb-2">
+                                    <select class="form-select" name="metodoPago">
+                                        <option th:each="metodo : ${metodosPagoDisponibles}"
+                                                th:value="${metodo}"
+                                                th:text="${metodo}"
+                                                th:selected="${metodo == 'Tarjeta guardada'}">
+                                            Metodo
+                                        </option>
+                                    </select>
+                                </div>
+                                <ul class="list-unstyled small text-muted mb-0">
+                                    <li>Subtotal: <strong id="resumenSubtotal">--</strong></li>
+                                    <li>Impuestos: <strong>€0,00</strong></li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -123,6 +132,7 @@
         const planCards = document.querySelectorAll('.plan-card');
         const resumenFin = document.getElementById('resumenFin');
         const resumenImporte = document.getElementById('resumenImporte');
+        const resumenSubtotal = document.getElementById('resumenSubtotal');
         const startDateContainer = document.querySelector('[data-start-date]');
         const startDateValue = startDateContainer ? startDateContainer.dataset.startDate : null;
 
@@ -155,8 +165,10 @@
             const dias = parseInt(card.dataset.planDias || '0', 10);
             const precio = parseFloat(card.dataset.planPrecio || '0');
 
+            const importe = precio || 0;
             resumenFin.textContent = calcularFin(dias) || '--/--/----';
-            resumenImporte.textContent = formatearNumero(precio || 0);
+            resumenImporte.textContent = formatearNumero(importe);
+            resumenSubtotal.textContent = formatearNumero(importe);
 
             const input = card.querySelector('input[type="radio"]');
             if (input) {

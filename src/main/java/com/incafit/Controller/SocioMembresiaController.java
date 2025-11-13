@@ -6,6 +6,8 @@ import com.incafit.Model.Membresia;
 import com.incafit.Model.Socio;
 import com.incafit.Repository.DetalleFacturaRepository;
 import com.incafit.Repository.FacturaRepository;
+import com.incafit.Repository.PagoRepository;
+import com.incafit.Model.Pago;
 import com.incafit.service.MembresiaService;
 import com.incafit.service.SocioService;
 import org.springframework.security.core.Authentication;
@@ -32,15 +34,18 @@ public class SocioMembresiaController {
     private final MembresiaService membresiaService;
     private final FacturaRepository facturaRepository;
     private final DetalleFacturaRepository detalleFacturaRepository;
+    private final PagoRepository pagoRepository;
 
     public SocioMembresiaController(SocioService socioService,
                                     MembresiaService membresiaService,
                                     FacturaRepository facturaRepository,
-                                    DetalleFacturaRepository detalleFacturaRepository) {
+                                    DetalleFacturaRepository detalleFacturaRepository,
+                                    PagoRepository pagoRepository) {
         this.socioService = socioService;
         this.membresiaService = membresiaService;
         this.facturaRepository = facturaRepository;
         this.detalleFacturaRepository = detalleFacturaRepository;
+        this.pagoRepository = pagoRepository;
     }
 
     @GetMapping("/membresia")
@@ -80,6 +85,7 @@ public class SocioMembresiaController {
         model.addAttribute("renovacionInicioTexto", inicioRenovacion.format(DATE_FORMATTER));
         model.addAttribute("renovacionFinTexto", finEstimada.format(DATE_FORMATTER));
         model.addAttribute("diasRestantes", calcularDiasRestantes(socio));
+        model.addAttribute("metodosPagoDisponibles", List.of("Tarjeta guardada", "Tarjeta nueva", "Transferencia bancaria"));
         return "socio/membresia/renovar";
     }
 
@@ -119,6 +125,13 @@ public class SocioMembresiaController {
         detalle.setTipoItem("MEMBRESIA");
         detalle.setMembresia(nuevaMembresia);
         detalleFacturaRepository.save(detalle);
+
+        Pago pago = new Pago();
+        pago.setFactura(factura);
+        pago.setFechaPago(LocalDate.now());
+        pago.setMetodoPago(metodoPago);
+        pago.setMontoPagado(nuevaMembresia.getPrecio().doubleValue());
+        pagoRepository.save(pago);
 
         redirectAttributes.addFlashAttribute("successMessage",
                 "Has renovado la membresia " + nuevaMembresia.getNombre() +

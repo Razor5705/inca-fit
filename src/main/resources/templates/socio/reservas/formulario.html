@@ -25,6 +25,8 @@
                                         th:data-hora="${horasClases[clase.id]}"
                                         th:data-info="${horariosClases[clase.id]}"
                                         th:data-dias="${diasPorClase[clase.id]}"
+                                        th:data-inicio="${fechaInicioClases[clase.id]}"
+                                        th:data-fin="${fechaFinClases[clase.id]}"
                                         th:text="${clase.instructor != null ? clase.nombre + ' - ' + clase.instructor.nombreCompleto : clase.nombre + ' - Sin instructor'}">
                                     Nombre de la Clase
                                 </option>
@@ -79,11 +81,18 @@
         const horasPorClase = {};
         const infoPorClase = {};
         const diasPorClase = {};
+        const inicioPorClase = {};
+        const finPorClase = {};
+        const hoyISO = new Date().toISOString().split('T')[0];
+        fechaInput.setAttribute('min', hoyISO);
+
         claseSelect.querySelectorAll('option[data-hora]').forEach(option => {
             if (option.value) {
                 horasPorClase[option.value] = option.dataset.hora;
                 infoPorClase[option.value] = option.dataset.info || '';
                 diasPorClase[option.value] = option.dataset.dias || '';
+                inicioPorClase[option.value] = option.dataset.inicio || '';
+                finPorClase[option.value] = option.dataset.fin || '';
             }
         });
 
@@ -116,11 +125,35 @@
                 .includes(diaSemana);
         }
 
+        function actualizarRestriccionesFecha(claseId) {
+            const inicio = claseId && inicioPorClase[claseId] ? inicioPorClase[claseId] : '';
+            const fin = claseId && finPorClase[claseId] ? finPorClase[claseId] : '';
+
+            const minCalculada = inicio ? (inicio > hoyISO ? inicio : hoyISO) : hoyISO;
+            fechaInput.setAttribute('min', minCalculada);
+
+            if (fin) {
+                fechaInput.setAttribute('max', fin);
+            } else {
+                fechaInput.removeAttribute('max');
+            }
+
+            if (fechaInput.value) {
+                if (fechaInput.value < minCalculada || (fin && fechaInput.value > fin)) {
+                    fechaInput.value = '';
+                    fechaHoraHidden.value = '';
+                    horaDisplay.value = '';
+                }
+            }
+        }
+
         function actualizarCampos() {
             const claseId = claseSelect.value;
             const fecha = fechaInput.value;
             const hora = claseId && horasPorClase[claseId] ? horasPorClase[claseId] : '';
             const info = claseId && infoPorClase[claseId] ? infoPorClase[claseId] : '';
+
+            actualizarRestriccionesFecha(claseId);
 
             horaDisplay.value = hora ? hora : '';
             if (info) {
@@ -138,7 +171,16 @@
             }
 
             if (fecha && claseId) {
-                if (!diaPermitido(fecha, claseId)) {
+                const minPermitida = fechaInput.getAttribute('min') || hoyISO;
+                const maxPermitida = finPorClase[claseId] || '';
+
+                if (fecha < minPermitida) {
+                    ayudaFecha.textContent = 'No puedes reservar antes del ' + minPermitida + '.';
+                    fechaInput.setCustomValidity('La fecha seleccionada es anterior a la permitida.');
+                } else if (maxPermitida && fecha > maxPermitida) {
+                    ayudaFecha.textContent = 'La clase solo esta disponible hasta el ' + maxPermitida + '.';
+                    fechaInput.setCustomValidity('La fecha supera la vigencia de la clase.');
+                } else if (!diaPermitido(fecha, claseId)) {
                     ayudaFecha.textContent = 'La clase seleccionada no se dicta ese dia. Elige uno de los dias disponibles.';
                     fechaInput.setCustomValidity('La clase no se dicta este dia.');
                 } else {

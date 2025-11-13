@@ -19,5 +19,6 @@ public interface ReservaService {
     List<Reserva> obtenerTodasReservas();
     List<Reserva> obtenerReservasPorFecha(LocalDate fecha);
 
+    boolean existeReservaActiva(Socio socio, Long claseId, LocalDateTime fechaHora);
 
 }

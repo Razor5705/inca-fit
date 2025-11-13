@@ -11,6 +11,7 @@ public interface FacturaService {
     Factura generarFactura(Socio socio, Membresia membresia);
     Factura generarFacturaPorReserva(Socio socio, BigDecimal monto, String concepto);
     void pagarFactura(Long id);
+    void pagarFactura(Long id, String metodoPago);
     List<Factura> obtenerFacturasPorSocio(Socio socio);
     Factura obtenerFacturaPorId(Long id);
 

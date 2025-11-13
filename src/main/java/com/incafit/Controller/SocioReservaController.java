@@ -42,6 +42,7 @@ public class SocioReservaController {
 
     private static final Locale LOCALE_ES = new Locale("es", "ES");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final List<DayOfWeek> DIAS_SEMANA = List.of(
             DayOfWeek.MONDAY,
             DayOfWeek.TUESDAY,
@@ -105,6 +106,8 @@ public class SocioReservaController {
         model.addAttribute("horariosClases", construirMapaHorarios(clases));
         model.addAttribute("horasClases", construirMapaHoras(clases));
         model.addAttribute("diasPorClase", construirMapaDias(clases));
+        model.addAttribute("fechaInicioClases", construirMapaFechaInicio(clases));
+        model.addAttribute("fechaFinClases", construirMapaFechaFin(clases));
         return "socio/reservas/formulario";
     }
 
@@ -156,6 +159,10 @@ public class SocioReservaController {
                 fechaHora = LocalDateTime.of(fecha, hora);
             }
 
+            if (reservaService.existeReservaActiva(socio, claseId, fechaHora)) {
+                throw new IllegalArgumentException("Ya tienes una reserva activa para esta clase y fecha.");
+            }
+
             reservaService.crearReserva(socio, claseId, fechaHora);
             redirect.addFlashAttribute("success", "Reserva creada correctamente");
         } catch (Exception e) {
@@ -179,6 +186,14 @@ public class SocioReservaController {
     public String listarFacturas(Model model) {
         Socio socio = obtenerSocioActual();
         List<Factura> facturas = facturaService.obtenerFacturasPorSocio(socio);
+        facturas.forEach(f -> {
+            if (f.getDetalles() != null) {
+                f.getDetalles().size();
+            }
+            if (f.getPagos() != null) {
+                f.getPagos().size();
+            }
+        });
         long pendientes = facturas.stream()
                 .filter(f -> "PENDIENTE".equalsIgnoreCase(f.getEstado()))
                 .count();
@@ -201,10 +216,12 @@ public class SocioReservaController {
     }
 
     @PostMapping("/facturas/{id}/pagar")
-    public String pagarFactura(@PathVariable Long id, RedirectAttributes redirect) {
+    public String pagarFactura(@PathVariable Long id,
+                               @RequestParam(value = "metodoPago", required = false, defaultValue = "Tarjeta guardada") String metodoPago,
+                               RedirectAttributes redirect) {
         try {
-            facturaService.pagarFactura(id);
-            redirect.addFlashAttribute("success", "Factura pagada correctamente");
+            facturaService.pagarFactura(id, metodoPago);
+            redirect.addFlashAttribute("success", "Factura pagada correctamente con " + metodoPago);
         } catch (Exception e) {
             redirect.addFlashAttribute("error", "Error al pagar factura: " + e.getMessage());
         }
@@ -264,6 +281,24 @@ public class SocioReservaController {
             } else {
                 resultado.put(clase.getId(), "");
             }
+        }
+        return resultado;
+    }
+
+    private Map<Long, String> construirMapaFechaInicio(List<Clase> clases) {
+        Map<Long, String> resultado = new HashMap<>();
+        for (Clase clase : clases) {
+            resultado.put(clase.getId(),
+                    clase.getFechaInicio() != null ? clase.getFechaInicio().format(DATE_FORMATTER) : "");
+        }
+        return resultado;
+    }
+
+    private Map<Long, String> construirMapaFechaFin(List<Clase> clases) {
+        Map<Long, String> resultado = new HashMap<>();
+        for (Clase clase : clases) {
+            resultado.put(clase.getId(),
+                    clase.getFechaFin() != null ? clase.getFechaFin().format(DATE_FORMATTER) : "");
         }
         return resultado;
     }

@@ -69,6 +69,15 @@
                         <p class="text-muted mb-0">
                             Emitida el <strong th:text="${#temporals.format(factura.fecha, 'dd/MM/yyyy')}">01/11/2024</strong>
                         </p>
+                        <p class="text-muted small mb-0 mt-2" th:if="${factura.estado == 'PENDIENTE'}">
+                            Vence el <strong th:text="${#temporals.format(factura.fecha.plusDays(7), 'dd/MM/yyyy')}">08/11/2024</strong>
+                        </p>
+                        <p class="text-muted small mb-0 mt-2"
+                           th:if="${factura.estado == 'PAGADA' && factura.pagos != null && !factura.pagos.isEmpty()}"
+                           th:with="ultimoPago=${factura.pagos[factura.pagos.size() - 1]}"
+                           th:text="${'Pagada el ' + #temporals.format(ultimoPago.fechaPago, 'dd/MM/yyyy') + ' con ' + ultimoPago.metodoPago}">
+                            Pagada el 05/11/2024 con Tarjeta guardada
+                        </p>
                     </div>
                     <div class="text-md-end mt-3 mt-md-0">
                         <span class="badge"
@@ -90,18 +99,24 @@
                         </ul>
                     </div>
                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <div class="btn-group" role="group">
+                        <div class="btn-group w-100" role="group">
                             <button class="btn btn-outline-secondary btn-sm"
                                     type="button"
                                     data-bs-toggle="collapse"
                                     th:attr="data-bs-target=${'#detalle-' + factura.id}">
-                                <i class="fas fa-list me-1"></i>Ver detalle
+                                <i class="fas fa-list me-1"></i>Detalle
                             </button>
                             <form th:if="${factura.estado == 'PENDIENTE'}"
+                                  class="d-flex gap-2 flex-grow-1"
                                   th:action="@{/socio/facturas/{id}/pagar(id=${factura.id})}"
                                   method="post">
+                                <select class="form-select form-select-sm" name="metodoPago">
+                                    <option value="Tarjeta guardada">Tarjeta guardada</option>
+                                    <option value="Tarjeta nueva">Tarjeta nueva</option>
+                                    <option value="Transferencia bancaria">Transferencia</option>
+                                </select>
                                 <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-credit-card me-1"></i>Pagar ahora
+                                    <i class="fas fa-credit-card me-1"></i>Pagar
                                 </button>
                             </form>
                         </div>
@@ -130,6 +145,25 @@
                                 <td colspan="4" class="text-center text-muted small">
                                     No hay conceptos asociados a esta factura.
                                 </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-responsive" th:if="${!#lists.isEmpty(factura.pagos)}">
+                        <p class="text-muted small mb-2">Historial de pagos</p>
+                        <table class="table table-sm mb-0">
+                            <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Método</th>
+                                <th class="text-end">Importe</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="pago : ${factura.pagos}">
+                                <td th:text="${#temporals.format(pago.fechaPago, 'dd/MM/yyyy')}">05/11/2024</td>
+                                <td th:text="${pago.metodoPago}">Tarjeta guardada</td>
+                                <td class="text-end" th:text="${#numbers.formatCurrency(pago.montoPagado)}">EUR 0,00</td>
                             </tr>
                             </tbody>
                         </table>

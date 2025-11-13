@@ -37,6 +37,7 @@ public class DashboardController {
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado con email: " + email));
 
         model.addAttribute("socio", socio);
+        model.addAttribute("proximoPagoTexto", calcularProximoPagoTexto(socio));
         return "dashboard";
     }
 
@@ -126,5 +127,34 @@ public class DashboardController {
             return 0;
         }
         return ChronoUnit.DAYS.between(hoy, socio.getFechaFinMembresia()) + 1;
+    }
+
+    private String calcularProximoPagoTexto(Socio socio) {
+        if (socio == null || socio.getMembresia() == null) {
+            return "Sin membresía";
+        }
+
+        LocalDate hoy = LocalDate.now();
+        LocalDate fechaFin = socio.getFechaFinMembresia();
+        LocalDate fechaInicio = socio.getFechaInicioMembresia();
+        Integer duracionDias = socio.getMembresia().getDuracionDias();
+
+        LocalDate proximoPago;
+        if (fechaFin != null) {
+            proximoPago = fechaFin.plusDays(1);
+        } else if (fechaInicio != null && duracionDias != null && duracionDias > 0) {
+            proximoPago = fechaInicio.plusDays(duracionDias);
+        } else if (duracionDias != null && duracionDias > 0) {
+            LocalDate referencia = socio.getFechaRegistro() != null ? socio.getFechaRegistro() : hoy;
+            proximoPago = referencia.plusDays(duracionDias);
+        } else {
+            proximoPago = hoy;
+        }
+
+        if (proximoPago.isBefore(hoy)) {
+            proximoPago = hoy;
+        }
+
+        return proximoPago.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM"));
     }
 }

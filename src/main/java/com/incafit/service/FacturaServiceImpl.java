@@ -5,6 +5,7 @@ import com.incafit.Model.Factura;
 import com.incafit.Model.DetalleFactura;
 import com.incafit.Model.Membresia;
 import com.incafit.Model.Socio;
+import com.incafit.Model.Pago;
 import com.incafit.Repository.FacturaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,9 +76,22 @@ public class FacturaServiceImpl implements FacturaService {
 
     @Override
     public void pagarFactura(Long id) {
+        pagarFactura(id, "Tarjeta guardada");
+    }
+
+    @Override
+    public void pagarFactura(Long id, String metodoPago) {
         Factura factura = facturaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
         factura.setEstado("PAGADA");
+
+        Pago pago = new Pago();
+        pago.setFactura(factura);
+        pago.setFechaPago(LocalDate.now());
+        pago.setMetodoPago(metodoPago != null && !metodoPago.isBlank() ? metodoPago : "Tarjeta guardada");
+        pago.setMontoPagado(factura.getTotal() != null ? factura.getTotal().doubleValue() : 0);
+        factura.getPagos().add(pago);
+
         facturaRepository.save(factura);
     }
 
