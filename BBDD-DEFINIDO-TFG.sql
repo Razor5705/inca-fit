@@ -126,6 +126,138 @@ CREATE TABLE IF NOT EXISTS pagos (
    DATOS DE REFERENCIA
    ------------------- */
 
+INSERT INTO membresias (id, nombre, descripcion, tipo_membresia, duracion_dias, clases_incluidas, precio, precio_base, precio_clase_extra, tipo_cobro) VALUES
+    (1, 'Plan Esencial', 'Acceso estándar a todas las clases regulares y seguimiento básico.', 'Mensual', 30, 12, 39.90, 39.90, 8.50, 'Mensualidad'),
+    (2, 'Plan Pro', 'Incluye reservas ilimitadas, ranking de asistentes y reportes.', 'Trimestral', 90, 40, 109.00, 95.00, 7.00, 'Trimestral'),
+    (3, 'Plan Elite', 'Acceso total, asesor personalizado y talleres exclusivos.', 'Anual', 365, 160, 399.00, 330.00, 5.50, 'Anual')
+ON DUPLICATE KEY UPDATE
+    descripcion        = VALUES(descripcion),
+    tipo_membresia     = VALUES(tipo_membresia),
+    duracion_dias      = VALUES(duracion_dias),
+    clases_incluidas   = VALUES(clases_incluidas),
+    precio             = VALUES(precio),
+    precio_base        = VALUES(precio_base),
+    precio_clase_extra = VALUES(precio_clase_extra),
+    tipo_cobro         = VALUES(tipo_cobro);
+
+INSERT INTO instructores (id, nombre_completo, especialidad, email, telefono, experiencia) VALUES
+    (1, 'Pol Fernandez',   'Yoga · Pilates · Mindfulness',       'pol.fernandez@incafit.com',   '600000111', 'Instructor senior con 8 años de experiencia.'),
+    (2, 'Luis Martinez',   'Spinning · HIIT · Defensa Personal', 'luis.martinez@incafit.com',   '600000222', 'Coach funcional certificado.'),
+    (3, 'Miguel Rodriguez','Fuerza · Musculación · Powerlifting','miguel.rodriguez@incafit.com','600000333', 'Preparador físico y nutricionista.'),
+    (4, 'Laura Santos',    'Zumba · Ritmos Latinos · Cardio',    'laura.santos@incafit.com',    '600000444', 'Coreógrafa profesional.')
+ON DUPLICATE KEY UPDATE
+    especialidad = VALUES(especialidad),
+    telefono     = VALUES(telefono),
+    experiencia  = VALUES(experiencia);
+
+INSERT INTO clases (id, nombre, descripcion, capacidad_maxima, instructor_id, hora, duracion_minutos, activo, fecha_inicio, fecha_fin, precio_adicional)
+VALUES
+    (1, 'Yoga Flow Morning',   'Sesión matutina de movilidad y respiración consciente.', 20, 1, '08:00:00', 60, 1, NULL, NULL, NULL),
+    (2, 'Pilates Core Sculpt', 'Trabajo de core con implementos ligeros.',               16, 1, '10:00:00', 50, 1, NULL, NULL, NULL),
+    (3, 'Spinning Power Ride', 'Clase de ciclismo indoor con métricas en vivo.',         18, 2, '18:00:00', 45, 1, NULL, NULL, 6.50),
+    (4, 'HIIT Warriors',       'Entrenamiento interválico de alta intensidad.',          15, 2, '19:30:00', 30, 1, NULL, NULL, 8.50),
+    (5, 'Musculación Guiada',  'Circuito completo de fuerza y técnica.',                 12, 3, '07:00:00', 80, 1, NULL, NULL, NULL),
+    (6, 'Zumba Night Party',   'Sesión nocturna de baile y cardio.',                     25, 4, '20:00:00', 60, 1, NULL, NULL, NULL),
+    (7, 'Defensa Personal',    'Curso intensivo de 12 semanas con prácticas reales.',    14, 2, '13:00:00', 90, 1, DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 11 WEEK), 25.00)
+ON DUPLICATE KEY UPDATE
+    descripcion      = VALUES(descripcion),
+    capacidad_maxima = VALUES(capacidad_maxima),
+    instructor_id    = VALUES(instructor_id),
+    hora             = VALUES(hora),
+    duracion_minutos = VALUES(duracion_minutos),
+    activo           = VALUES(activo),
+    fecha_inicio     = VALUES(fecha_inicio),
+    fecha_fin        = VALUES(fecha_fin),
+    precio_adicional = VALUES(precio_adicional);
+
+/* ----------- SOCIOS (ADMIN + USUARIOS) ----------- */
+INSERT INTO socios (
+    id, dni, nombre, email, password, rol, activo,
+    fecha_registro, telefono, membresia_id,
+    fecha_inicio_membresia, fecha_fin_membresia
+) VALUES
+    (1, '12345678', 'Administrador IncaFit', 'admin@incafit.com',
+        '$2a$10$F1dx7V1u2SMxjF5pXJ51GuMjY6h3JH4fiUowq3hhVz3VyoKoG8vNG',
+        'ADMIN', 1, CURDATE(), '600111222', 2,
+        CURDATE(), DATE_ADD(CURDATE(), INTERVAL 90 DAY)),
+    (2, '87654321', 'Nikolas Adriano Medina Ricra', 'nikkmed805@gmail.com',
+        '$2a$10$Q5PwWKpQ9ju7GZLaSGMS2OF5m2LgN1J53wda8opeNIF8Jx3Yse7u2',
+        'ADMIN', 1, DATE_SUB(CURDATE(), INTERVAL 150 DAY), '600987654', 2,
+        DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 70 DAY)),
+    (3, '11223344', 'Lucía Romero', 'lucia.romero@yopmail.com',
+        '$2a$10$2V.Zkng1bUfy61p2.Oowsu9F91eVCGgZcFQXH7mC4c8j/SRdF1.KK',
+        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 60 DAY), '600888777', 1,
+        DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 20 DAY)),
+    (4, '55667788', 'Diego Salazar', 'diego.salazar@yopmail.com',
+        '$2a$10$hyePxBkuqvY6dXy2Hh2HaOwOlYrGZ7rRlR2Y7biwiW7v3S63LaOHG',
+        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 30 DAY), '600555444', 3,
+        DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 360 DAY))
+ON DUPLICATE KEY UPDATE
+    nombre                 = VALUES(nombre),
+    password               = VALUES(password),
+    rol                    = VALUES(rol),
+    activo                 = VALUES(activo),
+    fecha_registro         = VALUES(fecha_registro),
+    telefono               = VALUES(telefono),
+    membresia_id           = VALUES(membresia_id),
+    fecha_inicio_membresia = VALUES(fecha_inicio_membresia),
+    fecha_fin_membresia    = VALUES(fecha_fin_membresia);
+
+/* ----------- RESERVAS Y ASISTENCIAS ----------- */
+INSERT INTO reservas (socio_id, clase_id, fecha_hora, estado) VALUES
+    (2, 1, DATE_ADD(CURDATE(), INTERVAL 2 DAY) + INTERVAL 8 HOUR, 'CONFIRMADA'),
+    (2, 4, DATE_ADD(CURDATE(), INTERVAL 3 DAY) + INTERVAL 19 HOUR + INTERVAL 30 MINUTE, 'CONFIRMADA'),
+    (3, 3, DATE_SUB(CURDATE(), INTERVAL 1 DAY) + INTERVAL 18 HOUR, 'CANCELADA'),
+    (3, 6, DATE_ADD(CURDATE(), INTERVAL 1 DAY) + INTERVAL 20 HOUR, 'PENDIENTE'),
+    (4, 7, DATE_ADD(CURDATE(), INTERVAL 6 DAY) + INTERVAL 13 HOUR, 'CONFIRMADA')
+ON DUPLICATE KEY UPDATE estado = VALUES(estado);
+
+INSERT INTO asistencias (socio_id, clase_id, reserva_id, fecha, presente) VALUES
+    (2, 1, NULL, DATE_SUB(CURDATE(), INTERVAL 14 DAY), 1),
+    (3, 3, NULL, DATE_SUB(CURDATE(), INTERVAL 7 DAY), 0),
+    (4, 5, NULL, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 1)
+ON DUPLICATE KEY UPDATE presente = VALUES(presente);
+
+/* ----------- FACTURAS, DETALLES Y PAGOS ----------- */
+
+DELETE FROM pagos;
+DELETE FROM detalles_factura;
+DELETE FROM facturas;
+
+INSERT INTO facturas (id, socio_id, fecha, total, estado) VALUES
+    (2001, 2, DATE_SUB(CURDATE(), INTERVAL 2 MONTH), 109.00, 'PAGADA'),
+    (2002, 3, DATE_SUB(CURDATE(), INTERVAL 20 DAY), 39.90, 'PAGADA'),
+    (2003, 2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 58.40, 'PENDIENTE'),
+    (2004, 4, CURDATE(), 399.00, 'PENDIENTE')
+ON DUPLICATE KEY UPDATE
+    socio_id = VALUES(socio_id),
+    fecha    = VALUES(fecha),
+    total    = VALUES(total),
+    estado   = VALUES(estado);
+
+INSERT INTO detalles_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal, tipo_item, membresia_id, reserva_id) VALUES
+    (2001, 'Plan Pro Trimestral',   1, 109.00, 109.00, 'MEMBRESIA', 2, NULL),
+    (2002, 'Plan Esencial Mensual', 1, 39.90, 39.90, 'MEMBRESIA', 1, NULL),
+    (2003, 'HIIT Warriors Drop-in', 1, 8.50,   8.50,  'CLASE',     NULL, 2),
+    (2003, 'Plan Esencial Mensual', 1, 49.90, 49.90,  'MEMBRESIA', 1, NULL),
+    (2004, 'Plan Elite Anual',      1, 399.00, 399.00,'MEMBRESIA', 3, NULL)
+ON DUPLICATE KEY UPDATE
+    descripcion    = VALUES(descripcion),
+    cantidad       = VALUES(cantidad),
+    precio_unitario= VALUES(precio_unitario),
+    subtotal       = VALUES(subtotal),
+    tipo_item      = VALUES(tipo_item),
+    membresia_id   = VALUES(membresia_id),
+    reserva_id     = VALUES(reserva_id);
+
+INSERT INTO pagos (factura_id, fecha_pago, monto_pagado, metodo_pago) VALUES
+    (2001, DATE_SUB(CURDATE(), INTERVAL 2 MONTH), 109.00, 'Tarjeta guardada'),
+    (2002, DATE_SUB(CURDATE(), INTERVAL 19 DAY),  39.90, 'Transferencia')
+ON DUPLICATE KEY UPDATE
+    fecha_pago   = VALUES(fecha_pago),
+    monto_pagado = VALUES(monto_pagado),
+    metodo_pago  = VALUES(metodo_pago);
+
 INSERT INTO membresias (id, tipo_membresia, precio, duracion_dias, descripcion) VALUES
     (1, 'Mensual',    45.00,  30, 'Acceso ilimitado 30 días'),
     (2, 'Trimestral', 120.00, 90, 'Acceso trimestral con descuento'),
