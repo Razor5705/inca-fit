@@ -14,16 +14,34 @@ Preparar Base de Datos
    git clone https://github.com/Razor5705/inca-fit.git
    cd inca-fit
 2. Crear la base:
+   Restaurar base con dumps individuales
+ (Opcional pero recomendado) Reinicia la BD:
+   DROP DATABASE IF EXISTS incafit_db;
    CREATE DATABASE incafit_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    USE incafit_db;
-3. Importar el script:
-   BBDD-DEFINIDO-TFG.sql (con todos los CREATE TABLE e INSERT).
+   
+  Importa cada tabla desde la carpeta BBDD en este orden para respetar las FK:
+   BBDD/incafit_db_membresias.sql
+   BBDD/incafit_db_instructores.sql
+   BBDD/incafit_db_clases.sql
+   BBDD/incafit_db_socios.sql
+   BBDD/incafit_db_reservas.sql
+   BBDD/incafit_db_asistencias.sql
+   BBDD/incafit_db_facturas.sql
+   BBDD/incafit_db_detalles_factura.sql
+   BBDD/incafit_db_pagos.sql
+   - PhpMyAdmin: pestaña “Importar” → elegir archivo → ejecutar.
+   - Terminal: mysql -u <usuario> -p incafit_db < BBDD/<archivo>.sql
+3. Verifica los datos tras cada import con SELECT COUNT(*) FROM <tabla>; para asegurarte de que los registros se cargaron bien.
+4. Si en algún momento falla una tabla concreta, vuelve a importar solo su .sql sin tocar el resto.
+
+Nota: `BBDD-DEFINIDO-TFG.sql` sigue disponible para cargar todo de una vez, pero los dumps individuales son útiles cuando solo necesitas rehacer una tabla específica.
 
 Configurar la Aplicación
 ------------------------
 Editar src/main/resources/application.properties:
 spring.datasource.url=jdbc:mysql://localhost:3306/incafit_db?useSSL=false&serverTimezone=UTC
-spring.datasource.username=TU_USUARIO
+spring.datasource.username=TU_USUARIO (root) 
 spring.datasource.password=TU_PASSWORD
 spring.jpa.hibernate.ddl-auto=none
 

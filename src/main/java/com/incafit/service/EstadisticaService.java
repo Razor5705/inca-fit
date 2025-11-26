@@ -14,6 +14,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -49,6 +50,11 @@ public class EstadisticaService {
                 .count();
         estadisticas.put("totalSocios", totalSocios);
 
+        long sociosInactivos = socioService.obtenerTodosSocios().stream()
+                .filter(socio -> !socio.isActivo())
+                .count();
+        estadisticas.put("sociosInactivos", sociosInactivos);
+
         // Obtener total de clases
         long totalClases = claseRepository.count();
         estadisticas.put("totalClases", totalClases);
@@ -60,10 +66,16 @@ public class EstadisticaService {
         // Obtener reservas de hoy
         long reservasHoy = reservaService.obtenerReservasPorFecha(LocalDate.now()).size();
         estadisticas.put("reservasHoy", reservasHoy);
+        long reservasPendientes = reservaService.obtenerTodasReservas().stream()
+                .filter(reserva -> "PENDIENTE".equalsIgnoreCase(String.valueOf(reserva.getEstado())))
+                .count();
+        estadisticas.put("reservasPendientes", reservasPendientes);
 
         // Obtener facturas pendientes
         long facturasPendientes = facturaService.obtenerFacturasPorEstado("PENDIENTE").size();
         estadisticas.put("facturasPendientes", facturasPendientes);
+        long facturasVencidas = facturaService.obtenerFacturasPendientesVencidas().size();
+        estadisticas.put("facturasVencidas", facturasVencidas);
 
         // Calcular ingresos mensuales
         double ingresosMensuales = facturaService.obtenerFacturasPagadasEsteMes().stream()
@@ -100,6 +112,29 @@ public class EstadisticaService {
         resultado.put("labels", labels);
         resultado.put("data", data);
         return resultado;
+    }
+
+    public List<Factura> obtenerFacturasPendientesCriticas(int limite) {
+        List<Factura> criticas = facturaService.obtenerFacturasPendientesVencidas();
+        if (criticas.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return criticas.stream()
+                .limit(Math.max(limite, 0))
+                .collect(Collectors.toList());
+    }
+
+    public List<Reserva> obtenerReservasPendientesHoy() {
+        List<Reserva> reservasPendientes = reservaService.obtenerReservasPorFecha(LocalDate.now());
+        return reservasPendientes.stream()
+                .filter(reserva -> "PENDIENTE".equalsIgnoreCase(String.valueOf(reserva.getEstado())))
+                .sorted((r1, r2) -> {
+                    if (r1.getFechaHora() == null || r2.getFechaHora() == null) {
+                        return 0;
+                    }
+                    return r1.getFechaHora().compareTo(r2.getFechaHora());
+                })
+                .collect(Collectors.toList());
     }
 
     public Map<String, Object> obtenerIngresosPorMes(int meses) {

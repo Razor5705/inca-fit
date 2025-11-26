@@ -14,6 +14,14 @@
                     <h3 class="fw-light my-4">Crear Nueva Reserva</h3>
                 </div>
                 <div class="card-body p-4">
+                    <div th:if="${param.claseId != null}" class="alert alert-primary d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Reserva rapida:</strong>
+                            <span class="text-muted">Clase seleccionada desde el calendario (ID: </span><span th:text="${param.claseId}"></span><span class="text-muted">, hora: </span><span th:text="${param.hora}"></span><span class="text-muted">).</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-dark" id="btnUsarSeleccion">Reservar ahora esta clase</button>
+                    </div>
+
                     <form th:action="@{/socio/reservas/guardar}" th:object="${reserva}" method="post">
                         <input type="hidden" id="fechaHora" th:field="*{fechaHora}">
 
@@ -27,6 +35,7 @@
                                         th:data-dias="${diasPorClase[clase.id]}"
                                         th:data-inicio="${fechaInicioClases[clase.id]}"
                                         th:data-fin="${fechaFinClases[clase.id]}"
+                                        th:selected="${param.claseId != null and param.claseId[0] == ('' + clase.id)}"
                                         th:text="${clase.instructor != null ? clase.nombre + ' - ' + clase.instructor.nombreCompleto : clase.nombre + ' - Sin instructor'}">
                                     Nombre de la Clase
                                 </option>
@@ -77,6 +86,7 @@
         const infoBox = document.getElementById('infoHorario');
         const infoText = document.getElementById('infoHorarioTexto');
         const ayudaFecha = document.getElementById('ayudaFecha');
+        const usarSeleccionBtn = document.getElementById('btnUsarSeleccion');
 
         const horasPorClase = {};
         const infoPorClase = {};
@@ -105,13 +115,6 @@
             'SATURDAY': 6,
             'SUNDAY': 0
         };
-
-        function obtenerNombreDias(lista) {
-            if (!lista || lista.length === 0) {
-                return 'Cualquier dia';
-            }
-            return lista.join(', ');
-        }
 
         function diaPermitido(fechaISO, claseId) {
             if (!fechaISO || !claseId || !diasPorClase[claseId]) {
@@ -147,11 +150,76 @@
             }
         }
 
+        function obtenerProximaFechaDisponible(claseId, diaObjetivo) {
+            if (!claseId) {
+                return '';
+            }
+            const inicio = claseId && inicioPorClase[claseId] ? inicioPorClase[claseId] : hoyISO;
+            const fin = claseId && finPorClase[claseId] ? finPorClase[claseId] : '';
+            const base = new Date((inicio > hoyISO ? inicio : hoyISO) + 'T00:00:00');
+            const objetivoNum = diaObjetivo && mapaDias[diaObjetivo] !== undefined ? mapaDias[diaObjetivo] : null;
+
+            for (let offset = 0; offset < 90; offset++) {
+                const fecha = new Date(base);
+                fecha.setDate(base.getDate() + offset);
+                const iso = fecha.toISOString().split('T')[0];
+                if (fin && iso > fin) {
+                    break;
+                }
+                if (!diaPermitido(iso, claseId)) {
+                    continue;
+                }
+                if (objetivoNum !== null && fecha.getDay() !== objetivoNum) {
+                    continue;
+                }
+                return iso;
+            }
+            return '';
+        }
+
+        const preReservaStorage = (() => {
+            try {
+                return JSON.parse(sessionStorage.getItem('preReservaSeleccion') || '{}');
+            } catch (e) {
+                return {};
+            }
+        })();
+
+        const params = new URLSearchParams(window.location.search);
+        const claseParam = params.get('claseId') || preReservaStorage.claseId || '';
+        const diaPreferido = params.get('dia') || preReservaStorage.dia || '';
+        let horaPrefijada = params.get('hora') || preReservaStorage.hora || '';
+
+        function aplicarSeleccionRapida() {
+            if (claseParam) {
+                const opcionEncontrada = Array.from(claseSelect.options)
+                    .find(opt => opt.value && opt.value.toString() === claseParam.toString());
+                if (opcionEncontrada) {
+                    claseSelect.value = opcionEncontrada.value;
+                }
+                if (!horaPrefijada && horasPorClase[claseSelect.value]) {
+                    horaPrefijada = horasPorClase[claseSelect.value];
+                }
+                const sugerida = obtenerProximaFechaDisponible(claseSelect.value, diaPreferido);
+                if (sugerida) {
+                    fechaInput.value = sugerida;
+                }
+            }
+        }
+        aplicarSeleccionRapida();
+        if (preReservaStorage.claseId) {
+            sessionStorage.removeItem('preReservaSeleccion');
+        }
+
         function actualizarCampos() {
             const claseId = claseSelect.value;
             const fecha = fechaInput.value;
-            const hora = claseId && horasPorClase[claseId] ? horasPorClase[claseId] : '';
+            const hora = horaPrefijada || (claseId && horasPorClase[claseId] ? horasPorClase[claseId] : '');
             const info = claseId && infoPorClase[claseId] ? infoPorClase[claseId] : '';
+
+            if (claseParam && claseId !== claseParam) {
+                horaPrefijada = '';
+            }
 
             actualizarRestriccionesFecha(claseId);
 
@@ -165,7 +233,7 @@
             }
 
             if (fecha && hora) {
-                fechaHoraHidden.value = `${fecha}T${hora}`;
+                fechaHoraHidden.value = fecha + 'T' + hora;
             } else {
                 fechaHoraHidden.value = '';
             }
@@ -206,16 +274,37 @@
             });
         }
 
-        // Inicializar valores si ya existen (e.g. tras validación fallida)
         if (fechaHoraHidden.value) {
             const partes = fechaHoraHidden.value.split('T');
             if (partes.length === 2) {
                 fechaInput.value = partes[0];
                 horaDisplay.value = partes[1].substring(0, 5);
             }
+        } else if (claseParam) {
+            const sugerida = obtenerProximaFechaDisponible(claseParam, diaPreferido);
+            if (sugerida) {
+                fechaInput.value = sugerida;
+            }
         }
 
         actualizarCampos();
+        // Forzar repaint de selección inicial si viene por query param
+        if (claseParam) {
+            claseSelect.dispatchEvent(new Event('change'));
+        }
+
+        if (usarSeleccionBtn) {
+            usarSeleccionBtn.addEventListener('click', () => {
+                aplicarSeleccionRapida();
+                claseSelect.dispatchEvent(new Event('change'));
+                // Si ya tenemos clase y hora + fecha sugerida, enviamos directo
+                if (fechaHoraHidden.value) {
+                    formulario.submit();
+                } else {
+                    fechaInput.focus();
+                }
+            });
+        }
     });
 </script>
 </body>

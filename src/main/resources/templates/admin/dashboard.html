@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/layout.html}">
@@ -78,6 +78,70 @@
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-calendar-check fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4" th:if="${estadisticas}">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-dark text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Ingresos del mes</h6>
+                            <h3 class="mb-0" th:text="${#numbers.formatCurrency(estadisticas.ingresosMensuales)}">EUR 0,00</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-euro-sign fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-secondary text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Facturas pendientes</h6>
+                            <h3 class="mb-0" th:text="${estadisticas.facturasPendientes}">0</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-invoice fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Facturas vencidas</h6>
+                            <h3 class="mb-0" th:text="${estadisticas.facturasVencidas}">0</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-light shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Socios inactivos</h6>
+                            <h3 class="mb-0 text-dark" th:text="${estadisticas.sociosInactivos}">0</h3>
+                        </div>
+                        <div class="align-self-center text-dark">
+                            <i class="fas fa-user-slash fa-2x opacity-50"></i>
                         </div>
                     </div>
                 </div>
@@ -173,6 +237,77 @@
         </div>
     </div>
     
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bell me-2"></i>Alertas financieras
+                    </h5>
+                    <a th:href="@{/admin/facturas}" class="btn btn-sm btn-outline-secondary">
+                        Revisar facturas
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(facturasCriticas)}" class="text-muted">
+                        Todas las facturas est?n dentro del periodo de gracia.
+                    </div>
+                    <div th:each="factura : ${facturasCriticas}" class="border-start border-3 border-danger ps-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-0 fw-semibold" th:text="${factura.socio != null ? factura.socio.nombre : 'Socio'}">Socio</p>
+                                <small class="text-muted" th:text="${factura.fecha != null ? #temporals.format(factura.fecha, 'dd/MM/yyyy') : 'Fecha desconocida'}">13/11/2025</small>
+                            </div>
+                            <span class="badge bg-danger-subtle text-danger fw-semibold"
+                                  th:text="${#numbers.formatCurrency(factura.total)}">EUR 0,00</span>
+                        </div>
+                        <small class="text-danger d-block mt-1" th:if="${factura.fecha != null}">
+                            <i class="fas fa-clock me-1"></i>
+                            <span th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(factura.fecha, T(java.time.LocalDate).now())}">0</span>
+                            d?as desde emisi?n
+                        </small>
+                        <div th:if="${factura.detalles != null && !factura.detalles.isEmpty()}" class="text-muted small mt-1">
+                            <span th:text="${factura.detalles[0].descripcion}">Concepto</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-day me-2"></i>Reservas pendientes de hoy
+                    </h5>
+                    <a th:href="@{/admin/reservas}" class="btn btn-sm btn-outline-secondary">
+                        Gestionar reservas
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(reservasPendientes)}" class="text-muted">
+                        No existen reservas pendientes para hoy.
+                    </div>
+                    <div th:each="reserva : ${reservasPendientes}" class="border-start border-3 border-warning ps-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-0 fw-semibold"
+                                   th:text="${reserva.socio != null ? reserva.socio.nombre : 'Socio'}">Socio</p>
+                                <small class="text-muted"
+                                       th:text="${reserva.fechaHora != null ? #temporals.format(reserva.fechaHora, 'dd/MM HH:mm') : 'Sin horario'}">
+                                    18/11 09:00
+                                </small>
+                            </div>
+                            <span class="badge bg-warning text-dark"
+                                  th:text="${reserva.clase != null ? reserva.clase.nombre : 'Clase'}">Clase</span>
+                        </div>
+                        <small class="text-muted d-block mt-1" th:text="${reserva.estado}">PENDIENTE</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Graficos -->
     <div class="row mt-4">
         <div class="col-lg-6 mb-4">

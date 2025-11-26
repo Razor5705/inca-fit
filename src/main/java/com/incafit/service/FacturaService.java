@@ -18,5 +18,6 @@ public interface FacturaService {
     List<Factura> obtenerTodasFacturas();
     List<Factura> obtenerFacturasPorEstado(String estado);
     List<Factura> obtenerFacturasPagadasEsteMes();
+    List<Factura> obtenerFacturasPendientesVencidas();
 
 }

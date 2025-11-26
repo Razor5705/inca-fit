@@ -1,6 +1,7 @@
 package com.incafit.Model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.PrePersist;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -96,5 +97,15 @@ public class Factura {
     public void eliminarPago(Pago pago) {
         pagos.remove(pago);
         pago.setFactura(null);
+    }
+
+    @PrePersist
+    public void asignarEstadoPorDefecto() {
+        if (estado == null || estado.isBlank()) {
+            estado = "PENDIENTE";
+        }
+        if (fecha == null) {
+            fecha = LocalDate.now();
+        }
     }
 }

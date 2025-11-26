@@ -1,7 +1,10 @@
 // SocioServiceImpl.java
 package com.incafit.service;
 
+import com.incafit.Model.Reserva;
 import com.incafit.Model.Socio;
+import com.incafit.Repository.FacturaRepository;
+import com.incafit.Repository.ReservaRepository;
 import com.incafit.Repository.SocioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -16,9 +19,15 @@ public class SocioServiceImpl implements SocioService {
 
     private static final Logger log = LoggerFactory.getLogger(SocioServiceImpl.class);
     private final SocioRepository socioRepository;
+    private final FacturaRepository facturaRepository;
+    private final ReservaRepository reservaRepository;
 
-    public SocioServiceImpl(SocioRepository socioRepository) {
+    public SocioServiceImpl(SocioRepository socioRepository,
+                            FacturaRepository facturaRepository,
+                            ReservaRepository reservaRepository) {
         this.socioRepository = socioRepository;
+        this.facturaRepository = facturaRepository;
+        this.reservaRepository = reservaRepository;
     }
 
     @Override
@@ -114,7 +123,24 @@ public class SocioServiceImpl implements SocioService {
     @Override
     @Transactional
     public void eliminarSocio(Long id) {
-        socioRepository.deleteById(id);
+        log.info("Eliminando socio con ID {}", id);
+        Socio socio = socioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Socio no encontrado con ID: " + id));
+
+        var facturas = facturaRepository.findBySocio(socio);
+        if (!facturas.isEmpty()) {
+            log.info("Eliminando {} facturas asociadas", facturas.size());
+            facturaRepository.deleteAll(facturas);
+        }
+
+        List<Reserva> reservas = reservaRepository.findBySocio(socio);
+        if (!reservas.isEmpty()) {
+            log.info("Eliminando {} reservas asociadas", reservas.size());
+            reservaRepository.deleteAll(reservas);
+        }
+
+        socioRepository.delete(socio);
+        log.info("Socio {} eliminado correctamente", id);
     }
 
     @Override

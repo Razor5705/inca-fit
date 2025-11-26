@@ -66,6 +66,16 @@ CREATE TABLE IF NOT EXISTS socios (
         ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS reservas (
+    id        BIGINT AUTO_INCREMENT PRIMARY KEY,
+    socio_id  BIGINT NOT NULL,
+    clase_id  BIGINT NOT NULL,
+    fecha_hora DATETIME NOT NULL,
+    estado    VARCHAR(20) NOT NULL DEFAULT 'CONFIRMADA',
+    CONSTRAINT fk_reserva_socio FOREIGN KEY (socio_id) REFERENCES socios(id) ON DELETE CASCADE,
+    CONSTRAINT fk_reserva_clase FOREIGN KEY (clase_id) REFERENCES clases(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS asistencias (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     socio_id    BIGINT NOT NULL,
@@ -78,15 +88,6 @@ CREATE TABLE IF NOT EXISTS asistencias (
     CONSTRAINT fk_asistencia_reserva FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS reservas (
-    id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    socio_id  BIGINT NOT NULL,
-    clase_id  BIGINT NOT NULL,
-    fecha_hora DATETIME NOT NULL,
-    estado    VARCHAR(20) NOT NULL DEFAULT 'CONFIRMADA',
-    CONSTRAINT fk_reserva_socio FOREIGN KEY (socio_id) REFERENCES socios(id) ON DELETE CASCADE,
-    CONSTRAINT fk_reserva_clase FOREIGN KEY (clase_id) REFERENCES clases(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS facturas (
     id        BIGINT AUTO_INCREMENT PRIMARY KEY,

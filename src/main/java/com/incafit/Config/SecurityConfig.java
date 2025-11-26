@@ -4,9 +4,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -31,7 +34,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index", "/registro/**", "/login",
-                                "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                                "/css/**", "/js/**", "/images/**", "/favicon.ico",
+                                "/forgot-password/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/socio/**").hasAnyRole("USUARIO", "ADMIN")
                         .anyRequest().authenticated()
@@ -58,5 +62,16 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer(HttpFirewall httpFirewall) {
+        return (web) -> web.httpFirewall(httpFirewall);
+    }
+
+    @Bean
+    public HttpFirewall httpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowSemicolon(true);
+        return firewall;
+    }
 
 }

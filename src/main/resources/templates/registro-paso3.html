@@ -12,17 +12,24 @@
             <div class="card shadow-lg border-0 rounded-lg mt-5">
                 <div class="card-header text-center" style="background-color: var(--fitness-primary); color: white;">
                     <h3 class="fw-light my-4">Paso 3: Simulación de Pago</h3>
+                    <nav aria-label="Pasos de registro">
+                        <ol class="breadcrumb justify-content-center mb-0">
+                            <li class="breadcrumb-item"><a th:href="@{/registro}">Paso 1</a></li>
+                            <li class="breadcrumb-item"><a th:href="@{/registro/paso2}">Paso 2</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Paso 3</li>
+                        </ol>
+                    </nav>
                 </div>
                 <div class="card-body p-4">
                     <p class="text-center mb-4">Introduce tus datos de pago para completar el registro. <strong>(Esto es una simulación)</strong></p>
                     
                     <div class="alert alert-info mb-4">
-                        <h6 class="alert-heading">📋 Datos de Prueba para el Tutor:</h6>
+                        <h6 class="alert-heading">Datos de prueba para el tutor:</h6>
                         <ul class="mb-0 small">
-                            <li><strong>Nombre en la Tarjeta:</strong> Cualquier nombre (ej: Juan Pérez)</li>
-                            <li><strong>Número de Tarjeta:</strong> 16 dígitos (ej: 1234567890123456)</li>
-                            <li><strong>Fecha de Caducidad:</strong> Formato MM/YY (ej: 12/25)</li>
-                            <li><strong>CVV:</strong> 3 dígitos (ej: 123)</li>
+                            <li><strong>Nombre en la tarjeta:</strong> Cualquier nombre (ej: Juan Perez)</li>
+                            <li><strong>Numero de tarjeta:</strong> 16 digitos (ej: 1234 5678 9012 3456)</li>
+                            <li><strong>Fecha de caducidad:</strong> Formato MM/YY (ej: 12/25)</li>
+                            <li><strong>CVV:</strong> 3 digitos (ej: 123)</li>
                         </ul>
                     </div>
 
@@ -46,13 +53,16 @@
                                    class="form-control"
                                    id="numeroTarjeta"
                                    th:field="*{numeroTarjeta}"
-                                   placeholder="Número de Tarjeta"
+                                   placeholder="1234 5678 9012 3456"
                                    maxlength="19"
                                    inputmode="numeric"
                                    autocomplete="cc-number"
-                                   title="Debe tener 16 dígitos"
+                                   pattern="(?:\d{4}\s?){4}"
+                                   title="Debe tener 16 digitos (se agrupa automaticamente)"
                                    required>
-                            <label for="numeroTarjeta">Número de Tarjeta (16 dígitos)</label>
+                            <label for="numeroTarjeta">Numero de Tarjeta (16 digitos)</label>
+                            <div class="form-text">Se agrupa en bloques de 4 para que resulte mas claro.</div>
+                            <div id="luhnEstado" class="small mt-1"></div>
                             <div th:if="${#fields.hasErrors('numeroTarjeta')}" class="text-danger small mt-1">
                                 <span th:errors="*{numeroTarjeta}"></span>
                             </div>
@@ -100,7 +110,10 @@
                         </div>
 
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary-custom btn-lg">Finalizar Registro</button>
+                            <button type="submit" class="btn btn-primary-custom btn-lg d-flex justify-content-center align-items-center gap-2" id="btnFinalizar">
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="spinnerRegistro"></span>
+                                <span>Finalizar Registro</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -117,6 +130,41 @@
     document.addEventListener('DOMContentLoaded', function () {
         const numeroTarjetaInput = document.getElementById('numeroTarjeta');
         const fechaCaducidadInput = document.getElementById('fechaCaducidad');
+        const luhnEstado = document.getElementById('luhnEstado');
+        const nombreTarjetaInput = document.getElementById('nombreTarjeta');
+        const cvvInput = document.getElementById('cvv');
+        const form = document.querySelector('form[th\\:action="@{/registro/paso3}"]') || numeroTarjetaInput?.form;
+        const STORAGE_KEY = 'registroPaso3';
+        const submitBtn = document.getElementById('btnFinalizar');
+        const spinner = document.getElementById('spinnerRegistro');
+
+        function guardar() {
+            const payload = {
+                nombre: nombreTarjetaInput?.value || '',
+                numero: numeroTarjetaInput?.value || '',
+                fecha: fechaCaducidadInput?.value || '',
+                cvv: cvvInput?.value || ''
+            };
+            try {
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        (function restaurar() {
+            try {
+                const raw = sessionStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                if (data.nombre && nombreTarjetaInput) nombreTarjetaInput.value = data.nombre;
+                if (data.numero && numeroTarjetaInput) numeroTarjetaInput.value = data.numero;
+                if (data.fecha && fechaCaducidadInput) fechaCaducidadInput.value = data.fecha;
+                if (data.cvv && cvvInput) cvvInput.value = data.cvv;
+            } catch (e) {
+                // ignore
+            }
+        })();
 
         if (numeroTarjetaInput) {
             const formatearTarjeta = () => {
@@ -124,8 +172,35 @@
                 const conEspacios = soloDigitos.replace(/(.{4})/g, '$1 ').trim();
                 numeroTarjetaInput.value = conEspacios;
             };
-            numeroTarjetaInput.addEventListener('input', formatearTarjeta);
+
+            const validarLuhn = () => {
+                const num = numeroTarjetaInput.value.replace(/\s+/g, '');
+                if (num.length !== 16 || !/^\d{16}$/.test(num)) {
+                    luhnEstado.textContent = '';
+                    luhnEstado.className = 'small mt-1';
+                    numeroTarjetaInput.setCustomValidity('El numero debe tener 16 digitos.');
+                    return false;
+                }
+                let sum = 0;
+                for (let i = 0; i < num.length; i++) {
+                    let n = parseInt(num[num.length - 1 - i], 10);
+                    if (i % 2 === 1) {
+                        n = n * 2;
+                        if (n > 9) n -= 9;
+                    }
+                    sum += n;
+                }
+                const valido = sum % 10 === 0;
+                luhnEstado.className = 'small mt-1 ' + (valido ? 'text-success' : 'text-danger');
+                luhnEstado.textContent = valido ? 'Numero de tarjeta valido.' : 'Numero de tarjeta no supera validacion.';
+                numeroTarjetaInput.setCustomValidity(valido ? '' : 'Tarjeta invalida');
+                return valido;
+            };
+
+            numeroTarjetaInput.addEventListener('input', () => { formatearTarjeta(); guardar(); });
+            numeroTarjetaInput.addEventListener('blur', validarLuhn);
             formatearTarjeta();
+            validarLuhn();
         }
 
         if (fechaCaducidadInput) {
@@ -135,6 +210,30 @@
                     valor = valor.slice(0, 2) + '/' + valor.slice(2);
                 }
                 fechaCaducidadInput.value = valor;
+                guardar();
+            });
+        }
+
+        if (nombreTarjetaInput) {
+            nombreTarjetaInput.addEventListener('input', () => { guardar(); refrescarSubmit(); });
+        }
+        if (cvvInput) {
+            cvvInput.addEventListener('input', () => { guardar(); refrescarSubmit(); });
+        }
+        function refrescarSubmit() {
+            if (submitBtn && form) {
+                submitBtn.disabled = !form.checkValidity();
+            }
+        }
+        refrescarSubmit();
+
+        if (form) {
+            form.addEventListener('submit', () => {
+                if (spinner && submitBtn) {
+                    spinner.classList.remove('d-none');
+                    submitBtn.disabled = true;
+                }
+                try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
             });
         }
     });

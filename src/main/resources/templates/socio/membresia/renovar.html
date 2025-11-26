@@ -17,13 +17,40 @@
         </a>
     </div>
 
+    <div class="mb-4">
+        <div th:if="${resumenRenovacion != null}" class="alert alert-primary mb-3">
+            <strong>Renovacion registrada:</strong>
+            <span th:text="${resumenRenovacion['plan']}">Plan</span> hasta
+            <span th:text="${resumenRenovacion['fin']}">--/--/----</span>
+            (<span th:text="${resumenRenovacion['metodo']}">metodo</span>).
+        </div>
+        <div th:if="${pagoExito}" class="alert alert-success">
+            Pago aprobado.
+            <span th:if="${referenciaPago != null}">
+                Referencia:
+                <strong th:text="${referenciaPago}">AUTH-0000</strong>
+            </span>
+        </div>
+        <div th:if="${pagoPendiente}" class="alert alert-warning" th:text="${mensajePasarela}">
+            Transferencia pendiente de confirmacion.
+        </div>
+        <div th:if="${pagoError}" class="alert alert-danger" th:text="${pagoError}">
+            Error al procesar el pago.
+        </div>
+        <div th:if="${tarjetaErrores != null}" class="alert alert-danger mb-0">
+            <ul class="mb-0">
+                <li th:each="error : ${tarjetaErrores}" th:text="${error}">Error validacion</li>
+            </ul>
+        </div>
+    </div>
+
     <div class="row g-4">
         <div class="col-lg-8">
             <form th:action="@{/socio/membresia/renovar}" method="post" id="formRenovacion">
                 <div class="row g-3">
                     <div class="col-md-6" th:each="membresia : ${membresias}">
                         <label class="card h-100 shadow-sm plan-card"
-                               th:classappend="${selectedMembresiaId == membresia.id} ? 'border-primary' : ''"
+                               th:classappend="${selectedMembresiaId == membresia.id} ? ' border-primary shadow' : ''"
                                th:attr="data-plan-id=${membresia.id},
                                         data-plan-nombre=${membresia.nombre},
                                         data-plan-precio=${membresia.precio},
@@ -53,7 +80,10 @@
                     </div>
                 </div>
 
-                <div class="card shadow-sm mt-4" th:attr="data-start-date=${renovacionInicio}">
+                <div class="card shadow-sm mt-4"
+                     th:attr="data-start-date=${renovacionInicio},
+                              data-igv=${igvRate},
+                              data-descuento=${descuentoRate}">
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-4">
@@ -69,30 +99,94 @@
                             </div>
                             <div class="col-md-4">
                                 <p class="text-muted small mb-1">Total a pagar (simulado)</p>
-                                <h4 class="mb-1 text-primary" id="resumenImporte">--</h4>
+                                <h4 class="mb-1 text-primary" id="resumenImporte"
+                                    th:text="${#numbers.formatCurrency(resumenPago.total)}">--</h4>
                                 <div class="mb-2">
-                                    <select class="form-select" name="metodoPago">
+                                    <select class="form-select" name="metodoPago" id="metodoPago">
                                         <option th:each="metodo : ${metodosPagoDisponibles}"
                                                 th:value="${metodo}"
-                                                th:text="${metodo}"
-                                                th:selected="${metodo == 'Tarjeta guardada'}">
-                                            Metodo
-                                        </option>
+                                                th:selected="${metodoSeleccionado == metodo}"
+                                                th:text="${metodo}">Metodo</option>
                                     </select>
                                 </div>
-                                <ul class="list-unstyled small text-muted mb-0">
-                                    <li>Subtotal: <strong id="resumenSubtotal">--</strong></li>
-                                    <li>Impuestos: <strong>€0,00</strong></li>
-                                </ul>
+                            </div>
+                        </div>
+
+                        <div id="tarjetaFields" class="row g-3 mt-2 d-none">
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre en la tarjeta</label>
+                                <input type="text" name="titularTarjeta" class="form-control"
+                                       th:value="${titularTarjeta}"
+                                       placeholder="Titular de la tarjeta" autocomplete="cc-name">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Numero de tarjeta</label>
+                                <input type="text" name="numeroTarjeta" class="form-control"
+                                       maxlength="19" inputmode="numeric" autocomplete="cc-number"
+                                       placeholder="XXXX XXXX XXXX XXXX">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Fecha (MM/YY)</label>
+                                <input type="text" name="fechaTarjeta" class="form-control"
+                                       maxlength="5" inputmode="numeric" autocomplete="cc-exp"
+                                       placeholder="MM/YY">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">CVV</label>
+                                <input type="text" name="cvvTarjeta" class="form-control"
+                                       maxlength="3" inputmode="numeric" autocomplete="cc-csc"
+                                       placeholder="123">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Guardar para proximos pagos</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" disabled>
+                                    <label class="form-check-label small text-muted">Simulacion: no se almacena.</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="transferenciaInfo" class="alert alert-info mt-3 d-none">
+                            Te enviaremos un correo con las instrucciones y la cuenta bancaria.
+                            La factura quedara pendiente hasta que se confirme el ingreso.
+                        </div>
+
+                        <div class="border rounded p-3 bg-light mt-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Subtotal</span>
+                                <strong id="resumenSubtotal"
+                                        th:text="${#numbers.formatCurrency(resumenPago.subtotal)}">€0,00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Impuestos (18%)</span>
+                                <strong id="resumenImpuesto"
+                                        th:text="${#numbers.formatCurrency(resumenPago.impuesto)}">€0,00</strong>
+                            </div>
+                            <div id="resumenDescuentoRow"
+                                 class="d-flex justify-content-between"
+                                 th:classappend="${resumenPago.descuento.compareTo(T(java.math.BigDecimal).ZERO) == 0} ? ' d-none'">
+                                <span>Descuento fidelidad</span>
+                                <strong id="resumenDescuento"
+                                        class="text-success"
+                                        th:text="'- ' + ${#numbers.formatCurrency(resumenPago.descuento)}">-€0,00</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between text-primary fw-bold">
+                                <span>Total</span>
+                                <strong id="resumenTotal"
+                                        th:text="${#numbers.formatCurrency(resumenPago.total)}">€0,00</strong>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer bg-light d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="text-muted">Al confirmar se registra la renovacion y la factura como pagada.</small>
+                            <small class="text-muted">
+                                Al confirmar se registra la renovacion y la factura segun el metodo elegido.
+                            </small>
                         </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-sync-alt me-2"></i>Confirmar renovacion
+                        <button type="submit" class="btn btn-primary" id="btnConfirmar">
+                            <i class="fas fa-sync-alt me-2"></i>
+                            <span>Confirmar renovacion</span>
                         </button>
                     </div>
                 </div>
@@ -127,16 +221,53 @@
     </div>
 </div>
 
+<div id="datosContexto"
+     th:attr="data-igv-rate=${igvRate},
+              data-descuento-rate=${descuentoRate},
+              data-metodo=${metodoSeleccionado}"
+     hidden></div>
+
+<div id="pasarela-overlay" class="pasarela-overlay d-none">
+    <div class="pasarela-box text-center">
+        <div class="spinner-border text-light mb-3" role="status"></div>
+        <p class="text-white mb-0" id="pasarela-step">Validando datos...</p>
+    </div>
+</div>
+
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function () {
         const planCards = document.querySelectorAll('.plan-card');
         const resumenFin = document.getElementById('resumenFin');
         const resumenImporte = document.getElementById('resumenImporte');
         const resumenSubtotal = document.getElementById('resumenSubtotal');
+        const resumenImpuesto = document.getElementById('resumenImpuesto');
+        const resumenDescuento = document.getElementById('resumenDescuento');
+        const resumenDescuentoRow = document.getElementById('resumenDescuentoRow');
+        const resumenTotal = document.getElementById('resumenTotal');
         const startDateContainer = document.querySelector('[data-start-date]');
         const startDateValue = startDateContainer ? startDateContainer.dataset.startDate : null;
+        const datosContexto = document.getElementById('datosContexto');
+        const igvRate = parseFloat(datosContexto?.dataset.igvRate || '0');
+        const descuentoRate = parseFloat(datosContexto?.dataset.descuentoRate || '0');
 
-        const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        const metodoSelect = document.getElementById('metodoPago');
+        const tarjetaFields = document.getElementById('tarjetaFields');
+        const transferenciaInfo = document.getElementById('transferenciaInfo');
+        const btnConfirmar = document.getElementById('btnConfirmar');
+        const formRenovacion = document.getElementById('formRenovacion');
+        const overlay = document.getElementById('pasarela-overlay');
+        const pasarelaStep = document.getElementById('pasarela-step');
+        const titularInput = document.querySelector('input[name="titularTarjeta"]');
+        const numeroInput = document.querySelector('input[name="numeroTarjeta"]');
+        const fechaInput = document.querySelector('input[name="fechaTarjeta"]');
+        const cvvInput = document.querySelector('input[name="cvvTarjeta"]');
+        const luhnStatus = document.createElement('div');
+        luhnStatus.className = 'small mt-1';
+        if (numeroInput && numeroInput.parentElement) {
+            numeroInput.parentElement.appendChild(luhnStatus);
+        }
+
+        const opcionesFecha = {day: '2-digit', month: '2-digit', year: 'numeric'};
 
         function formatearNumero(valor) {
             return new Intl.NumberFormat('es-ES', {
@@ -158,6 +289,19 @@
             return resultado.toLocaleDateString('es-ES', opcionesFecha);
         }
 
+        function actualizarTotales(precio) {
+            const subtotal = precio || 0;
+            const impuesto = subtotal * igvRate;
+            const descuento = descuentoRate > 0 ? subtotal * descuentoRate : 0;
+            const total = subtotal + impuesto - descuento;
+            resumenSubtotal.textContent = formatearNumero(subtotal);
+            resumenImpuesto.textContent = formatearNumero(impuesto);
+            resumenDescuento.textContent = '- ' + formatearNumero(Math.abs(descuento));
+            resumenDescuentoRow.classList.toggle('d-none', descuento <= 0.009);
+            resumenTotal.textContent = formatearNumero(total);
+            resumenImporte.textContent = formatearNumero(total);
+        }
+
         function marcarSeleccion(card) {
             planCards.forEach(c => c.classList.remove('border-primary', 'shadow'));
             card.classList.add('border-primary', 'shadow');
@@ -165,10 +309,8 @@
             const dias = parseInt(card.dataset.planDias || '0', 10);
             const precio = parseFloat(card.dataset.planPrecio || '0');
 
-            const importe = precio || 0;
             resumenFin.textContent = calcularFin(dias) || '--/--/----';
-            resumenImporte.textContent = formatearNumero(importe);
-            resumenSubtotal.textContent = formatearNumero(importe);
+            actualizarTotales(precio);
 
             const input = card.querySelector('input[type="radio"]');
             if (input) {
@@ -186,7 +328,112 @@
                 }
             }
         });
+
+        function refrescarMetodo() {
+            const metodo = metodoSelect.value;
+            const esTarjetaNueva = metodo === 'Tarjeta nueva';
+            const esTransferencia = metodo === 'Transferencia bancaria';
+            tarjetaFields.classList.toggle('d-none', !esTarjetaNueva);
+            transferenciaInfo.classList.toggle('d-none', !esTransferencia);
+            [titularInput, numeroInput, fechaInput, cvvInput].forEach(inp => {
+                if (inp) {
+                    inp.required = esTarjetaNueva;
+                    if (!esTarjetaNueva) {
+                        inp.value = '';
+                    }
+                }
+            });
+            btnConfirmar.querySelector('span').textContent = esTransferencia
+                ? 'Generar instrucciones'
+                : (esTarjetaNueva ? 'Confirmar pago con tarjeta' : 'Confirmar con tarjeta guardada');
+        }
+
+        metodoSelect.addEventListener('change', refrescarMetodo);
+        refrescarMetodo();
+
+        let overlayInterval = null;
+        formRenovacion.addEventListener('submit', () => {
+            const metodo = metodoSelect.value;
+            if (metodo === 'Transferencia bancaria') {
+                return;
+            }
+            overlay.classList.remove('d-none');
+            const pasos = ['Validando tarjeta...', 'Contactando banco...', 'Confirmando pago...'];
+            let indice = 0;
+            pasarelaStep.textContent = pasos[indice];
+            overlayInterval = setInterval(() => {
+                indice = (indice + 1) % pasos.length;
+                pasarelaStep.textContent = pasos[indice];
+            }, 1200);
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (overlayInterval) {
+                clearInterval(overlayInterval);
+            }
+        });
+
+        if (numeroInput) {
+            numeroInput.addEventListener('input', () => {
+                const soloDigitos = numeroInput.value.replace(/\D/g, '').slice(0, 16);
+                numeroInput.value = soloDigitos.replace(/(.{4})/g, '$1 ').trim();
+                validarLuhn();
+            });
+        }
+        if (fechaInput) {
+            fechaInput.addEventListener('input', () => {
+                let valor = fechaInput.value.replace(/\D/g, '').slice(0, 4);
+                if (valor.length >= 3) {
+                    valor = valor.slice(0, 2) + '/' + valor.slice(2);
+                }
+                fechaInput.value = valor;
+            });
+        }
+
+        function validarLuhn() {
+            if (!numeroInput) return true;
+            const num = numeroInput.value.replace(/\s+/g, '');
+            if (num.length !== 16 || !/^\d{16}$/.test(num)) {
+                numeroInput.setCustomValidity('El numero debe tener 16 digitos.');
+                luhnStatus.textContent = '';
+                return false;
+            }
+            let sum = 0;
+            for (let i = 0; i < num.length; i++) {
+                let n = parseInt(num[num.length - 1 - i], 10);
+                if (i % 2 === 1) {
+                    n = n * 2;
+                    if (n > 9) n -= 9;
+                }
+                sum += n;
+            }
+            const valido = sum % 10 === 0;
+            numeroInput.setCustomValidity(valido ? '' : 'Tarjeta invalida');
+            luhnStatus.className = 'small mt-1 ' + (valido ? 'text-success' : 'text-danger');
+            luhnStatus.textContent = valido ? 'Numero de tarjeta valido.' : 'Numero de tarjeta no supera validacion.';
+            return valido;
+        }
     });
 </script>
+
+<style>
+    .pasarela-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
+
+    .pasarela-box {
+        padding: 2rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(6px);
+        min-width: 260px;
+    }
+</style>
 </body>
 </html>

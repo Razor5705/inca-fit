@@ -155,6 +155,6 @@ public class DashboardController {
             proximoPago = hoy;
         }
 
-        return proximoPago.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM"));
+        return proximoPago.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
 }

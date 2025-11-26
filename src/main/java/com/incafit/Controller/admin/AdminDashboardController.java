@@ -22,6 +22,8 @@ public class AdminDashboardController {
     @GetMapping
     public String mostrarDashboard(Model model) {
         model.addAttribute("estadisticas", estadisticaService.obtenerEstadisticas());
+        model.addAttribute("facturasCriticas", estadisticaService.obtenerFacturasPendientesCriticas(5));
+        model.addAttribute("reservasPendientes", estadisticaService.obtenerReservasPendientesHoy());
         return "admin/dashboard";
     }
 

@@ -307,7 +307,7 @@
             <header class="schedule-header">
                 <div>
                     <h2>Horario de clases</h2>
-                    <p>Revisa los dias y horas en los que dictamos cada clase antes de reservar.</p>
+                    <p>Revisa los dias y horas en los que dictamos cada clase y reserva haciendo clic en la que prefieras.</p>
                 </div>
                 <div class="schedule-actions">
                     <a th:href="@{/socio/reservas}" class="link-secondary">
@@ -367,9 +367,21 @@
                                         <i class="fas fa-users"></i>
                                         <span th:text="|${clase.capacidadMaxima} plazas|">12 plazas</span>
                                     </span>
+                                    <span class="class-chip" style="background: rgba(16,185,129,0.15); color:#065f46;">
+                                        <i class="fas fa-check-circle" style="color:#10b981;"></i>
+                                        <span>Disponible</span>
+                                    </span>
                                 </div>
                                 <p class="class-description" th:if="${!#strings.isEmpty(clase.descripcion)}"
                                    th:text="${clase.descripcion}">Descripcion</p>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span class="badge bg-light text-dark border" th:text="${hora.format(timeFormatter)}">09:00</span>
+                                    <a class="btn btn-sm btn-outline-primary reservar-btn"
+                                       th:href="@{|/socio/reservas/nueva?claseId=${clase.id}&dia=${dia.name()}&hora=${hora.format(timeFormatter)}|}"
+                                       th:attr="data-clase=${clase.id}, data-dia=${dia.name()}, data-hora=${hora.format(timeFormatter)}">
+                                        Reservar esta clase
+                                    </a>
+                                </div>
                             </article>
                         </div>
                     </td>
@@ -384,5 +396,25 @@
         </div>
     </section>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const botones = document.querySelectorAll('.reservar-btn');
+        botones.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Guardamos la selección por si el navegador bloquea query params en la redirección
+                const payload = {
+                    claseId: btn.dataset.clase,
+                    dia: btn.dataset.dia,
+                    hora: btn.dataset.hora
+                };
+                try {
+                    sessionStorage.setItem('preReservaSeleccion', JSON.stringify(payload));
+                } catch (e) {
+                    // no pasa nada si el navegador no permite storage
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

@@ -43,7 +43,7 @@
                                 <div class="border rounded-3 p-3 h-100">
                                     <p class="text-muted small mb-1">Inicio del plan</p>
                                     <h5 class="mb-0"
-                                        th:text="${socio.fechaInicioMembresia != null ? #temporals.format(socio.fechaInicioMembresia, 'dd/MM/yyyy') : 'Pendiente'}">
+                                        th:text="${socio.fechaInicioMembresia != null ? #temporals.format(socio.fechaInicioMembresia, 'dd/MM/yyyy') : 'Sin fecha asignada'}">
                                         --/--/----
                                     </h5>
                                 </div>
@@ -52,7 +52,7 @@
                                 <div class="border rounded-3 p-3 h-100">
                                     <p class="text-muted small mb-1">Fin del plan</p>
                                     <h5 class="mb-1 text-primary"
-                                        th:text="${socio.fechaFinMembresia != null ? #temporals.format(socio.fechaFinMembresia, 'dd/MM/yyyy') : 'Pendiente'}">
+                                        th:text="${socio.fechaFinMembresia != null ? #temporals.format(socio.fechaFinMembresia, 'dd/MM/yyyy') : 'Sin fecha asignada'}">
                                         --/--/----
                                     </h5>
                                     <span class="badge bg-success" th:if="${socio.activo}">Activa</span>
@@ -75,7 +75,7 @@
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span>Proxima renovacion</span>
-                                        <strong th:text="${socio.fechaFinMembresia != null ? #temporals.format(socio.fechaFinMembresia, 'dd/MM/yyyy') : 'Pendiente'}">--/--/----</strong>
+                                        <strong th:text="${socio.fechaFinMembresia != null ? #temporals.format(socio.fechaFinMembresia, 'dd/MM/yyyy') : 'Sin fecha asignada'}">--/--/----</strong>
                                     </li>
                                     <li class="list-group-item">
                                         <span class="text-muted small d-block mb-1">Descripcion</span>
@@ -101,8 +101,8 @@
                                 <div class="col-md-4">
                                     <p class="text-muted small mb-1">Dias restantes</p>
                                     <h6 class="mb-0"
-                                        th:text="${diasRestantes > 0 ? diasRestantes + ' dias' : (socio.fechaFinMembresia != null ? 'Finalizada' : 'Pendiente')}">
-                                        Pendiente
+                                        th:text="${diasRestantes > 0 ? diasRestantes + ' dias' : (socio.fechaFinMembresia != null ? 'Finalizada' : 'Sin fecha asignada')}">
+                                        Sin fecha asignada
                                     </h6>
                                 </div>
                                 <div class="col-md-4">

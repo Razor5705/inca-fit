@@ -13,10 +13,13 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FacturaServiceImpl implements FacturaService {
+    private static final int DIAS_GRACIA_FACTURA = 7;
 
     private final FacturaRepository facturaRepository;
     private final EmailService emailService;
@@ -130,6 +133,18 @@ public class FacturaServiceImpl implements FacturaService {
 
         return facturaRepository.findByEstadoAndFechaBetween(
                 "PAGADA", inicioMes, finMes); // Filtra por estado y rango de fechas
+    }
+
+    @Override
+    public List<Factura> obtenerFacturasPendientesVencidas() {
+        LocalDate hoy = LocalDate.now();
+        return facturaRepository.findByEstado("PENDIENTE").stream()
+                .filter(factura -> {
+                    LocalDate fecha = factura.getFecha();
+                    return fecha != null && fecha.plusDays(DIAS_GRACIA_FACTURA).isBefore(hoy);
+                })
+                .sorted(Comparator.comparing(Factura::getFecha))
+                .collect(Collectors.toList());
     }
 
     private void notificarFacturaPorEmail(Socio socio, Factura factura) {

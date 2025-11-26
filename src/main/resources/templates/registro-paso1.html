@@ -18,9 +18,12 @@
                         ¡Registro exitoso! Por favor <a th:href="@{/login}">inicia sesión</a>.
                     </div>
                     <form th:action="@{/registro/paso1}" th:object="${registroDto}" method="post">
+                        <input type="hidden" th:field="*{trial}" th:value="${registroDto.trial}">
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="dni" th:field="*{dni}" placeholder="DNI" required>
+                            <input type="text" class="form-control" id="dni" th:field="*{dni}" placeholder="DNI" required minlength="8" maxlength="10" pattern="[A-Za-z0-9]{8,10}">
                             <label for="dni">DNI</label>
+                            <div class="form-text text-muted small" id="dniHelp">8 a 10 caracteres, letras y números.</div>
+                            <div id="dniStatus" class="small mt-1"></div>
                             <div th:if="${#fields.hasErrors('dni')}" class="text-danger" th:errors="*{dni}"></div>
                         </div>
                         <div class="form-floating mb-3">
@@ -29,8 +32,10 @@
                             <div th:if="${#fields.hasErrors('nombre')}" class="text-danger" th:errors="*{nombre}"></div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="nombre@ejemplo.com" required>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="nombre@ejemplo.com" required autocomplete="email">
                             <label for="email">Email</label>
+                            <div class="form-text text-muted small" id="emailHelp">Usa tu correo principal para notificaciones.</div>
+                            <div id="emailStatus" class="small mt-1"></div>
                             <div th:if="${#fields.hasErrors('email')}" class="text-danger" th:errors="*{email}"></div>
                         </div>
                         <div class="form-floating mb-3">
@@ -38,27 +43,38 @@
                                    class="form-control"
                                    id="telefono"
                                    th:field="*{telefono}"
-                                   placeholder="Teléfono"
+                                   placeholder="Telefono"
                                    pattern="\d{9}"
                                    inputmode="numeric"
                                    autocomplete="tel"
                                    title="Debe tener 9 dígitos"
                                    required>
-                            <label for="telefono">Teléfono (9 dígitos)</label>
+                            <label for="telefono">Telefono (9 dígitos)</label>
+                            <div class="form-text text-muted small" id="telHelp">Solo números, sin espacios.</div>
                             <div th:if="${#fields.hasErrors('telefono')}" class="text-danger" th:errors="*{telefono}"></div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="Contraseña" required>
-                            <label for="password">Contraseña</label>
+                            <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="Contrasena" required minlength="8" autocomplete="new-password">
+                            <label for="password">Contrasena</label>
+                            <div class="form-text text-muted small" id="passwordHelp">
+                                Usa al menos 8 caracteres, una mayuscula, una minuscula y un numero.
+                            </div>
                             <div th:if="${#fields.hasErrors('password')}" class="text-danger" th:errors="*{password}"></div>
+                            <div class="mt-1">
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%;"></div>
+                                </div>
+                                <small id="passwordStrengthText" class="text-muted"></small>
+                            </div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="passwordConfirm" th:field="*{passwordConfirm}" placeholder="Confirmar Contraseña" required>
-                            <label for="passwordConfirm">Confirmar Contraseña</label>
+                            <input type="password" class="form-control" id="passwordConfirm" th:field="*{passwordConfirm}" placeholder="Confirmar Contrasena" required autocomplete="new-password">
+                            <label for="passwordConfirm">Confirmar Contrasena</label>
+                            <div class="form-text text-muted small" id="passwordMatchText"></div>
                             <div th:if="${#fields.hasErrors('passwordConfirm')}" class="text-danger" th:errors="*{passwordConfirm}"></div>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary-custom btn-lg">Siguiente</button>
+                            <button type="submit" class="btn btn-primary-custom btn-lg" id="btnPaso1">Siguiente</button>
                         </div>
                     </form>
                 </div>
@@ -69,5 +85,127 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const password = document.getElementById('password');
+        const passwordConfirm = document.getElementById('passwordConfirm');
+        const strengthBar = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('passwordStrengthText');
+        const matchText = document.getElementById('passwordMatchText');
+        const submitBtn = document.getElementById('btnPaso1');
+
+        function evaluarPassword(valor) {
+            let score = 0;
+            if (valor.length >= 8) score++;
+            if (/[A-Z]/.test(valor)) score++;
+            if (/[a-z]/.test(valor)) score++;
+            if (/[0-9]/.test(valor)) score++;
+            if (/[^A-Za-z0-9]/.test(valor)) score++; // extra: simbolo
+            return score;
+        }
+
+        function actualizarUI() {
+            const val = password.value || '';
+            const score = evaluarPassword(val);
+            const match = val && passwordConfirm.value && val === passwordConfirm.value;
+
+            const percent = Math.min(score * 20, 100);
+            strengthBar.style.width = percent + '%';
+            strengthBar.className = 'progress-bar';
+            if (score <= 2) {
+                strengthBar.classList.add('bg-danger');
+                strengthText.textContent = 'Seguridad baja';
+            } else if (score === 3) {
+                strengthBar.classList.add('bg-warning');
+                strengthText.textContent = 'Seguridad media';
+            } else {
+                strengthBar.classList.add('bg-success');
+                strengthText.textContent = 'Seguridad alta';
+            }
+
+            if (match) {
+                matchText.textContent = 'Las contrasenas coinciden.';
+                matchText.classList.remove('text-danger');
+                matchText.classList.add('text-success');
+            } else if (passwordConfirm.value) {
+                matchText.textContent = 'Las contrasenas no coinciden.';
+                matchText.classList.remove('text-success');
+                matchText.classList.add('text-danger');
+            } else {
+                matchText.textContent = '';
+            }
+
+            submitBtn.disabled = !(score >= 3 && match);
+        }
+
+        password.addEventListener('input', actualizarUI);
+        passwordConfirm.addEventListener('input', actualizarUI);
+        [document.getElementById('dni'), document.getElementById('email'), document.getElementById('telefono')].forEach(inp => {
+            if (inp) {
+                inp.addEventListener('input', () => {
+                    if (inp.reportValidity && typeof inp.reportValidity === 'function') {
+                        inp.reportValidity();
+                    }
+                });
+            }
+        });
+
+        const dniInput = document.getElementById('dni');
+        const emailInput = document.getElementById('email');
+        const dniStatus = document.getElementById('dniStatus');
+        const emailStatus = document.getElementById('emailStatus');
+        let debounceTimer;
+
+        function marcarEstado(el, existe) {
+            if (!el) return;
+            el.className = 'small mt-1';
+            if (existe === true) {
+                el.classList.add('text-danger');
+                el.textContent = 'Ya esta registrado.';
+            } else if (existe === false) {
+                el.classList.add('text-success');
+                el.textContent = 'Disponible.';
+            } else {
+                el.textContent = '';
+            }
+        }
+
+        function checkDisponibilidad() {
+            const dniVal = dniInput?.value?.trim();
+            const emailVal = emailInput?.value?.trim();
+            if (!dniVal && !emailVal) {
+                marcarEstado(dniStatus, null);
+                marcarEstado(emailStatus, null);
+                return;
+            }
+            const params = new URLSearchParams();
+            if (dniVal) params.append('dni', dniVal);
+            if (emailVal) params.append('email', emailVal);
+
+            fetch('/registro/check?' + params.toString(), {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+                .then(r => r.ok ? r.json() : {})
+                .then(data => {
+                    if (data.hasOwnProperty('dniExists')) {
+                        marcarEstado(dniStatus, data.dniExists);
+                    }
+                    if (data.hasOwnProperty('emailExists')) {
+                        marcarEstado(emailStatus, data.emailExists);
+                    }
+                })
+                .catch(() => {});
+        }
+
+        [dniInput, emailInput].forEach(inp => {
+            if (inp) {
+                inp.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(checkDisponibilidad, 400);
+                });
+            }
+        });
+
+        actualizarUI();
+    });
+</script>
 </body>
 </html>

@@ -8,7 +8,13 @@
 <body>
 <div layout:fragment="content" class="container-fluid py-5" style="background-color: #f8f9fa;">
     <div class="container my-5">
-        <h2>Mis Reservas</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="mb-0">Mis Reservas</h2>
+                <p class="text-muted small mb-0">Aquí ves tus clases confirmadas y puedes cancelarlas si lo necesitas.</p>
+            </div>
+            <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2" th:text="${#lists.size(reservas)} + ' reservas'">0 reservas</span>
+        </div>
 
         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
@@ -22,28 +28,37 @@
             </a>
         </div>
 
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Clase</th>
-                <th>Fecha y Hora</th>
+        <table class="table table-hover align-middle shadow-sm bg-white rounded">
+            <thead class="table-light">
+            <tr class="text-uppercase small text-muted">
+                <th class="ps-3">Clase</th>
+                <th>Fecha</th>
+                <th>Hora</th>
                 <th>Estado</th>
-                <th>Acciones</th>
+                <th class="text-end pe-3">Acciones</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="reserva : ${reservas}">
-                <td th:text="${reserva.clase != null ? reserva.clase.nombre : 'Clase no disponible'}"></td>
-                <td th:text="${#temporals.format(reserva.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+            <tr th:if="${#lists.isEmpty(reservas)}">
+                <td colspan="5" class="text-center py-4 text-muted">
+                    No tienes reservas todavía. Empieza creando una desde <a th:href="@{/socio/reservas/nueva}">Nueva Reserva</a>.
+                </td>
+            </tr>
+            <tr th:each="reserva : ${reservas}" class="border-top">
+                <td class="fw-semibold ps-3" th:text="${reserva.clase != null ? reserva.clase.nombre : 'Clase no disponible'}"></td>
+                <td th:text="${#temporals.format(reserva.fechaHora, 'dd/MM/yyyy')}"></td>
+                <td th:text="${#temporals.format(reserva.fechaHora, 'HH:mm')}"></td>
                 <td>
                     <span th:if="${reserva.estado == 'CONFIRMADA'}" class="badge bg-success">Confirmada</span>
                     <span th:if="${reserva.estado == 'CANCELADA'}" class="badge bg-danger">Cancelada</span>
                 </td>
-                <td>
+                <td class="text-end pe-3">
                     <form th:if="${reserva.estado == 'CONFIRMADA'}"
                           th:action="@{/socio/reservas/{id}/cancelar(id=${reserva.id})}"
                           method="post" class="d-inline">
-                        <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-times me-1"></i>Cancelar
+                        </button>
                     </form>
                 </td>
             </tr>

@@ -1,8 +1,10 @@
 package com.incafit.Controller.admin;
 
+import com.incafit.Model.Membresia;
 import com.incafit.Model.Socio;
 import com.incafit.Repository.SocioRepository;
 import com.incafit.Repository.MembresiaRepository;
+import com.incafit.service.SocioService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.validation.Valid;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -20,13 +23,16 @@ public class SocioController {
     private final SocioRepository socioRepository;
     private final MembresiaRepository membresiaRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SocioService socioService;
 
     public SocioController(SocioRepository socioRepository,
                            MembresiaRepository membresiaRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           SocioService socioService) {
         this.socioRepository = socioRepository;
         this.membresiaRepository = membresiaRepository;
         this.passwordEncoder = passwordEncoder;
+        this.socioService = socioService;
     }
 
     @GetMapping
@@ -38,16 +44,28 @@ public class SocioController {
 
     @GetMapping({"/nueva", "/nuevo"})
     public String mostrarFormularioNueva(Model model) {
-        model.addAttribute("socio", new Socio());
+        Socio socio = new Socio();
+        socio.setFechaRegistro(LocalDate.now());
+        socio.setActivo(true);
+        model.addAttribute("socio", socio);
         model.addAttribute("membresias", membresiaRepository.findAll());
+        model.addAttribute("membresiaSeleccionada", socio.getMembresia() != null ? socio.getMembresia().getId() : null);
         return "admin/socios/formulario";
     }
 
     @PostMapping({"/nueva", "/nuevo"})
-    public String guardarSocio(@Valid @ModelAttribute Socio socio, 
-                              BindingResult result,
-                              RedirectAttributes redirectAttributes) {
+    public String guardarSocio(@Valid @ModelAttribute("socio") Socio socio,
+                               BindingResult result,
+                               @RequestParam(value = "membresiaId", required = false) Long membresiaId,
+                               Model model,
+                               RedirectAttributes redirectAttributes) {
+        asignarMembresiaDesdeFormulario(socio, membresiaId, result);
+        if (socio.getFechaRegistro() == null) {
+            socio.setFechaRegistro(LocalDate.now());
+        }
         if (result.hasErrors()) {
+            model.addAttribute("membresias", membresiaRepository.findAll());
+            model.addAttribute("membresiaSeleccionada", membresiaId);
             return "admin/socios/formulario";
         }
         
@@ -70,15 +88,22 @@ public class SocioController {
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
         model.addAttribute("socio", socio);
         model.addAttribute("membresias", membresiaRepository.findAll());
+        model.addAttribute("membresiaSeleccionada", socio.getMembresia() != null ? socio.getMembresia().getId() : null);
         return "admin/socios/formulario";
     }
 
     @PostMapping("/editar/{id}")
-    public String actualizarSocio(@PathVariable Long id, 
-                                 @Valid @ModelAttribute Socio socio,
-                                 BindingResult result,
-                                 RedirectAttributes redirectAttributes) {
+    public String actualizarSocio(@PathVariable Long id,
+                                  @Valid @ModelAttribute("socio") Socio socio,
+                                  BindingResult result,
+                                  @RequestParam(value = "membresiaId", required = false) Long membresiaId,
+                                  @RequestParam(value = "nuevaPassword", required = false) String nuevaPassword,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes) {
+        asignarMembresiaDesdeFormulario(socio, membresiaId, result);
         if (result.hasErrors()) {
+            model.addAttribute("membresias", membresiaRepository.findAll());
+            model.addAttribute("membresiaSeleccionada", membresiaId);
             return "admin/socios/formulario";
         }
         
@@ -86,10 +111,10 @@ public class SocioController {
             Socio existente = socioRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
 
-            if (socio.getPassword() == null || socio.getPassword().isBlank()) {
-                socio.setPassword(existente.getPassword());
+            if (nuevaPassword != null && !nuevaPassword.isBlank()) {
+                socio.setPassword(passwordEncoder.encode(nuevaPassword));
             } else {
-                socio.setPassword(passwordEncoder.encode(socio.getPassword()));
+                socio.setPassword(existente.getPassword());
             }
 
             socio.setId(id);
@@ -114,7 +139,7 @@ public class SocioController {
 
     private String ejecutarEliminacion(Long id, RedirectAttributes redirectAttributes) {
         try {
-            socioRepository.deleteById(id);
+            socioService.eliminarSocio(id);
             redirectAttributes.addFlashAttribute("successMessage", "Socio eliminado exitosamente");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar el socio: " + e.getMessage());
@@ -137,5 +162,21 @@ public class SocioController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar el estado del socio: " + e.getMessage());
         }
         return "redirect:/admin/socios";
+    }
+
+    private void asignarMembresiaDesdeFormulario(Socio socio,
+                                                 Long membresiaId,
+                                                 BindingResult result) {
+        if (membresiaId == null) {
+            result.rejectValue("membresia", "socio.membresia", "Seleccione una membresía");
+            return;
+        }
+        Membresia membresia = membresiaRepository.findById(membresiaId)
+                .orElse(null);
+        if (membresia == null) {
+            result.rejectValue("membresia", "socio.membresia", "La membresía seleccionada no existe");
+        } else {
+            socio.setMembresia(membresia);
+        }
     }
 }

@@ -122,6 +122,16 @@ public class RegistroSocioDto {
     @Pattern(regexp = "\\d{3}", message = "El CVV debe tener 3 dígitos", groups = PaymentInfo.class)
     private String cvv;
 
+    // Flag para registro en modo prueba/gratis
+    private boolean trial;
+
+    public boolean isTrial() {
+        return trial;
+    }
+
+    public void setTrial(boolean trial) {
+        this.trial = trial;
+    }
 
 
 
