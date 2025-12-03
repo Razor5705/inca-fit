@@ -39,6 +39,7 @@ import java.util.Map;
 @SessionAttributes("registroDto")
 public class RegistroController {
 
+    //Registro con atributos DTO, para un flujo con 3 pasos con validación y pago simulado//
     private final SocioService socioService;
     private final PasswordEncoder passwordEncoder;
     private final MembresiaService membresiaService;

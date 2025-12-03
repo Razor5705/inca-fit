@@ -3,337 +3,509 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
-    <title>Horario de clases</title>
+    <title>Horario de Clases - IncaFIT</title>
     <style>
         :root {
-            --page-bg: #f4f6fb;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #5f6b7b;
-            --border: #e2e8f0;
-            --border-strong: #cbd5f5;
-            --accent: #2563eb;
-            --accent-soft: rgba(37, 99, 235, 0.08);
-            --accent-strong: rgba(37, 99, 235, 0.25);
-            --accent-dark: #15337c;
+            --fitness-primary: #1a2a6c;
+            --fitness-secondary: #b21f1f;
+            --fitness-accent: #fdbb2d;
+            --light-blue: #e8f4ff;
+            --light-red: #ffeaea;
+            --light-yellow: #fff9e6;
+            --light-green: #f0fff4;
+            --light-purple: #f3e8ff;
         }
 
-        body {
-            background: var(--page-bg);
-        }
-
-        .schedule-page {
-            max-width: 1200px;
+        .horario-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: clamp(1.5rem, 5vw, 3rem);
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+            padding: 2rem 1rem;
         }
 
-        .schedule-card {
-            background: var(--card-bg);
-            border-radius: 1.35rem;
-            padding: clamp(1rem, 3vw, 1.8rem);
-            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.07);
-            border: 1px solid rgba(15, 23, 42, 0.04);
+        .page-header {
+            background: linear-gradient(135deg, var(--fitness-primary), var(--fitness-secondary));
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(26, 42, 108, 0.2);
         }
 
-        .schedule-header {
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .page-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .header-actions {
             display: flex;
-            flex-wrap: wrap;
             gap: 1rem;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .schedule-header h2 {
-            margin: 0;
-            font-size: clamp(1.6rem, 3vw, 2.2rem);
-            color: var(--text-main);
-        }
-
-        .schedule-header p {
-            margin: 0.6rem 0 0;
-            color: var(--text-muted);
-            max-width: 520px;
-        }
-
-        .schedule-actions {
-            display: flex;
+            margin-top: 1.5rem;
             flex-wrap: wrap;
-            gap: 0.75rem;
         }
 
-        .schedule-actions a {
+        .btn-reservas {
+            background-color: var(--fitness-accent);
+            color: black;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            padding: 0.65rem 1.35rem;
-            border-radius: 999px;
-            text-decoration: none;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(253, 187, 45, 0.3);
+        }
+
+        .btn-reservas:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(253, 187, 45, 0.4);
+            background-color: #ffcc44;
+        }
+
+        .btn-panel {
+            background-color: white;
+            color: var(--fitness-primary);
+            border: 2px solid white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
             font-weight: 600;
-            border: 1px solid transparent;
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
-        }
-
-        .schedule-actions a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
-        }
-
-        .link-secondary {
-            background: var(--card-bg);
-            border-color: var(--border);
-            color: var(--text-main);
-        }
-
-        .link-primary {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .schedule-tip {
-            background: var(--accent-soft);
-            border: 1px solid var(--accent-strong);
-            border-radius: 1rem;
-            padding: 1rem 1.25rem;
-            color: var(--text-main);
-            display: flex;
-            gap: 0.65rem;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
-            font-size: 0.95rem;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
         }
 
-        .schedule-tip i {
-            color: var(--accent-dark);
+        .btn-panel:hover {
+            background-color: transparent;
+            color: white;
+            transform: translateY(-2px);
         }
 
-        .schedule-scroll {
-            overflow-x: auto;
-            border-radius: 1.35rem;
-            border: 1px solid var(--border);
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), transparent);
-            padding: 0.5rem;
+        /* Tabla de horario */
+        .horario-table-wrapper {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
         }
 
-        .schedule-table {
+        .table-header {
+            background: linear-gradient(135deg, var(--fitness-primary), var(--fitness-secondary));
+            padding: 1.5rem;
+            color: white;
+        }
+
+        .table-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .table-header .week-indicator {
+            display: inline-block;
+            background-color: var(--fitness-accent);
+            color: black;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+
+        .horario-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            min-width: 780px;
-            table-layout: fixed;
-            font-size: 0.95rem;
-            border: 1px solid rgba(15, 23, 42, 0.12);
-            border-radius: 0.8rem;
-            overflow: hidden;
-            background: #fff;
-            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.1);
         }
 
-        .schedule-table caption {
-            caption-side: bottom;
-            text-align: right;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            padding: 0.75rem 1rem;
-        }
-
-        .schedule-table thead th {
-            background: linear-gradient(120deg, rgba(37, 99, 235, 0.18), rgba(37, 99, 235, 0.08));
-            color: var(--accent-dark);
+        .horario-table thead th {
+            background-color: #f8f9fa;
+            color: var(--fitness-primary);
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.04em;
-            border-bottom: 1px solid var(--border-strong);
-            border-right: 1px solid var(--border-strong);
-            padding: 0.85rem;
+            letter-spacing: 1px;
+            padding: 1.25rem 1rem;
+            text-align: center;
+            border-bottom: 3px solid var(--fitness-accent);
             position: sticky;
             top: 0;
-            z-index: 1;
+            z-index: 10;
         }
 
-        .schedule-table thead th.day-head {
-            text-align: center;
+        .horario-table tbody td {
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            vertical-align: top;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .schedule-table thead th:last-child {
-            border-right: none;
+        .horario-table tbody td:hover {
+            background-color: rgba(253, 187, 45, 0.05);
         }
 
-        .schedule-table th:first-child,
-        .schedule-table td:first-child {
-            background: rgba(15, 23, 42, 0.05);
+        .time-slot {
+            background-color: var(--fitness-primary);
+            color: white;
             font-weight: 700;
             text-align: center;
-            width: 120px;
-            color: var(--text-main);
-        }
-
-        .schedule-table tbody td {
-            border-right: 1px solid rgba(15, 23, 42, 0.08);
-            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-            padding: 0.75rem;
-            vertical-align: top;
-            background: #fff;
-        }
-
-        .schedule-table tbody td.day-1 { background: linear-gradient(180deg, rgba(37, 99, 235, 0.04), rgba(37, 99, 235, 0)); }
-        .schedule-table tbody td.day-2 { background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), rgba(99, 102, 241, 0)); }
-        .schedule-table tbody td.day-3 { background: linear-gradient(180deg, rgba(56, 189, 248, 0.05), rgba(56, 189, 248, 0)); }
-        .schedule-table tbody td.day-4 { background: linear-gradient(180deg, rgba(34, 197, 94, 0.05), rgba(34, 197, 94, 0)); }
-        .schedule-table tbody td.day-5 { background: linear-gradient(180deg, rgba(251, 191, 36, 0.05), rgba(251, 191, 36, 0)); }
-        .schedule-table tbody td.day-6 { background: linear-gradient(180deg, rgba(244, 114, 182, 0.05), rgba(244, 114, 182, 0)); }
-        .schedule-table tbody td.day-7 { background: linear-gradient(180deg, rgba(14, 165, 233, 0.05), rgba(14, 165, 233, 0)); }
-        .schedule-table tbody td.day-td {
-            transition: transform 0.12s ease, box-shadow 0.12s ease;
-        }
-        .schedule-table tbody td.day-td:hover {
-            z-index: 5;
-            box-shadow: 0 8px 15px rgba(15, 23, 42, 0.12);
-            transform: translateY(-2px);
-        }
-
-        .schedule-table tbody td:first-child {
-            border-right: 1px solid rgba(15, 23, 42, 0.12);
-            font-weight: 600;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(26, 42, 108, 0.2);
             position: sticky;
             left: 0;
-            z-index: 2;
-            background: rgba(15, 23, 42, 0.035);
-            box-shadow: 5px 0 12px rgba(15, 23, 42, 0.06);
+            z-index: 5;
+            min-width: 100px;
         }
 
-        .schedule-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .schedule-table tbody td:last-child {
-            border-right: none;
-        }
-
-        .schedule-table tbody tr:nth-child(even) td:not(:first-child) {
-            background: rgba(248, 249, 255, 0.6);
-        }
-
-        .slot-content {
-            min-height: 130px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.65rem;
-            padding: 0.35rem;
-        }
-
-        .slot-empty {
-            font-size: 0.85rem;
-            color: #8892a6;
-            text-align: center;
-            padding: 0.9rem 0.7rem;
-            border: 1px dashed rgba(15, 23, 42, 0.12);
-            border-radius: 0.9rem;
-            background: rgba(136, 146, 166, 0.08);
-            font-style: italic;
-        }
-
+        /* Tarjetas de clase */
         .class-card {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.07), rgba(255, 255, 255, 0.9));
-            border-radius: 0.9rem;
-            padding: 0.95rem 1.05rem;
-            border: 1px solid rgba(37, 99, 235, 0.18);
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--fitness-accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .class-name {
+        .class-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .class-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--fitness-accent), var(--fitness-secondary));
+        }
+
+        .class-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .class-title {
+            color: var(--fitness-primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .class-badge {
+            background-color: var(--fitness-accent);
+            color: black;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 0.3rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         .class-meta {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.45rem;
-            margin-bottom: 0.2rem;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
         }
 
-        .class-chip {
-            display: inline-flex;
+        .meta-item {
+            display: flex;
             align-items: center;
-            gap: 0.35rem;
-            background: rgba(255, 255, 255, 0.75);
-            border-radius: 999px;
-            padding: 0.25rem 0.7rem;
-            font-size: 0.8rem;
-            color: var(--accent-dark);
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
         }
 
-        .class-chip i {
-            color: var(--accent);
-            font-size: 0.8rem;
+        .meta-item i {
+            color: var(--fitness-primary);
         }
 
         .class-description {
-            margin: 0;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 2.5rem 1rem;
-            color: var(--text-muted);
+        .class-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
         }
 
-        .empty-state a {
-            color: var(--accent);
+        .class-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-available {
+            color: #28a745;
+        }
+
+        .status-full {
+            color: #dc3545;
+        }
+
+        .btn-reserve {
+            background: linear-gradient(135deg, var(--fitness-primary), var(--fitness-secondary));
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 25px;
             font-weight: 600;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
 
-        @media (max-width: 640px) {
-            .schedule-actions a {
+        .btn-reserve:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(26, 42, 108, 0.3);
+            color: white;
+        }
+
+        /* Vacío */
+        .empty-slot {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Filtros */
+        .filters-bar {
+            background-color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--fitness-primary);
+        }
+
+        .filter-select {
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            background-color: white;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .filter-select:focus {
+            border-color: var(--fitness-accent);
+            outline: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .horario-container {
+                padding: 1rem;
+            }
+            
+            .horario-table-wrapper {
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+            }
+            
+            .btn-reservas, .btn-panel {
                 width: 100%;
                 justify-content: center;
             }
+            
+            .time-slot {
+                min-width: 80px;
+                font-size: 0.9rem;
+                padding: 0.75rem;
+            }
+            
+            .class-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .class-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .class-card:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+
+        .class-card:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+
+        /* Scroll personalizado */
+        .horario-table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .horario-table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .horario-table-wrapper::-webkit-scrollbar-thumb {
+            background: linear-gradient(to right, var(--fitness-primary), var(--fitness-secondary));
+            border-radius: 4px;
+        }
+
+        /* Indicador visual para hoy */
+        .today-header {
+            background: linear-gradient(135deg, var(--fitness-accent), #ff9a3c);
+            color: black !important;
+        }
+
+        .today-cell {
+            background-color: rgba(253, 187, 45, 0.1);
+        }
+
+        .selected-cell {
+            box-shadow: inset 0 0 0 3px var(--fitness-primary);
+            background-color: rgba(26, 42, 108, 0.08);
         }
     </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <section class="schedule-page"
-             th:with="locale=${T(java.util.Locale).forLanguageTag('es-ES')},
-                      timeFormatter=${T(java.time.format.DateTimeFormatter).ofPattern('HH:mm')}">
-        <div class="schedule-card">
-            <header class="schedule-header">
-                <div>
-                    <h2>Horario de clases</h2>
-                    <p>Revisa los dias y horas en los que dictamos cada clase y reserva haciendo clic en la que prefieras.</p>
-                </div>
-                <div class="schedule-actions">
-                    <a th:href="@{/socio/reservas}" class="link-secondary">
-                        <i class="fas fa-list"></i>
-                        <span>Mis reservas</span>
-                    </a>
-                    <a th:href="@{/socio/reservas/nueva}" class="link-primary">
-                        <i class="fas fa-calendar-plus"></i>
-                        <span>Nueva reserva</span>
-                    </a>
-                </div>
-            </header>
-
-            <div class="schedule-tip">
-                <i class="fas fa-lightbulb"></i>
-                <span><strong>Tip:</strong> identifica la clase que te interesa y reserva desde el boton superior para asegurar tu cupo.</span>
+    <div class="horario-container" th:with="locale=${T(java.util.Locale).forLanguageTag('es-ES')},
+                                         timeFormatter=${T(java.time.format.DateTimeFormatter).ofPattern('HH:mm')},
+                                         today=${T(java.time.DayOfWeek).from(T(java.time.LocalDate).now())}">
+        
+        <!-- Header de la página -->
+        <div class="page-header">
+            <h1><i class="fas fa-calendar-alt me-2"></i>Horario de Clases</h1>
+            <p class="subtitle">Explora todas nuestras clases semanales y reserva tu plaza en un clic</p>
+            
+            <div class="header-actions">
+                <a th:href="@{/socio/reservas}" class="btn-reservas">
+                    <i class="fas fa-list-check me-1"></i>Ver Mis Reservas
+                </a>
+                <a th:href="@{/socio/reservas/nueva}" class="btn-panel">
+                    <i class="fas fa-calendar-plus me-1"></i>Nueva Reserva Rápida
+                </a>
             </div>
         </div>
 
-        <div class="schedule-card schedule-scroll" th:if="${tieneClases}">
-            <table class="schedule-table">
+        <!-- Barra de filtros -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <span class="filter-label"><i class="fas fa-filter me-1"></i>Filtrar por:</span>
+                <select class="filter-select" id="filter-type">
+                    <option value="all">Todas las Clases</option>
+                    <option value="yoga">Yoga</option>
+                    <option value="spinning">Spinning</option>
+                    <option value="crossfit">CrossFit</option>
+                    <option value="pilates">Pilates</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <span class="filter-label"><i class="fas fa-user me-1"></i>Instructor:</span>
+                <select class="filter-select" id="filter-instructor">
+                    <option value="all">Todos</option>
+                    <option th:each="instructor : ${instructores}" 
+                            th:value="${instructor.id}"
+                            th:text="${instructor.nombreCompleto}">
+                    </option>
+                </select>
+            </div>
+            
+            <div class="filter-group ms-auto">
+                <span class="badge bg-primary px-3 py-2">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <span th:text="${totalClases}">0</span> clases disponibles esta semana
+                </span>
+            </div>
+        </div>
+
+        <!-- Tabla de horario -->
+        <div class="horario-table-wrapper" th:if="${tieneClases}">
+            <div class="table-header">
+                <div class="d-flex align-items-center">
+                    <h3><i class="fas fa-clock me-2"></i>Horario Semanal</h3>
+                    <span class="week-indicator">
+                        <i class="fas fa-calendar-week me-1"></i>
+                        Semana del <span th:text="${T(java.time.LocalDate).now().with(T(java.time.temporal.TemporalAdjusters).previousOrSame(T(java.time.DayOfWeek).MONDAY)).format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM'))}"></span>
+                    </span>
+                </div>
+            </div>
+            
+            <table class="horario-table">
                 <thead>
                 <tr>
-                    <th>Hora</th>
-                    <th th:each="dia, iter : ${diasSemana}"
-                        th:class="'day-head day-' + ${iter.index + 1}"
+                    <th style="width: 120px;">HORA</th>
+                    <th th:each="dia : ${diasSemana}" 
+                        th:classappend="${dia == today} ? 'today-header' : ''"
                         th:text="${#strings.capitalize(dia.getDisplayName(T(java.time.format.TextStyle).FULL, locale))}">
                         Lunes
                     </th>
@@ -341,48 +513,68 @@
                 </thead>
                 <tbody>
                 <tr th:each="hora : ${horasDisponibles}">
-                    <td th:text="${hora.format(timeFormatter)}">09:00</td>
-                    <td th:each="dia, iter : ${diasSemana}"
-                        th:class="'day-td day-' + ${iter.index + 1}">
-                        <div class="slot-content"
-                             th:with="diaMapa=${matrizHorarios.get(dia)},
-                                      clasesSlot=${diaMapa != null ? diaMapa.get(hora) : null}">
-                            <div th:if="${clasesSlot == null || clasesSlot.isEmpty()}" class="slot-empty">Sin clases</div>
-                            <article class="class-card" th:each="clase : ${clasesSlot}">
-                                <div class="class-name" th:text="${clase.nombre}">Yoga</div>
+                    <td class="time-slot" th:text="${hora != null ? hora.format(timeFormatter) : '--:--'}">07:00</td>
+                    
+                    <td th:each="dia : ${diasSemana}"
+                        class="day-slot"
+                        th:attr="data-dia=${dia.name()}, data-hora=${hora.format(timeFormatter)}"
+                        th:classappend="${dia == today} ? ' today-cell' : ''">
+                        <div class="celda-clases"
+                             th:with="diaMapa=${matrizHorarios.get(dia)}, clasesSlot=${diaMapa != null ? diaMapa.get(hora) : null}">
+                            
+                            <div th:if="${clasesSlot == null or clasesSlot.isEmpty()}" class="empty-slot">
+                                <i class="fas fa-coffee fa-2x mb-2" style="color: #dee2e6;"></i>
+                                <p class="mb-0">Sin clases programadas</p>
+                            </div>
+                            
+                            <div class="class-card" th:each="clase : ${clasesSlot}">
+                                <div class="class-header">
+                                    <h5 class="class-title" th:text="${clase.nombre}">Clase</h5>
+                                    <span class="class-badge" th:if="${clase.duracionMinutos > 0}">
+                                        <i class="fas fa-stopwatch"></i>
+                                        <span th:text="${clase.duracionMinutos}">60</span> min
+                                    </span>
+                                </div>
+                                
                                 <div class="class-meta">
-                                    <span class="class-chip">
+                                    <div class="meta-item">
                                         <i class="fas fa-user-circle"></i>
-                                        <span th:text="${clase.instructor != null ? clase.instructor.nombreCompleto : 'Instructor por asignar'}">
+                                        <span th:text="${clase.instructor != null ? clase.instructor.nombreCompleto : 'Por asignar'}">
                                             Instructor
                                         </span>
-                                    </span>
-                                    <span class="class-chip" th:if="${clase.duracionMinutos > 0}">
-                                        <i class="fas fa-clock"></i>
-                                        <span th:text="|${clase.duracionMinutos} min|">60 min</span>
-                                    </span>
-                                </div>
-                                <div class="class-meta">
-                                    <span class="class-chip">
+                                    </div>
+                                    <div class="meta-item">
                                         <i class="fas fa-users"></i>
-                                        <span th:text="|${clase.capacidadMaxima} plazas|">12 plazas</span>
-                                    </span>
-                                    <span class="class-chip" style="background: rgba(16,185,129,0.15); color:#065f46;">
-                                        <i class="fas fa-check-circle" style="color:#10b981;"></i>
-                                        <span>Disponible</span>
-                                    </span>
+                                        <span th:text="${clase.capacidadMaxima != null ? clase.capacidadMaxima : 0}">0</span>
+                                        <span>plazas</span>
+                                    </div>
                                 </div>
-                                <p class="class-description" th:if="${!#strings.isEmpty(clase.descripcion)}"
-                                   th:text="${clase.descripcion}">Descripcion</p>
-                                <div class="d-flex justify-content-between align-items-center mt-1">
-                                    <span class="badge bg-light text-dark border" th:text="${hora.format(timeFormatter)}">09:00</span>
-                                    <a class="btn btn-sm btn-outline-primary reservar-btn"
+                                
+                                <p class="class-description" th:if="${clase.descripcion}" th:text="${clase.descripcion}">
+                                    Descripción de la clase
+                                </p>
+                                
+                                <div class="class-actions">
+                                    <div class="class-status" 
+                                         th:classappend="${clase.activo and clase.vigente} ? 'status-available' : 'status-full'">
+                                        <i class="fas" 
+                                           th:classappend="${clase.activo and clase.vigente} ? 'fa-check-circle' : 'fa-times-circle'"></i>
+                                        <span th:if="${clase.activo and clase.vigente}">
+                                            Disponible
+                                        </span>
+                                        <span th:if="${!clase.activo or !clase.vigente}">
+                                            No disponible
+                                        </span>
+                                    </div>
+                                    
+                                    <a class="btn-reserve"
+                                       th:if="${clase.activo and clase.vigente}"
                                        th:href="@{|/socio/reservas/nueva?claseId=${clase.id}&dia=${dia.name()}&hora=${hora.format(timeFormatter)}|}"
                                        th:attr="data-clase=${clase.id}, data-dia=${dia.name()}, data-hora=${hora.format(timeFormatter)}">
-                                        Reservar esta clase
+                                        <i class="fas fa-calendar-check me-1"></i>Reservar
                                     </a>
                                 </div>
-                            </article>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -390,31 +582,158 @@
             </table>
         </div>
 
-        <div class="schedule-card empty-state" th:if="${!tieneClases}">
-            <p>Todavia no hay horarios publicados. Vuelve pronto o consulta con recepcion para conocer las proximas clases.</p>
-            <p><a th:href="@{/socio/reservas/nueva}">Ir al formulario de reserva</a></p>
+        <!-- Mensaje si no hay clases -->
+        <div class="alert alert-warning text-center py-4" th:if="${!tieneClases}" role="alert">
+            <i class="fas fa-calendar-times fa-3x mb-3" style="color: var(--fitness-accent);"></i>
+            <h4 class="alert-heading">¡Próximamente!</h4>
+            <p class="mb-3">Estamos preparando el horario de clases para la próxima semana.</p>
+            <p class="mb-0">Vuelve a consultar en unas horas o contacta con recepción para más información.</p>
         </div>
-    </section>
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const botones = document.querySelectorAll('.reservar-btn');
-        botones.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Guardamos la selección por si el navegador bloquea query params en la redirección
-                const payload = {
-                    claseId: btn.dataset.clase,
-                    dia: btn.dataset.dia,
-                    hora: btn.dataset.hora
-                };
-                try {
-                    sessionStorage.setItem('preReservaSeleccion', JSON.stringify(payload));
-                } catch (e) {
-                    // no pasa nada si el navegador no permite storage
+
+        <!-- Información adicional -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: var(--fitness-primary);">
+                            <i class="fas fa-lightbulb me-2"></i>¿Cómo reservar?
+                        </h5>
+                        <ol class="mb-0">
+                            <li>Encuentra la clase en el horario</li>
+                            <li>Haz clic en "Reservar"</li>
+                            <li>Confirma en tu panel de socio</li>
+                            <li>¡Listo! Recibirás un correo de confirmación</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: var(--fitness-primary);">
+                            <i class="fas fa-clock me-2"></i>Política de cancelación
+                        </h5>
+                        <p class="mb-2">Puedes cancelar tu reserva hasta 2 horas antes de la clase.</p>
+                        <p class="mb-0">Las cancelaciones tardías pueden afectar a futuras reservas.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: var(--fitness-primary);">
+                            <i class="fas fa-question-circle me-2"></i>¿Necesitas ayuda?
+                        </h5>
+                        <p class="mb-2">¿Problemas para reservar o dudas sobre las clases?</p>
+                        <a href="#" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-headset me-1"></i>Contactar con soporte
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const SELECCION_KEY = 'preReservaSeleccion';
+            const dayCells = document.querySelectorAll('.day-slot');
+
+            function clearSelection() {
+                dayCells.forEach(c => c.classList.remove('selected-cell'));
+            }
+
+            function highlightSelection(dia, hora) {
+                clearSelection();
+                if (!dia || !hora) return;
+                const cell = document.querySelector(`.day-slot[data-dia="${dia}"][data-hora="${hora}"]`);
+                if (cell) {
+                    cell.classList.add('selected-cell');
+                    cell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 }
+            }
+
+            // Restaurar selección previa
+            try {
+                const stored = sessionStorage.getItem(SELECCION_KEY);
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    highlightSelection(data.dia, data.hora);
+                }
+            } catch (error) {
+                console.warn('No se pudo restaurar la selección previa', error);
+            }
+
+            // Guardar pre-reserva y marcar celda
+            document.querySelectorAll('.btn-reserve').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const payload = {
+                        claseId: btn.dataset.clase,
+                        dia: btn.dataset.dia,
+                        hora: btn.dataset.hora
+                    };
+                    try {
+                        sessionStorage.setItem(SELECCION_KEY, JSON.stringify(payload));
+                        highlightSelection(payload.dia, payload.hora);
+
+                        // Feedback visual
+                        const originalText = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-check me-1"></i>¡Reservado!';
+                        btn.classList.add('btn-success');
+                        btn.classList.remove('btn-reserve');
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.classList.remove('btn-success');
+                            btn.classList.add('btn-reserve');
+                        }, 2000);
+                    } catch (error) {
+                        console.error('Error al guardar pre-reserva:', error);
+                    }
+                });
+            });
+
+            // Filtros
+            const filterType = document.getElementById('filter-type');
+            const filterInstructor = document.getElementById('filter-instructor');
+
+            function filterClasses() {
+                const selectedType = filterType.value;
+                const selectedInstructor = filterInstructor.value;
+                
+                document.querySelectorAll('.class-card').forEach(card => {
+                    let show = true;
+                    
+                    // Filtrar por tipo
+                    if (selectedType !== 'all') {
+                        const cardType = card.classList.contains(selectedType);
+                        if (!cardType) show = false;
+                    }
+                    
+                    // Filtrar por instructor (esto sería dinámico)
+                    // Aquí necesitarías lógica adicional para filtrar por instructor
+                    
+                    if (show) {
+                        card.style.display = 'block';
+                        card.style.animation = 'fadeIn 0.5s ease forwards';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            filterType.addEventListener('change', filterClasses);
+            filterInstructor.addEventListener('change', filterClasses);
+
+            // Destacar el día actual
+            const todayCells = document.querySelectorAll('.today-cell');
+            todayCells.forEach(cell => {
+                cell.style.boxShadow = 'inset 0 0 0 2px var(--fitness-accent)';
             });
         });
-    });
-</script>
+    </script>
+</div>
 </body>
 </html>

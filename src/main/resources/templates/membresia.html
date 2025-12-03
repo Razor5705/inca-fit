@@ -24,6 +24,16 @@
                         <span th:text="${successMessage}">Membresia renovada</span>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+                    <div th:if="${pagoPendiente}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="fas fa-hourglass-half me-2"></i>
+                        <span th:text="${mensajePasarela != null ? mensajePasarela : 'Pago pendiente de confirmación.'}">Pago pendiente.</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div th:if="${pagoExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check me-2"></i>
+                        <span th:text="${mensajePasarela != null ? mensajePasarela : 'Pago confirmado.'}">Pago confirmado.</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
 
                     <div th:if="${socio.membresia != null}">
                         <div class="row mb-4">
@@ -119,6 +129,9 @@
                     <div class="d-grid gap-3 d-md-flex justify-content-md-end">
                         <a th:href="@{/socio/membresia/renovar}" class="btn btn-primary">
                             <i class="fas fa-sync-alt me-2"></i>Renovar membresia
+                        </a>
+                        <a th:href="@{/socio/membresia/renovar(cambio=true)}" class="btn btn-outline-primary">
+                            <i class="fas fa-exchange-alt me-2"></i>Cambiar de plan (iniciar hoy)
                         </a>
                     </div>
                 </div>

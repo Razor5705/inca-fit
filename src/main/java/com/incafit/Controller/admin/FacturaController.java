@@ -1,6 +1,7 @@
 package com.incafit.Controller.admin;
 
 import com.incafit.Model.Factura;
+import com.incafit.Model.Pago;
 import com.incafit.Repository.FacturaRepository;
 import com.incafit.Repository.SocioRepository;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,8 @@ public class FacturaController {
     @GetMapping
     public String listarFacturas(Model model) {
         List<Factura> facturas = facturaRepository.findAll();
+        facturas.forEach(this::refrescarEstadoSegunPagos);
+        facturaRepository.saveAll(facturas);
         model.addAttribute("facturas", facturas);
         return "admin/facturas/lista";
     }
@@ -42,6 +45,8 @@ public class FacturaController {
     public String verFactura(@PathVariable Long id, Model model) {
         Factura factura = facturaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+        refrescarEstadoSegunPagos(factura);
+        facturaRepository.save(factura);
         model.addAttribute("factura", factura);
         return "admin/facturas/detalle";
     }
@@ -84,6 +89,7 @@ public class FacturaController {
         
         try {
             factura.setId(id);
+            refrescarEstadoSegunPagos(factura);
             facturaRepository.save(factura);
             redirectAttributes.addFlashAttribute("successMessage", "Factura actualizada exitosamente");
         } catch (Exception e) {
@@ -96,11 +102,37 @@ public class FacturaController {
     @PostMapping("/eliminar/{id}")
     public String eliminarFactura(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            facturaRepository.deleteById(id);
+            Factura factura = facturaRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+            refrescarEstadoSegunPagos(factura);
+            if ("PAGADA".equalsIgnoreCase(factura.getEstado())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "No se puede eliminar una factura pagada. Marca pendiente o cancela primero.");
+                return "redirect:/admin/facturas";
+            }
+            facturaRepository.delete(factura);
             redirectAttributes.addFlashAttribute("successMessage", "Factura eliminada exitosamente");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar la factura: " + e.getMessage());
         }
         return "redirect:/admin/facturas";
+    }
+
+    private void refrescarEstadoSegunPagos(Factura factura) {
+        if (factura == null || factura.getPagos() == null) {
+            return;
+        }
+        double pagado = factura.getPagos().stream()
+                .mapToDouble(Pago::getMontoPagado)
+                .sum();
+        double total = factura.getTotal() != null ? factura.getTotal().doubleValue() : 0.0;
+        String estadoCalculado;
+        if (pagado >= total && total > 0) {
+            estadoCalculado = "PAGADA";
+        } else if (pagado > 0 && pagado < total) {
+            estadoCalculado = "PENDIENTE";
+        } else {
+            estadoCalculado = factura.getEstado() != null ? factura.getEstado() : "PENDIENTE";
+        }
+        factura.setEstado(estadoCalculado);
     }
 }

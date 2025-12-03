@@ -14,6 +14,7 @@ public interface FacturaService {
     void pagarFactura(Long id, String metodoPago);
     List<Factura> obtenerFacturasPorSocio(Socio socio);
     Factura obtenerFacturaPorId(Long id);
+    void eliminarFactura(Long id, Socio socio);
 
     List<Factura> obtenerTodasFacturas();
     List<Factura> obtenerFacturasPorEstado(String estado);

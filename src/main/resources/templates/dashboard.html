@@ -33,6 +33,9 @@
                     <a href="#reservas" class="list-group-item list-group-item-action active">
                         <i class="fas fa-calendar-check me-2"></i>Mis Reservas
                     </a>
+                    <a th:href="@{/socio/clases}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-dumbbell me-2"></i>Ver Clases
+                    </a>
                     <a th:href="@{/socio/membresia}" class="list-group-item list-group-item-action">
                         <i class="fas fa-id-card me-2"></i>Mi Membresía
                     </a>
@@ -78,7 +81,7 @@
                             </h2>
                             <p class="text-muted mb-0">Aquí puedes gestionar todas tus actividades en el gimnasio</p>
                             <div class="mt-2">
-                                <a th:href="@{/socio/reservas/nueva}" class="btn btn-sm btn-outline-primary me-2">
+                                <a th:href="@{/socio/reservas}" class="btn btn-sm btn-outline-primary me-2">
                                     <i class="fas fa-plus-circle me-1"></i> Nueva reserva
                                 </a>
                                 <a th:href="@{/socio/reservas/calendario}" class="btn btn-sm btn-outline-secondary">
@@ -197,7 +200,7 @@
                         </table>
                     </div>
                     <div class="text-center mt-3">
-                        <a th:href="@{/socio/reservas/nueva}" class="btn btn-primary">
+                        <a th:href="@{/socio/reservas}" class="btn btn-primary">
                             <i class="fas fa-plus me-1"></i> Nueva Reserva
                         </a>
                     </div>
@@ -215,6 +218,12 @@
                         <div class="col-md-8">
                             <h6 th:text="${'Plan ' + (socio.membresia?.tipoMembresia ?: 'Mensual')}">Plan Premium</h6>
                             <p class="text-muted" th:text="${socio.membresia?.descripcion ?: 'Acceso ilimitado a todas las clases y áreas del gimnasio'}">Acceso ilimitado a todas las clases y áreas del gimnasio</p>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <span class="badge bg-light text-primary border"
+                                      th:text="${'Inicio: ' + (socio.fechaInicioMembresia != null ? #temporals.format(socio.fechaInicioMembresia, 'dd/MM/yyyy') : '--/--/----')}">Inicio: --/--/----</span>
+                                <span class="badge bg-light text-primary border"
+                                      th:text="${'Fin: ' + (socio.fechaFinMembresia != null ? #temporals.format(socio.fechaFinMembresia, 'dd/MM/yyyy') : '--/--/----')}">Fin: --/--/----</span>
+                            </div>
                             <ul class="list-unstyled">
                                 <li><i class="fas fa-check text-success me-2"></i> Acceso a todas las clases</li>
                                 <li><i class="fas fa-check text-success me-2"></i> Área de cardio y pesas</li>
@@ -246,16 +255,16 @@
             </div>
 
             <div id="facturas" class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-dumbbell fa-3x text-primary mb-3"></i>
-                            <h5>Nueva Reserva</h5>
-                            <p class="text-muted">Reserva tu próxima clase</p>
-                            <a th:href="@{/socio/reservas/nueva}" class="btn btn-primary">Reservar Clase</a>
+                        <div class="col-md-6 mb-3">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-dumbbell fa-3x text-primary mb-3"></i>
+                                    <h5>Nueva Reserva</h5>
+                                    <p class="text-muted">Reserva tu próxima clase</p>
+                                    <a th:href="@{/socio/reservas}" class="btn btn-primary">Ir a Reservas</a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
                 <div class="col-md-6 mb-3">
                     <div class="card shadow-sm h-100">
                         <div class="card-body text-center">

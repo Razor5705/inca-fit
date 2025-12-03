@@ -4,7 +4,8 @@
 <!-- src/main/resources/templates/fragments/admin-sidebar.html -->
 <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" th:fragment="sidebar">
   <div class="position-sticky pt-3">
-    <ul class="nav flex-column">
+    <div class="px-3 text-uppercase text-muted fw-semibold small mb-2">General</div>
+    <ul class="nav flex-column mb-3">
       <li class="nav-item">
         <a class="nav-link" th:href="@{/admin}">
           <i class="fas fa-tachometer-alt me-2"></i>
@@ -18,21 +19,19 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" th:href="@{/admin/clases}">
-          <i class="fas fa-dumbbell me-2"></i>
-          Clases
-        </a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" th:href="@{/admin/instructores}">
           <i class="fas fa-chalkboard-teacher me-2"></i>
           Instructores
         </a>
       </li>
+    </ul>
+
+    <div class="px-3 text-uppercase text-muted fw-semibold small mb-2">Operaciones</div>
+    <ul class="nav flex-column mb-3">
       <li class="nav-item">
-        <a class="nav-link" th:href="@{/admin/membresias}">
-          <i class="fas fa-id-card me-2"></i>
-          Membresías
+        <a class="nav-link" th:href="@{/admin/clases}">
+          <i class="fas fa-dumbbell me-2"></i>
+          Clases
         </a>
       </li>
       <li class="nav-item">
@@ -42,21 +41,31 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" th:href="@{/admin/facturas}">
-          <i class="fas fa-file-invoice me-2"></i>
-          Facturas
-        </a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" th:href="@{/admin/asistencias}">
           <i class="fas fa-clipboard-check me-2"></i>
           Asistencias
         </a>
       </li>
     </ul>
-    
+
+    <div class="px-3 text-uppercase text-muted fw-semibold small mb-2">Finanzas</div>
+    <ul class="nav flex-column mb-3">
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/admin/membresias}">
+          <i class="fas fa-id-card me-2"></i>
+          Membresías
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/admin/facturas}">
+          <i class="fas fa-file-invoice me-2"></i>
+          Facturas
+        </a>
+      </li>
+    </ul>
+
     <hr class="my-3">
-    
+
     <ul class="nav flex-column">
       <li class="nav-item">
         <a class="nav-link text-muted" th:href="@{/dashboard}">

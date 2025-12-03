@@ -70,9 +70,24 @@ public class SocioMembresiaController {
     }
 
     @GetMapping("/membresia/renovar")
-    public String mostrarRenovacionMembresia(Model model, Authentication authentication) {
+    public String mostrarRenovacionMembresia(@RequestParam(value = "cambio", required = false) Boolean cambio,
+                                             Model model,
+                                             Authentication authentication,
+                                             RedirectAttributes redirectAttributes) {
         Socio socio = socioService.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
+
+        boolean facturaHoy = facturaRepository.findBySocio(socio).stream()
+                .anyMatch(f -> f.getFecha() != null
+                        && f.getFecha().isEqual(LocalDate.now())
+                        && !"CANCELADA".equalsIgnoreCase(f.getEstado()));
+        if (facturaHoy) {
+            redirectAttributes.addFlashAttribute("pagoError",
+                    "Ya registraste una renovaci�n hoy. Espera a que termine el proceso antes de volver a intentarlo.");
+            return "redirect:/socio/membresia";
+        }
+
+        Factura facturaPendiente = obtenerFacturaPendiente(socio);
 
         List<Membresia> planes = membresiaService.findAll();
         if (planes.isEmpty()) {
@@ -88,7 +103,8 @@ public class SocioMembresiaController {
                 .findFirst()
                 .orElse(planes.get(0));
 
-        LocalDate inicioRenovacion = calcularInicioRenovacion(socio);
+        boolean esCambioPlan = Boolean.TRUE.equals(cambio);
+        LocalDate inicioRenovacion = esCambioPlan ? LocalDate.now() : calcularInicioRenovacion(socio);
         LocalDate finEstimada = calcularFinRenovacion(inicioRenovacion, membresiaSeleccionada.getDuracionDias());
         ResumenPago resumenPago = construirResumenPago(membresiaSeleccionada, socio);
 
@@ -103,6 +119,7 @@ public class SocioMembresiaController {
         model.addAttribute("renovacionInicioTexto", inicioRenovacion.format(DATE_FORMATTER));
         model.addAttribute("renovacionFinTexto", finEstimada.format(DATE_FORMATTER));
         model.addAttribute("diasRestantes", calcularDiasRestantes(socio));
+        model.addAttribute("facturaPendiente", facturaPendiente);
         model.addAttribute("metodosPagoDisponibles", List.of(
                 METODO_TARJETA_GUARDADA,
                 METODO_TARJETA_NUEVA,
@@ -113,11 +130,13 @@ public class SocioMembresiaController {
         model.addAttribute("igvRate", IGV_RATE);
         model.addAttribute("descuentoRate", aplicaDescuentoFidelidad(socio) ? DESCUENTO_FIDELIDAD : BigDecimal.ZERO);
         model.addAttribute("descuentoActivo", aplicaDescuentoFidelidad(socio));
+        model.addAttribute("esCambioPlan", esCambioPlan);
         return "socio/membresia/renovar";
     }
 
     @PostMapping("/membresia/renovar")
     public String renovarMembresia(@RequestParam("membresiaId") Long membresiaId,
+                                   @RequestParam(value = "cambio", required = false) Boolean cambio,
                                    @RequestParam(value = "metodoPago", required = false, defaultValue = "Tarjeta guardada") String metodoPago,
                                    @RequestParam(value = "titularTarjeta", required = false) String titularTarjeta,
                                    @RequestParam(value = "numeroTarjeta", required = false) String numeroTarjeta,
@@ -128,13 +147,31 @@ public class SocioMembresiaController {
         Socio socio = socioService.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
 
+        boolean facturaHoy = facturaRepository.findBySocio(socio).stream()
+                .anyMatch(f -> f.getFecha() != null
+                        && f.getFecha().isEqual(LocalDate.now())
+                        && !"CANCELADA".equalsIgnoreCase(f.getEstado()));
+        if (facturaHoy) {
+            redirectAttributes.addFlashAttribute("pagoError",
+                    "Ya registraste una renovaci�n hoy. Espera a que termine el proceso antes de volver a intentarlo.");
+            return "redirect:/socio/membresia";
+        }
+
+        Factura facturaPendiente = obtenerFacturaPendiente(socio);
+
+        if (facturaPendiente != null) {
+            redirectAttributes.addFlashAttribute("pagoError", "Tienes una factura pendiente (ID " + facturaPendiente.getId() + "). Anúlala antes de renovar.");
+            return "redirect:/socio/membresia/renovar";
+        }
+
         redirectAttributes.addFlashAttribute("metodoSeleccionado", metodoPago);
         redirectAttributes.addFlashAttribute("titularTarjeta", titularTarjeta);
 
         Membresia nuevaMembresia = membresiaService.findById(membresiaId)
                 .orElseThrow(() -> new RuntimeException("La membresia seleccionada no existe"));
 
-        LocalDate inicio = calcularInicioRenovacion(socio);
+        boolean esCambioPlan = Boolean.TRUE.equals(cambio);
+        LocalDate inicio = esCambioPlan ? LocalDate.now() : calcularInicioRenovacion(socio);
         LocalDate fin = calcularFinRenovacion(inicio, nuevaMembresia.getDuracionDias());
         ResumenPago resumenPago = construirResumenPago(nuevaMembresia, socio);
 
@@ -147,7 +184,8 @@ public class SocioMembresiaController {
             }
         }
 
-        PasarelaResult resultadoPasarela = simularPasarela(metodoPago, numeroTarjeta);
+        String numeroNormalizado = numeroTarjeta != null ? numeroTarjeta.replaceAll("\\D", "") : null;
+        PasarelaResult resultadoPasarela = simularPasarela(metodoPago, numeroNormalizado);
         if (resultadoPasarela.estado == EstadoPasarela.ERROR) {
             redirectAttributes.addFlashAttribute("pagoError", resultadoPasarela.mensaje);
             return "redirect:/socio/membresia/renovar";
@@ -199,7 +237,26 @@ public class SocioMembresiaController {
                 "fin", fin.format(DATE_FORMATTER),
                 "metodo", metodoPago
         ));
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Renovación registrada: " + nuevaMembresia.getNombre() + " hasta " + fin.format(DATE_FORMATTER));
 
+        return "redirect:/socio/membresia";
+    }
+
+    @PostMapping("/membresia/cancelar-pendiente")
+    public String cancelarFacturaPendiente(Authentication authentication, RedirectAttributes redirectAttributes) {
+        Socio socio = socioService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
+
+        Factura facturaPendiente = obtenerFacturaPendiente(socio);
+
+        if (facturaPendiente == null) {
+            redirectAttributes.addFlashAttribute("pagoError", "No tienes facturas pendientes que cancelar.");
+        } else {
+            facturaPendiente.setEstado("CANCELADA");
+            facturaRepository.save(facturaPendiente);
+            redirectAttributes.addFlashAttribute("successMessage", "Factura pendiente cancelada.");
+        }
         return "redirect:/socio/membresia/renovar";
     }
 
@@ -250,16 +307,23 @@ public class SocioMembresiaController {
         if (numero == null || numero.trim().isEmpty()) {
             errores.add("El numero de tarjeta es obligatorio.");
         } else {
-            String normalizado = numero.replaceAll("\\s", "");
-            if (!normalizado.matches("\\d{16}")) {
-                errores.add("El numero de tarjeta debe contener 16 digitos.");
+            String normalizado = numero.replaceAll("\\D", "");
+            if (normalizado.length() != 16) {
+                errores.add("El numero de tarjeta debe tener 16 digitos.");
             }
         }
-        if (fecha == null || !fecha.matches("\\d{2}/\\d{2}")) {
-            errores.add("La fecha debe tener el formato MM/YY.");
+        if (fecha == null || fecha.trim().isEmpty()) {
+            errores.add("La fecha de expiracion es obligatoria.");
+        } else {
+            String fechaNormalizada = fecha.trim();
+            if (!fechaNormalizada.matches("\\d{2}/\\d{2}(\\d{2})?")) {
+                errores.add("La fecha debe tener el formato MM/YY.");
+            }
         }
-        if (cvv == null || !cvv.matches("\\d{3}")) {
-            errores.add("El CVV debe tener 3 digitos.");
+        if (cvv == null || cvv.trim().isEmpty()) {
+            errores.add("El CVV es obligatorio.");
+        } else if (!cvv.trim().matches("\\d{3,4}")) {
+            errores.add("El CVV debe tener 3 o 4 digitos.");
         }
         return errores;
     }
@@ -294,6 +358,13 @@ public class SocioMembresiaController {
         return new PasarelaResult(EstadoPasarela.ERROR, null, "Metodo de pago no soportado.");
     }
 
+    private Factura obtenerFacturaPendiente(Socio socio) {
+        return facturaRepository.findBySocioAndEstado(socio, "PENDIENTE")
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
     private void pausarPasarela() {
         try {
             Thread.sleep(1400);
@@ -320,3 +391,6 @@ public class SocioMembresiaController {
         }
     }
 }
+
+
+

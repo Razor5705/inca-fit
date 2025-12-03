@@ -68,8 +68,9 @@
                       <i class="fas fa-edit"></i>
                     </a>
                     <form th:action="@{/admin/facturas/eliminar/{id}(id=${factura.id})}" method="post" style="display: inline;">
-                      <button type="submit" class="btn btn-sm btn-danger" 
-                              onclick="return confirm('¿Estás seguro de eliminar esta factura?')">
+                      <button type="submit" class="btn btn-sm btn-danger"
+                              th:disabled="${factura.estado == 'PAGADA'}"
+                              onclick="return confirm('¿Estás seguro de eliminar esta factura? Solo facturas no pagadas.');">
                         <i class="fas fa-trash"></i>
                       </button>
                     </form>

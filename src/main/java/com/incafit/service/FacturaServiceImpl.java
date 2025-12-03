@@ -103,6 +103,16 @@ public class FacturaServiceImpl implements FacturaService {
         return facturaRepository.findBySocio(socio);
     }
 
+    @Override
+    public void eliminarFactura(Long id, Socio socio) {
+        Factura factura = facturaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+        if (factura.getSocio() == null || socio == null || !factura.getSocio().getId().equals(socio.getId())) {
+            throw new RuntimeException("No puedes eliminar una factura que no te pertenece.");
+        }
+        facturaRepository.delete(factura);
+    }
+
     public class FacturaNoEncontradaException extends RuntimeException {
         public FacturaNoEncontradaException(Long id) {
             super("Factura no encontrada con ID: " + id);

@@ -8,10 +8,10 @@
 <body>
 <div layout:fragment="content" class="container-fluid py-5" style="background-color: #f8f9fa;">
     <div class="container my-5">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <div>
-                <h2 class="mb-0">Mis Reservas</h2>
-                <p class="text-muted small mb-0">Aquí ves tus clases confirmadas y puedes cancelarlas si lo necesitas.</p>
+                <h2 class="mb-1">Mis Reservas</h2>
+                <p class="text-muted small mb-0">Confirma, cancela o agenda tu siguiente clase desde un solo lugar.</p>
             </div>
             <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2" th:text="${#lists.size(reservas)} + ' reservas'">0 reservas</span>
         </div>
@@ -20,11 +20,11 @@
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
         <div class="d-flex flex-column flex-md-row gap-2 mb-3">
-            <a th:href="@{/socio/reservas/nueva}" class="btn btn-primary">
-                <i class="fas fa-plus-circle me-1"></i>Nueva Reserva
+            <a th:href="@{/socio/reservas}" class="btn btn-primary">
+                <i class="fas fa-calendar-check me-1"></i>Panel de reservas
             </a>
             <a th:href="@{/socio/reservas/calendario}" class="btn btn-outline-primary">
-                <i class="fas fa-calendar-alt me-1"></i>Ver Calendario
+                <i class="fas fa-calendar-alt me-1"></i>Ver calendario interactivo
             </a>
         </div>
 
@@ -41,7 +41,7 @@
             <tbody>
             <tr th:if="${#lists.isEmpty(reservas)}">
                 <td colspan="5" class="text-center py-4 text-muted">
-                    No tienes reservas todavía. Empieza creando una desde <a th:href="@{/socio/reservas/nueva}">Nueva Reserva</a>.
+                    No tienes reservas todavía. Crea tu primera desde el <a th:href="@{/socio/reservas/calendario}">calendario</a> o el panel de reservas.
                 </td>
             </tr>
             <tr th:each="reserva : ${reservas}" class="border-top">

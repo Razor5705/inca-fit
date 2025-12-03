@@ -1,5 +1,7 @@
 package com.incafit.Model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,8 +12,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.EnumSet;
+import java.util.Set;
 
 
 @Entity
@@ -22,12 +27,12 @@ public class Clase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre de la clase no puede estar vacío")
+    @NotBlank(message = "El nombre de la clase no puede estar vacio")
     private String nombre;
 
     private String descripcion;
 
-    @Min(value = 1, message = "La capacidad máxima debe ser al menos 1")
+    @Min(value = 1, message = "La capacidad maxima debe ser al menos 1")
     private int capacidadMaxima;
 
     @ManyToOne
@@ -36,10 +41,14 @@ public class Clase {
 
     private LocalTime hora;
     private int duracionMinutos;
+
+    @Convert(converter = DiaSemanaConverter.class)
+    @Column(name = "dias_semana")
+    private Set<DayOfWeek> diasSemana = EnumSet.noneOf(DayOfWeek.class);
     
-    private boolean activo = true; // Por defecto las clases están activas
+    private boolean activo = true; // Por defecto las clases estan activas
     
-    // Campos nuevos para clases con duración limitada
+    // Campos nuevos para clases con duracion limitada
     private LocalDate fechaInicio; // Fecha de inicio de la clase (para clases limitadas)
     private LocalDate fechaFin; // Fecha de fin de la clase (para clases limitadas)
     
@@ -126,6 +135,21 @@ public class Clase {
     public void setDuracionMinutos(int duracionMinutos) {
         this.duracionMinutos = duracionMinutos;
     }
+
+    public Set<DayOfWeek> getDiasSemana() {
+        if (diasSemana == null) {
+            diasSemana = EnumSet.noneOf(DayOfWeek.class);
+        }
+        return diasSemana;
+    }
+
+    public void setDiasSemana(Set<DayOfWeek> diasSemana) {
+        if (diasSemana == null || diasSemana.isEmpty()) {
+            this.diasSemana = EnumSet.noneOf(DayOfWeek.class);
+        } else {
+            this.diasSemana = EnumSet.copyOf(diasSemana);
+        }
+    }
     
     public boolean isActivo() {
         return activo;
@@ -159,7 +183,7 @@ public class Clase {
         this.precioAdicional = precioAdicional;
     }
     
-    // Métodos de utilidad
+    // Metodos de utilidad
     public boolean isVigente() {
         if (fechaInicio == null || fechaFin == null) {
             return true; // Si no tiene fechas, es permanente

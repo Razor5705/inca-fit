@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -96,6 +97,19 @@ public class SocioReservaController {
     public List<Map<String, Object>> obtenerEventosCalendario() {
         List<Clase> clases = claseService.obtenerTodasLasClases();
         return generarEventosParaClases(clases);
+    }
+
+    @GetMapping("/clases")
+    public String verClases(Model model) {
+        List<Clase> clases = claseService.obtenerTodasLasClases();
+        Map<Long, String> diasTexto = new HashMap<>();
+        for (Clase clase : clases) {
+            diasTexto.put(clase.getId(), claseHorarioService.diasComoTexto(clase.getId(), LOCALE_ES));
+        }
+        model.addAttribute("clases", clases);
+        model.addAttribute("horasClases", construirMapaHoras(clases));
+        model.addAttribute("diasTexto", diasTexto);
+        return "socio/reservas/clases";
     }
 
     @GetMapping("/reservas/nueva")
@@ -228,6 +242,60 @@ public class SocioReservaController {
         return "redirect:/socio/facturas";
     }
 
+    @PostMapping("/facturas/{id}/eliminar")
+    public String eliminarFactura(@PathVariable Long id, RedirectAttributes redirect) {
+        try {
+            Socio socio = obtenerSocioActual();
+            facturaService.eliminarFactura(id, socio);
+            redirect.addFlashAttribute("success", "Factura eliminada correctamente.");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", "No se pudo eliminar la factura: " + e.getMessage());
+        }
+        return "redirect:/socio/facturas";
+    }
+
+    @GetMapping("/facturas/{id}/descargar")
+    public org.springframework.http.ResponseEntity<byte[]> descargarFactura(@PathVariable Long id) {
+        Socio socio = obtenerSocioActual();
+        Factura factura = facturaService.obtenerFacturasPorSocio(socio).stream()
+                .filter(f -> f.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Factura no encontrada o no pertenece al socio."));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Factura #").append(factura.getId()).append(System.lineSeparator());
+        sb.append("Fecha: ").append(factura.getFecha()).append(System.lineSeparator());
+        sb.append("Estado: ").append(factura.getEstado()).append(System.lineSeparator());
+        sb.append("Total: ").append(factura.getTotal()).append(System.lineSeparator()).append(System.lineSeparator());
+
+        sb.append("Conceptos:").append(System.lineSeparator());
+        if (factura.getDetalles() != null && !factura.getDetalles().isEmpty()) {
+            factura.getDetalles().forEach(d -> sb.append("- ")
+                    .append(d.getDescripcion()).append(" | Cantidad: ").append(d.getCantidad())
+                    .append(" | Precio: ").append(d.getPrecioUnitario())
+                    .append(" | Subtotal: ").append(d.getSubtotal())
+                    .append(System.lineSeparator()));
+        } else {
+            sb.append("- Sin conceptos").append(System.lineSeparator());
+        }
+
+        sb.append(System.lineSeparator()).append("Pagos:").append(System.lineSeparator());
+        if (factura.getPagos() != null && !factura.getPagos().isEmpty()) {
+            factura.getPagos().forEach(p -> sb.append("- ")
+                    .append(p.getFechaPago()).append(" | ").append(p.getMetodoPago())
+                    .append(" | Importe: ").append(p.getMontoPagado())
+                    .append(System.lineSeparator()));
+        } else {
+            sb.append("- Sin pagos registrados").append(System.lineSeparator());
+        }
+
+        byte[] bytes = sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        return org.springframework.http.ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=factura-" + factura.getId() + ".txt")
+                .contentType(org.springframework.http.MediaType.TEXT_PLAIN)
+                .body(bytes);
+    }
+
     // En SocioReservaController
     private Socio obtenerSocioActual() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -268,9 +336,9 @@ public class SocioReservaController {
                 })
                 .collect(Collectors.joining(", "));
         if (clase.getHora() != null) {
-            return diasTexto + " · " + clase.getHora().format(TIME_FORMATTER) + " h";
+            return diasTexto + " - " + clase.getHora().format(TIME_FORMATTER) + " h";
         }
-        return diasTexto + " · Horario sin definir";
+        return diasTexto + " - Horario sin definir";
     }
 
     private Map<Long, String> construirMapaHoras(List<Clase> clases) {
@@ -359,14 +427,15 @@ public class SocioReservaController {
         }
 
         for (Clase clase : clases) {
-            if (clase.getHora() == null || !clase.isActivo() || !clase.isVigente()) {
-                continue;
-            }
-            horasRegistradas.add(clase.getHora());
+            LocalTime horaSlot = clase.getHora() != null ? clase.getHora() : LocalTime.MIDNIGHT;
+            horasRegistradas.add(horaSlot);
             Set<DayOfWeek> diasPermitidos = claseHorarioService.obtenerDiasPermitidos(clase.getId());
+            if (diasPermitidos == null || diasPermitidos.isEmpty()) {
+                diasPermitidos = EnumSet.copyOf(DIAS_SEMANA);
+            }
             for (DayOfWeek dia : diasPermitidos) {
                 Map<LocalTime, List<Clase>> horasPorDia = matriz.computeIfAbsent(dia, d -> new TreeMap<>());
-                horasPorDia.computeIfAbsent(clase.getHora(), h -> new ArrayList<>()).add(clase);
+                horasPorDia.computeIfAbsent(horaSlot, h -> new ArrayList<>()).add(clase);
             }
         }
 

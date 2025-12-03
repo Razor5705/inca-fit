@@ -11,9 +11,8 @@ import java.util.List;
 
 public interface FacturaRepository extends JpaRepository<Factura, Long> {
     List<Factura> findBySocio(Socio socio);
-
-    // Métodos adicionales necesarios
     List<Factura> findByEstado(String estado);
+    List<Factura> findBySocioAndEstado(Socio socio, String estado);
 
     @Query("SELECT f FROM Factura f WHERE f.estado = :estado AND f.fecha BETWEEN :inicio AND :fin")
     List<Factura> findByEstadoAndFechaBetween(
@@ -21,4 +20,3 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
             @Param("inicio") LocalDate inicio,
             @Param("fin") LocalDate fin);
 }
-

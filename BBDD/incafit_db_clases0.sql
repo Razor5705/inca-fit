@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: incafit_db
 -- ------------------------------------------------------
--- Server version 8.0.40
+-- Server version	8.0.40
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -47,20 +47,8 @@ CREATE TABLE `clases` (
 
 LOCK TABLES `clases` WRITE;
 /*!40000 ALTER TABLE `clases` DISABLE KEYS */;
-INSERT INTO `clases` VALUES
-(1,'Yoga','Clase de relajacion y flexibilidad',20,6,'15:45:00',60,NULL,_binary '',NULL,NULL,NULL),
-(2,'Spinning','Clase de ciclismo intenso',15,2,'18:00:00',45,NULL,_binary '',NULL,NULL,NULL),
-(3,'Pilates','Fortalecimiento del core y flexibilidad',12,6,'10:00:00',50,NULL,_binary '',NULL,NULL,NULL),
-(4,'HIIT','Entrenamiento de alta intensidad',10,2,'19:30:00',30,NULL,_binary '',NULL,NULL,NULL),
-(5,'Musculacion','Entrenamiento con pesas',8,3,'07:00:00',90,NULL,_binary '',NULL,NULL,NULL),
-(7,'Defensa Personal','Curso de defensa personal de 3 meses',15,2,'19:00:00',90,NULL,_binary '','2025-10-19','2026-01-17',25.00),
-(8,'Yoga','Clase de relajacion y flexibilidad',20,6,'18:30:00',60,NULL,_binary '',NULL,NULL,NULL),
-(9,'Spinning','Clase de ciclismo intenso',15,2,'18:00:00',45,NULL,_binary '',NULL,NULL,NULL),
-(10,'Pilates','Fortalecimiento del core y flexibilidad',12,6,'10:00:00',50,NULL,_binary '',NULL,NULL,NULL),
-(11,'HIIT','Entrenamiento de alta intensidad',10,2,'19:30:00',30,NULL,_binary '',NULL,NULL,NULL),
-(12,'Musculacion','Entrenamiento con pesas',8,3,'07:00:00',90,NULL,_binary '',NULL,NULL,NULL),
-(13,'Zumba','Baile y cardio',25,4,'20:00:00',60,NULL,_binary '',NULL,NULL,NULL),
-(14,'Defensa Personal','Curso de defensa personal de 3 meses',15,3,'19:00:00',90,NULL,_binary '','2025-10-19','2026-01-17',25.00);
+INSERT INTO `clases` VALUES (1,'Yoga','Clase de relajacion y flexibilidad',20,6,'15:45:00',60,'MONDAY,WEDNESDAY,FRIDAY',_binary '',NULL,NULL,NULL),(2,'Spinning','Clase de ciclismo intenso',15,2,'18:00:00',45,'TUESDAY,THURSDAY',_binary '',NULL,NULL,NULL),(3,'Pilates','Fortalecimiento del core y flexibilidad',12,6,'10:00:00',50,'MONDAY,WEDNESDAY',_binary '',NULL,NULL,NULL),(4,'HIIT','Entrenamiento de alta intensidad',10,2,'19:30:00',30,'TUESDAY,THURSDAY',_binary '',NULL,NULL,NULL),(5,'Musculacion','Entrenamiento con pesas',8,3,'07:00:00',90,'MONDAY,WEDNESDAY,FRIDAY',_binary '',NULL,NULL,NULL),(7,'Defensa Personal','Curso de defensa personal de 3 meses',15,2,'19:00:00',90,'MONDAY,WEDNESDAY,FRIDAY',_binary '','2025-10-19','2026-01-17',25.00),(8,'Yoga','Clase de relajacion y flexibilidad',20,6,'18:30:00',60,'TUESDAY,THURSDAY',_binary '',NULL,NULL,NULL),(9,'Spinning','Clase de ciclismo intenso',15,2,'18:00:00',45,'MONDAY,WEDNESDAY,FRIDAY',_binary '',NULL,NULL,NULL),(10,'Pilates','Fortalecimiento del core y flexibilidad',12,6,'10:00:00',50,'TUESDAY,THURSDAY',_binary '',NULL,NULL,NULL),(11,'HIIT','Entrenamiento de alta intensidad',10,2,'19:30:00',30,'MONDAY,WEDNESDAY,FRIDAY',_binary '',NULL,NULL,NULL),(12,'Musculacion','Entrenamiento con pesas',8,3,'07:00:00',90,'TUESDAY,THURSDAY',_binary '',NULL,NULL,NULL),(13,'Zumba','Baile y cardio',25,4,'20:00:00',60,'MONDAY,WEDNESDAY,FRIDAY',_binary '',NULL,NULL,NULL),(14,'Defensa Personal','Curso de defensa personal de 3 meses',15,3,'19:00:00',90,'MONDAY,WEDNESDAY,FRIDAY',_binary '','2025-10-19','2026-01-17',25.00);
+
 /*!40000 ALTER TABLE `clases` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -73,4 +61,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-13 18:42:43
+-- Dump completed on 2025-12-03 14:16:24

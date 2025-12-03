@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class EstadisticaService {
+    private static final Locale LOCALE_ES = Locale.forLanguageTag("es-ES");
+
     private final SocioService socioService;
     private final ReservaService reservaService;
     private final FacturaService facturaService;
@@ -95,7 +97,7 @@ public class EstadisticaService {
                 .filter(ym -> !ym.isBefore(inicio))
                 .collect(Collectors.groupingBy(ym -> ym, Collectors.counting()));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy", new Locale("es"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy", LOCALE_ES);
         List<String> labels = new ArrayList<>();
         List<Long> data = new ArrayList<>();
 
@@ -103,7 +105,7 @@ public class EstadisticaService {
             YearMonth periodo = inicio.plusMonths(i);
             String label = formatter.format(periodo);
             // Capitalizar primera letra
-            label = label.substring(0, 1).toUpperCase(new Locale("es")) + label.substring(1);
+            label = label.substring(0, 1).toUpperCase(LOCALE_ES) + label.substring(1);
             labels.add(label);
             data.add(conteoPorMes.getOrDefault(periodo, 0L));
         }
@@ -157,14 +159,14 @@ public class EstadisticaService {
                 .filter(entry -> !entry.getKey().isBefore(inicio))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy", new Locale("es"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy", LOCALE_ES);
         List<String> labels = new ArrayList<>();
         List<Double> data = new ArrayList<>();
 
         for (int i = 0; i < meses; i++) {
             YearMonth periodo = inicio.plusMonths(i);
             String label = formatter.format(periodo);
-            label = label.substring(0, 1).toUpperCase(new Locale("es")) + label.substring(1);
+            label = label.substring(0, 1).toUpperCase(LOCALE_ES) + label.substring(1);
             labels.add(label);
             BigDecimal monto = ingresosPorMes.getOrDefault(periodo, BigDecimal.ZERO);
             data.add(monto.setScale(2, RoundingMode.HALF_UP).doubleValue());
@@ -212,7 +214,6 @@ public class EstadisticaService {
         if (texto == null || texto.isEmpty()) {
             return "";
         }
-        Locale locale = new Locale("es");
-        return texto.substring(0, 1).toUpperCase(locale) + texto.substring(1);
+        return texto.substring(0, 1).toUpperCase(LOCALE_ES) + texto.substring(1);
     }
 }

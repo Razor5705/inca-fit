@@ -24,8 +24,8 @@
                             <label for="instructor" class="form-label">Instructor</label>
                             <select class="form-select" id="instructor" th:field="*{instructor}" required>
                                 <option value="">Seleccionar instructor...</option>
-                                <option th:each="instructor : ${instructores}" 
-                                        th:value="${instructor.id}" 
+                                <option th:each="instructor : ${instructores}"
+                                        th:value="${instructor.id}"
                                         th:text="${instructor.nombreCompleto}"></option>
                             </select>
                         </div>
@@ -41,22 +41,41 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="duracionMinutos" class="form-label">Duración (minutos)</label>
+                            <label for="duracionMinutos" class="form-label">Duracion (minutos)</label>
                             <input type="number" class="form-control" id="duracionMinutos" th:field="*{duracionMinutos}" required>
                         </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Dias de la semana</label>
+                    <div class="d-flex flex-wrap">
+                        <div class="form-check me-3 mb-2" th:each="dia : ${diasSemana}">
+                            <input class="form-check-input" type="checkbox"
+                                   th:id="|dia-${dia}|"
+                                   th:value="${dia.name()}"
+                                   th:field="*{diasSemana}">
+                            <label class="form-check-label" th:for="|dia-${dia}|"
+                                   th:text="${#strings.capitalize(dia.getDisplayName(T(java.time.format.TextStyle).FULL, T(java.util.Locale).forLanguageTag('es-ES')))}">Lunes</label>
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <span th:if="${diasConfigurados != null}" th:text="|'Actual: ' + ${diasConfigurados}|">Actual: Lunes, Miercoles, Viernes</span>
+                        <span th:unless="${diasConfigurados != null}">Selecciona los dias en los que se imparte la clase. Si lo dejas vacio se usara Lunes-Viernes o la configuracion de clases.schedule.</span>
+                        <span th:if="${infoMessage != null}" class="d-block mt-1 text-muted" th:text="${infoMessage}"></span>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="capacidadMaxima" class="form-label">Capacidad Máxima</label>
+                            <label for="capacidadMaxima" class="form-label">Capacidad Maxima</label>
                             <input type="number" class="form-control" id="capacidadMaxima" th:field="*{capacidadMaxima}" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="descripcion" class="form-label">Descripción</label>
+                            <label for="descripcion" class="form-label">Descripcion</label>
                             <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="3"></textarea>
                         </div>
                     </div>
@@ -70,7 +89,7 @@
                                 <label class="form-check-label" for="activo">
                                     Clase Activa
                                 </label>
-                                <div class="form-text">Desmarca esta opción para desactivar temporalmente la clase</div>
+                                <div class="form-text">Desmarca esta opcion para desactivar temporalmente la clase</div>
                             </div>
                         </div>
                     </div>

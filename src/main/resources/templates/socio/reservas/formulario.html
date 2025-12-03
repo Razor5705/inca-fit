@@ -6,7 +6,9 @@
     <title>Nueva Reserva</title>
 </head>
 <body>
-<div layout:fragment="content" class="container-fluid py-5" style="background-color: #f8f9fa; min-height: 80vh;">
+<div layout:fragment="content"
+     th:with="locale=${T(java.util.Locale).forLanguageTag('es-ES')}"
+     class="container-fluid py-5" style="background-color: #f8f9fa; min-height: 80vh;">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card shadow-lg border-0 rounded-lg mt-5">
@@ -14,20 +16,29 @@
                     <h3 class="fw-light my-4">Crear Nueva Reserva</h3>
                 </div>
                 <div class="card-body p-4">
-                    <div th:if="${param.claseId != null}" class="alert alert-primary d-flex justify-content-between align-items-center">
+                    <div th:if="${param.claseId != null}" class="alert alert-primary d-flex align-items-center">
                         <div>
                             <strong>Reserva rapida:</strong>
-                            <span class="text-muted">Clase seleccionada desde el calendario (ID: </span><span th:text="${param.claseId}"></span><span class="text-muted">, hora: </span><span th:text="${param.hora}"></span><span class="text-muted">).</span>
+                            <div class="text-muted small mb-1">Clase seleccionada desde el calendario.</div>
+                            <div class="text-muted fw-semibold">
+                                <span th:if="${param.dia != null}"
+                                      th:text="${T(java.time.DayOfWeek).valueOf(param.dia[0]).getDisplayName(T(java.time.format.TextStyle).FULL, locale)}">Día</span>
+                                <span th:if="${param.hora != null}"
+                                      th:text="| · ${param.hora[0]}|">· 07:00</span>
+                            </div>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-dark" id="btnUsarSeleccion">Reservar ahora esta clase</button>
                     </div>
 
-                    <form th:action="@{/socio/reservas/guardar}" th:object="${reserva}" method="post">
+                                        <form th:action="@{/socio/reservas/guardar}" th:object="${reserva}" method="post">
                         <input type="hidden" id="fechaHora" th:field="*{fechaHora}">
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="fechaReserva" name="fechaReserva" required>
+                            <label for="fechaReserva">Fecha de la clase</label>
+                            <div class="form-text">Cambia el día si deseas otra fecha disponible.</div>
+                        </div>
 
-                        <div class="form-floating mb-2">
-                            <select class="form-select" id="claseId" name="claseId" required>
-                                <option value="">Selecciona una clase</option>
+                        <select class="d-none" id="claseId" name="claseId" required>
+                            <option value="">Selecciona una clase</option>
                                 <option th:each="clase : ${clases}"
                                         th:value="${clase.id}"
                                         th:data-hora="${horasClases[clase.id]}"
@@ -35,36 +46,28 @@
                                         th:data-dias="${diasPorClase[clase.id]}"
                                         th:data-inicio="${fechaInicioClases[clase.id]}"
                                         th:data-fin="${fechaFinClases[clase.id]}"
+                                        th:data-label="${clase.instructor != null ? clase.nombre + ' - ' + clase.instructor.nombreCompleto : clase.nombre + ' - Sin instructor'}"
                                         th:selected="${param.claseId != null and param.claseId[0] == ('' + clase.id)}"
                                         th:text="${clase.instructor != null ? clase.nombre + ' - ' + clase.instructor.nombreCompleto : clase.nombre + ' - Sin instructor'}">
                                     Nombre de la Clase
                                 </option>
                             </select>
-                            <label for="claseId">Clase</label>
+
+                        <div class="alert alert-light border mb-3">
+                            <div class="fw-semibold text-secondary">Clase seleccionada</div>
+                            <div id="claseResumen" class="text-muted">---</div>
+                            <div id="fechaResumen" class="text-muted small mt-1">Fecha sugerida: --/--/----</div>
                         </div>
+
                         <div id="infoHorario" class="alert alert-info py-2 px-3 small mb-3 d-none">
                             <strong>Horario:</strong>
                             <span id="infoHorarioTexto"></span>
                         </div>
+                        <div id="ayudaFecha" class="d-none"></div>
 
-                        <div class="form-floating mb-3">
-                            <input type="date" class="form-control" id="fechaReserva" name="fechaReserva" required>
-                            <label for="fechaReserva">Fecha</label>
-                            <div class="form-text" id="ayudaFecha">
-                                Selecciona una fecha disponible segun el calendario de la clase.
-                            </div>
-                        </div>
-
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="horaClase" placeholder="Hora de la clase" readonly>
-                            <label for="horaClase">Hora de la clase</label>
-                            <div class="form-text text-muted">
-                                La hora se asigna automaticamente según el horario de la clase seleccionada.
-                            </div>
-                        </div>
-
-                        <div class="d-grid mt-4">
+                        <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary-custom btn-lg">Confirmar Reserva</button>
+                            <a class="btn btn-outline-secondary" th:href="@{/socio/reservas/calendario}">Volver al horario</a>
                         </div>
                     </form>
                 </div>
@@ -81,12 +84,12 @@
     document.addEventListener('DOMContentLoaded', function () {
         const claseSelect = document.getElementById('claseId');
         const fechaInput = document.getElementById('fechaReserva');
-        const horaDisplay = document.getElementById('horaClase');
         const fechaHoraHidden = document.getElementById('fechaHora');
         const infoBox = document.getElementById('infoHorario');
         const infoText = document.getElementById('infoHorarioTexto');
         const ayudaFecha = document.getElementById('ayudaFecha');
-        const usarSeleccionBtn = document.getElementById('btnUsarSeleccion');
+        const claseResumen = document.getElementById('claseResumen');
+        const fechaResumen = document.getElementById('fechaResumen');
 
         const horasPorClase = {};
         const infoPorClase = {};
@@ -145,7 +148,6 @@
                 if (fechaInput.value < minCalculada || (fin && fechaInput.value > fin)) {
                     fechaInput.value = '';
                     fechaHoraHidden.value = '';
-                    horaDisplay.value = '';
                 }
             }
         }
@@ -205,6 +207,10 @@
                     fechaInput.value = sugerida;
                 }
             }
+            actualizarCampos();
+            if (fechaInput.value && horaPrefijada) {
+                fechaHoraHidden.value = fechaInput.value + 'T' + horaPrefijada;
+            }
         }
         aplicarSeleccionRapida();
         if (preReservaStorage.claseId) {
@@ -216,6 +222,7 @@
             const fecha = fechaInput.value;
             const hora = horaPrefijada || (claseId && horasPorClase[claseId] ? horasPorClase[claseId] : '');
             const info = claseId && infoPorClase[claseId] ? infoPorClase[claseId] : '';
+            const labelSeleccion = claseId ? (claseSelect.selectedOptions[0]?.dataset.label || claseSelect.selectedOptions[0]?.text || '') : '';
 
             if (claseParam && claseId !== claseParam) {
                 horaPrefijada = '';
@@ -223,13 +230,19 @@
 
             actualizarRestriccionesFecha(claseId);
 
-            horaDisplay.value = hora ? hora : '';
             if (info) {
                 infoText.textContent = info;
                 infoBox.classList.remove('d-none');
             } else {
                 infoText.textContent = '';
                 infoBox.classList.add('d-none');
+            }
+
+            if (claseResumen) {
+                claseResumen.textContent = labelSeleccion || 'Selecciona una clase desde el horario.';
+            }
+            if (fechaResumen) {
+                fechaResumen.textContent = fecha ? ('Fecha sugerida: ' + fecha) : 'Fecha sugerida: --/--/----';
             }
 
             if (fecha && hora) {
@@ -278,7 +291,6 @@
             const partes = fechaHoraHidden.value.split('T');
             if (partes.length === 2) {
                 fechaInput.value = partes[0];
-                horaDisplay.value = partes[1].substring(0, 5);
             }
         } else if (claseParam) {
             const sugerida = obtenerProximaFechaDisponible(claseParam, diaPreferido);
@@ -293,19 +305,10 @@
             claseSelect.dispatchEvent(new Event('change'));
         }
 
-        if (usarSeleccionBtn) {
-            usarSeleccionBtn.addEventListener('click', () => {
-                aplicarSeleccionRapida();
-                claseSelect.dispatchEvent(new Event('change'));
-                // Si ya tenemos clase y hora + fecha sugerida, enviamos directo
-                if (fechaHoraHidden.value) {
-                    formulario.submit();
-                } else {
-                    fechaInput.focus();
-                }
-            });
-        }
     });
 </script>
 </body>
 </html>
+
+
+

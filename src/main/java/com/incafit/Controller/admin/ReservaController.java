@@ -178,8 +178,9 @@ public class ReservaController {
                 })
                 .collect(Collectors.joining(", "));
         if (clase.getHora() != null) {
-            return diasTexto + " · " + clase.getHora().format(TIME_FORMATTER) + " h";
+            return diasTexto + " - " + clase.getHora().format(TIME_FORMATTER) + " h";
         }
-        return diasTexto + " · Horario sin definir";
+        return diasTexto + " - Horario sin definir";
     }
+
 }

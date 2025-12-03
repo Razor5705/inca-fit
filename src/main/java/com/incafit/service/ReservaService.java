@@ -8,8 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.incafit.Model.Clase;
-
 public interface ReservaService {
     Reserva crearReserva(Socio socio, Long claseId, LocalDateTime fechaHora);
     void cancelarReserva(Long id);

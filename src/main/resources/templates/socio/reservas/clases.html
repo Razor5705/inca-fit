@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>Clases disponibles</title>
+</head>
+<body>
+<div layout:fragment="content" class="container-fluid py-5" style="background-color:#f8f9fb;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <div>
+                <h2 class="mb-1">Clases disponibles</h2>
+                <p class="text-muted mb-0">Consulta horarios, instructores y reserva desde el calendario.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/socio/reservas/calendario}" class="btn btn-primary">
+                    <i class="fas fa-calendar-alt me-1"></i> Ver calendario
+                </a>
+                <a th:href="@{/socio/reservas}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-1"></i> Panel de reservas
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-muted text-uppercase small">
+                        <tr>
+                            <th class="ps-3">Clase</th>
+                            <th>Instructor</th>
+                            <th>Días</th>
+                            <th>Hora</th>
+                            <th>Duración</th>
+                            <th>Capacidad</th>
+                            <th class="pe-3 text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(clases)}">
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                No hay clases configuradas todavía.
+                            </td>
+                        </tr>
+                        <tr th:each="clase : ${clases}">
+                            <td class="ps-3">
+                                <div class="fw-semibold" th:text="${clase.nombre}">Nombre</div>
+                                <small class="text-muted" th:if="${clase.descripcion}" th:text="${clase.descripcion}">Descripcion</small>
+                            </td>
+                            <td th:text="${clase.instructor != null ? clase.instructor.nombreCompleto : 'Por asignar'}">Instructor</td>
+                            <td>
+                                <span class="badge bg-light text-primary border" th:text="${diasTexto[clase.id]}">Lunes, Miércoles</span>
+                            </td>
+                            <td th:text="${horasClases[clase.id]}">--:--</td>
+                            <td th:text="${clase.duracionMinutos > 0 ? clase.duracionMinutos + ' min' : '--'}">60 min</td>
+                            <td th:text="${clase.capacidadMaxima}">0</td>
+                            <td class="pe-3 text-end">
+                                <a class="btn btn-sm btn-primary"
+                                   th:href="@{/socio/reservas/nueva(claseId=${clase.id})}">
+                                    <i class="fas fa-calendar-plus me-1"></i>Reservar
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

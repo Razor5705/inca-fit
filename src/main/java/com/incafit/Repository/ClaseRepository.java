@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.time.LocalTime;
+import java.util.Optional;
 
 @Repository
 public interface ClaseRepository extends JpaRepository<Clase, Long> {
@@ -17,4 +19,7 @@ public interface ClaseRepository extends JpaRepository<Clase, Long> {
     
     // Buscar clases activas por instructor
     List<Clase> findByActivoTrueAndInstructorId(Long instructorId);
+
+    Optional<Clase> findFirstByInstructorIdAndHora(Long instructorId, LocalTime hora);
+
 }

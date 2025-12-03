@@ -1,9 +1,12 @@
 package com.incafit.service;
 
+import com.incafit.Model.Clase;
+import com.incafit.Repository.ClaseRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
+import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -13,9 +16,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Servicio auxiliar que mantiene el mapa de días permitidos por clase.
+ * Servicio auxiliar que mantiene el mapa de dias permitidos por clase.
  * Se carga desde application.properties usando la propiedad:
  * clases.schedule=1:MONDAY,WEDNESDAY,FRIDAY;2:TUESDAY,THURSDAY
+ * y ahora tambien desde la columna dias_semana de la entidad Clase.
  */
 @Component
 public class ClaseHorarioService {
@@ -29,7 +33,17 @@ public class ClaseHorarioService {
             DayOfWeek.FRIDAY
     );
 
-    public ClaseHorarioService(@Value("${clases.schedule:}") String definicionHorarios) {
+    private final ClaseRepository claseRepository;
+    private final String definicionOriginal;
+
+    public ClaseHorarioService(@Value("${clases.schedule:}") String definicionHorarios,
+                               ClaseRepository claseRepository) {
+        this.claseRepository = claseRepository;
+        this.definicionOriginal = definicionHorarios == null ? "" : definicionHorarios;
+        cargarDesdePropiedades(definicionHorarios);
+    }
+
+    private void cargarDesdePropiedades(String definicionHorarios) {
         if (definicionHorarios == null || definicionHorarios.isBlank()) {
             return;
         }
@@ -58,6 +72,65 @@ public class ClaseHorarioService {
     }
 
     public Set<DayOfWeek> obtenerDiasPermitidos(Long claseId) {
-        return diasPermitidosPorClase.getOrDefault(claseId, DEFAULT_DIAS);
+        if (claseId != null) {
+            Set<DayOfWeek> diasConfigurados = claseRepository.findById(claseId)
+                    .map(Clase::getDiasSemana)
+                    .filter(dias -> dias != null && !dias.isEmpty())
+                    .map(this::copiarDias)
+                    .orElse(null);
+            if (diasConfigurados != null && !diasConfigurados.isEmpty()) {
+                return diasConfigurados;
+            }
+        }
+
+        if (diasPermitidosPorClase.containsKey(claseId)) {
+            return copiarDias(diasPermitidosPorClase.get(claseId));
+        }
+
+        return copiarDias(DEFAULT_DIAS);
+    }
+
+    public boolean tieneConfiguracion(Long claseId) {
+        if (claseId != null) {
+            boolean configuradaEnClase = claseRepository.findById(claseId)
+                    .map(Clase::getDiasSemana)
+                    .map(dias -> dias != null && !dias.isEmpty())
+                    .orElse(false);
+            if (configuradaEnClase) {
+                return true;
+            }
+        }
+        return definicionOriginal != null && !definicionOriginal.isBlank() && diasPermitidosPorClase.containsKey(claseId);
+    }
+
+    public String getDefinicionOriginal() {
+        return definicionOriginal;
+    }
+
+    public Set<DayOfWeek> diasPorDefecto() {
+        return copiarDias(DEFAULT_DIAS);
+    }
+
+    public String diasComoTexto(Long claseId, Locale locale) {
+        Set<DayOfWeek> dias = obtenerDiasPermitidos(claseId);
+        return dias.stream()
+                .sorted()
+                .map(d -> d.getDisplayName(TextStyle.FULL, locale))
+                .map(this::capitalizar)
+                .collect(Collectors.joining(", "));
+    }
+
+    private Set<DayOfWeek> copiarDias(Set<DayOfWeek> dias) {
+        if (dias == null || dias.isEmpty()) {
+            return EnumSet.noneOf(DayOfWeek.class);
+        }
+        return EnumSet.copyOf(dias);
+    }
+
+    private String capitalizar(String nombreDia) {
+        if (nombreDia == null || nombreDia.isBlank()) {
+            return "";
+        }
+        return Character.toUpperCase(nombreDia.charAt(0)) + nombreDia.substring(1);
     }
 }

@@ -9,7 +9,7 @@
 <div layout:fragment="content" class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">Renovar membresia</h2>
+            <h2 class="mb-1">Renovar / Cambiar membresia</h2>
             <p class="text-muted mb-0">Elige el plan que mejor se ajuste y confirma el pago simulado.</p>
         </div>
         <a th:href="@{/socio/membresia}" class="btn btn-outline-secondary">
@@ -31,13 +31,26 @@
                 <strong th:text="${referenciaPago}">AUTH-0000</strong>
             </span>
         </div>
+        <div th:if="${facturaPendiente != null}" class="alert alert-warning d-flex justify-content-between align-items-start gap-2">
+            <div>
+                <strong>Pago pendiente:</strong>
+                <span th:text="|Tienes una factura pendiente (ID ${facturaPendiente.id}). Cancélala o finaliza el pago antes de renovar.|">
+                    Existe una factura pendiente.
+                </span>
+            </div>
+            <form th:action="@{/socio/membresia/cancelar-pendiente}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-ban me-1"></i>Cancelar
+                </button>
+            </form>
+        </div>
         <div th:if="${pagoPendiente}" class="alert alert-warning" th:text="${mensajePasarela}">
             Transferencia pendiente de confirmacion.
         </div>
         <div th:if="${pagoError}" class="alert alert-danger" th:text="${pagoError}">
             Error al procesar el pago.
         </div>
-        <div th:if="${tarjetaErrores != null}" class="alert alert-danger mb-0">
+        <div th:if="${tarjetaErrores != null}" class="alert alert-danger mb-0" data-tarjeta-error="true">
             <ul class="mb-0">
                 <li th:each="error : ${tarjetaErrores}" th:text="${error}">Error validacion</li>
             </ul>
@@ -47,6 +60,7 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <form th:action="@{/socio/membresia/renovar}" method="post" id="formRenovacion">
+                <input type="hidden" name="cambio" th:value="${esCambioPlan}">
                 <div class="row g-3">
                     <div class="col-md-6" th:each="membresia : ${membresias}">
                         <label class="card h-100 shadow-sm plan-card"
@@ -89,7 +103,8 @@
                             <div class="col-md-4">
                                 <p class="text-muted small mb-1">Inicio programado</p>
                                 <h5 class="mb-0" id="resumenInicio" th:text="${renovacionInicioTexto}">--/--/----</h5>
-                                <p class="text-success small mb-0" th:if="${diasRestantes > 0}"
+                                <p class="text-success small mb-0" th:if="${esCambioPlan}">Aplicamos el nuevo plan desde hoy.</p>
+                                <p class="text-success small mb-0" th:if="${!esCambioPlan and diasRestantes > 0}"
                                    th:text="${'Tu plan actual finaliza en ' + diasRestantes + ' dias'}"></p>
                             </div>
                             <div class="col-md-4">
@@ -101,18 +116,41 @@
                                 <p class="text-muted small mb-1">Total a pagar (simulado)</p>
                                 <h4 class="mb-1 text-primary" id="resumenImporte"
                                     th:text="${#numbers.formatCurrency(resumenPago.total)}">--</h4>
-                                <div class="mb-2">
-                                    <select class="form-select" name="metodoPago" id="metodoPago">
-                                        <option th:each="metodo : ${metodosPagoDisponibles}"
-                                                th:value="${metodo}"
-                                                th:selected="${metodoSeleccionado == metodo}"
-                                                th:text="${metodo}">Metodo</option>
-                                    </select>
+                                <div class="mb-2 payment-methods" id="metodosPagoWrap">
+                                    <div class="form-check mb-1">
+                                        <input class="form-check-input" type="radio" name="metodoPago" value="Tarjeta guardada"
+                                               th:checked="${metodoSeleccionado == 'Tarjeta guardada'}" id="mp-guardada">
+                                        <label class="form-check-label" for="mp-guardada">Tarjeta guardada</label>
+                                    </div>
+                                    <div class="form-check mb-1">
+                                        <input class="form-check-input" type="radio" name="metodoPago" value="Tarjeta nueva"
+                                               th:checked="${metodoSeleccionado == 'Tarjeta nueva'}" id="mp-nueva">
+                                        <label class="form-check-label" for="mp-nueva">Tarjeta nueva</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="metodoPago" value="Transferencia bancaria"
+                                               th:checked="${metodoSeleccionado == 'Transferencia bancaria'}" id="mp-transfer">
+                                        <label class="form-check-label" for="mp-transfer">Transferencia bancaria</label>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                                <div id="avisoTarjetaNueva" class="alert alert-info mb-2"
+                                     th:classappend="${metodoSeleccionado == 'Tarjeta nueva'} ? '' : ' d-none'">
+                                    Seleccionaste tarjeta nueva. Te llevamos al formulario para ingresar los datos y poder confirmar el pago.
+                                </div>
 
-                        <div id="tarjetaFields" class="row g-3 mt-2 d-none">
+                                <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <small class="text-muted d-block">Plan seleccionado</small>
+                                        <strong id="planResumen">--</strong>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted d-block">Método de pago</small>
+                                        <strong id="metodoResumen">--</strong>
+                                    </div>
+                                </div>
+
+                        <div id="tarjetaFields" class="row g-3 mt-2"
+                             th:classappend="${metodoSeleccionado == 'Tarjeta nueva'} ? '' : ' d-none'">
                             <div class="col-md-6">
                                 <label class="form-label">Nombre en la tarjeta</label>
                                 <input type="text" name="titularTarjeta" class="form-control"
@@ -121,9 +159,17 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Numero de tarjeta</label>
-                                <input type="text" name="numeroTarjeta" class="form-control"
-                                       maxlength="19" inputmode="numeric" autocomplete="cc-number"
-                                       placeholder="XXXX XXXX XXXX XXXX">
+                                <input type="text"
+                                       class="form-control text-center"
+                                       id="numeroTarjeta"
+                                       name="numeroTarjeta"
+                                       placeholder="1234 5678 9012 3456"
+                                       maxlength="19"
+                                       inputmode="numeric"
+                                       autocomplete="cc-number"
+                                       pattern="[0-9\\s]{16,19}">
+                                <div class="form-text">Introduce 16 digitos, se formatean en grupos de 4 automaticamente.</div>
+                                <div id="luhnEstado" class="small mt-1"></div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Fecha (MM/YY)</label>
@@ -171,20 +217,24 @@
                                         th:text="'- ' + ${#numbers.formatCurrency(resumenPago.descuento)}">-€0,00</strong>
                             </div>
                             <hr>
-                            <div class="d-flex justify-content-between text-primary fw-bold">
-                                <span>Total</span>
-                                <strong id="resumenTotal"
-                                        th:text="${#numbers.formatCurrency(resumenPago.total)}">€0,00</strong>
+                                <div class="d-flex justify-content-between text-primary fw-bold">
+                                    <span>Total</span>
+                                    <strong id="resumenTotal"
+                                            th:text="${#numbers.formatCurrency(resumenPago.total)}">€0,00</strong>
+                                </div>
+                                <div class="text-muted small mt-2">
+                                    Se programa desde la fecha de fin actual para evitar solapamientos o extensiones indebidas.
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <div class="card-footer bg-light d-flex justify-content-between align-items-center">
                         <div>
                             <small class="text-muted">
                                 Al confirmar se registra la renovacion y la factura segun el metodo elegido.
                             </small>
                         </div>
-                        <button type="submit" class="btn btn-primary" id="btnConfirmar">
+                        <button type="submit" class="btn btn-primary" id="btnConfirmar"
+                                th:disabled="${facturaPendiente != null}">
                             <i class="fas fa-sync-alt me-2"></i>
                             <span>Confirmar renovacion</span>
                         </button>
@@ -212,8 +262,7 @@
                         </li>
                     </ul>
                     <div class="alert alert-info mb-0">
-                        <strong>Consejo:</strong> Puedes renovar antes de que venza tu plan. El nuevo periodo comenzara
-                        automaticamente despues de la fecha actual de finalizacion.
+                        <strong>Consejo:</strong> Usa "Renovar" para extender tu plan actual o activa "cambio de plan" para iniciar hoy con otro plan.
                     </div>
                 </div>
             </div>
@@ -224,7 +273,8 @@
 <div id="datosContexto"
      th:attr="data-igv-rate=${igvRate},
               data-descuento-rate=${descuentoRate},
-              data-metodo=${metodoSeleccionado}"
+              data-metodo=${metodoSeleccionado},
+              data-factura-pendiente=${facturaPendiente != null}"
      hidden></div>
 
 <div id="pasarela-overlay" class="pasarela-overlay d-none">
@@ -233,6 +283,7 @@
         <p class="text-white mb-0" id="pasarela-step">Validando datos...</p>
     </div>
 </div>
+
 
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function () {
@@ -249,41 +300,80 @@
         const datosContexto = document.getElementById('datosContexto');
         const igvRate = parseFloat(datosContexto?.dataset.igvRate || '0');
         const descuentoRate = parseFloat(datosContexto?.dataset.descuentoRate || '0');
+        const tienePendiente = datosContexto?.dataset.facturaPendiente === 'true';
 
-        const metodoSelect = document.getElementById('metodoPago');
+        const metodoRadios = Array.from(document.querySelectorAll('input[name="metodoPago"]'));
         const tarjetaFields = document.getElementById('tarjetaFields');
         const transferenciaInfo = document.getElementById('transferenciaInfo');
         const btnConfirmar = document.getElementById('btnConfirmar');
         const formRenovacion = document.getElementById('formRenovacion');
-        const overlay = document.getElementById('pasarela-overlay');
-        const pasarelaStep = document.getElementById('pasarela-step');
         const titularInput = document.querySelector('input[name="titularTarjeta"]');
-        const numeroInput = document.querySelector('input[name="numeroTarjeta"]');
+        const numeroTarjetaInput = document.getElementById('numeroTarjeta');
         const fechaInput = document.querySelector('input[name="fechaTarjeta"]');
         const cvvInput = document.querySelector('input[name="cvvTarjeta"]');
-        const luhnStatus = document.createElement('div');
-        luhnStatus.className = 'small mt-1';
-        if (numeroInput && numeroInput.parentElement) {
-            numeroInput.parentElement.appendChild(luhnStatus);
-        }
+        const avisoTarjetaNueva = document.getElementById('avisoTarjetaNueva');
+        const alertaErroresTarjeta = document.querySelector('[data-tarjeta-error]');
+        const luhnEstado = document.getElementById('luhnEstado');
+        const planResumen = document.getElementById('planResumen');
+        const metodoResumen = document.getElementById('metodoResumen');
 
         const opcionesFecha = {day: '2-digit', month: '2-digit', year: 'numeric'};
 
-        function formatearNumero(valor) {
-            return new Intl.NumberFormat('es-ES', {
-                style: 'currency',
-                currency: 'EUR'
-            }).format(valor);
+        const soloDigitos = (valor) => (valor || '').replace(/\D/g, '');
+        const formatearTarjeta = (valor) => soloDigitos(valor).slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+        const validarLuhn = (numero) => {
+            const limpio = soloDigitos(numero);
+            if (limpio.length !== 16) return false;
+            let suma = 0, dup = false;
+            for (let i = limpio.length - 1; i >= 0; i--) {
+                let d = parseInt(limpio[i], 10);
+                if (dup) { d *= 2; if (d > 9) d -= 9; }
+                suma += d; dup = !dup;
+            }
+            return suma % 10 === 0;
+        };
+        const actualizarEstadoTarjeta = () => {
+            if (!luhnEstado || !numeroTarjetaInput) return;
+            const limpio = soloDigitos(numeroTarjetaInput.value);
+            if (!limpio.length) { luhnEstado.textContent=''; luhnEstado.className='small mt-1 text-muted'; return; }
+            if (limpio.length < 16) {
+                luhnEstado.textContent = `Ingresa ${16 - limpio.length} digitos mas`;
+                luhnEstado.className = 'small mt-1 text-muted';
+                return;
+            }
+            const ok = validarLuhn(limpio);
+            luhnEstado.textContent = ok ? '✓ Numero listo' : '⚠ Revisa los digitos (no pasa Luhn)';
+            luhnEstado.className = 'small mt-1 ' + (ok ? 'text-success' : 'text-warning');
+        };
+
+        if (numeroTarjetaInput) {
+            numeroTarjetaInput.addEventListener('input', (e) => {
+                e.target.value = formatearTarjeta(e.target.value);
+                actualizarEstadoTarjeta();
+            });
+            numeroTarjetaInput.addEventListener('blur', () => actualizarEstadoTarjeta());
+        }
+        if (fechaInput) {
+            fechaInput.addEventListener('input', (e) => {
+                let valor = soloDigitos(e.target.value).slice(0, 4);
+                if (valor.length > 2) valor = valor.slice(0,2) + '/' + valor.slice(2);
+                e.target.value = valor;
+            });
+        }
+
+        // Seleccionar un metodo por defecto si no viene preseleccionado
+        if (metodoRadios.length && !metodoRadios.some(r => r.checked)) {
+            metodoRadios[0].checked = true;
+        }
+
+        function formatearMoneda(valor) {
+            return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(valor);
         }
 
         function calcularFin(dias) {
-            if (!startDateValue) {
-                return '';
-            }
+            if (!startDateValue) return '';
             const fecha = new Date(startDateValue + 'T00:00:00');
-            if (Number.isNaN(fecha.getTime())) {
-                return '';
-            }
+            if (Number.isNaN(fecha.getTime())) return '';
             const resultado = new Date(fecha);
             resultado.setDate(resultado.getDate() + Math.max(dias - 1, 0));
             return resultado.toLocaleDateString('es-ES', opcionesFecha);
@@ -294,27 +384,26 @@
             const impuesto = subtotal * igvRate;
             const descuento = descuentoRate > 0 ? subtotal * descuentoRate : 0;
             const total = subtotal + impuesto - descuento;
-            resumenSubtotal.textContent = formatearNumero(subtotal);
-            resumenImpuesto.textContent = formatearNumero(impuesto);
-            resumenDescuento.textContent = '- ' + formatearNumero(Math.abs(descuento));
+            resumenSubtotal.textContent = formatearMoneda(subtotal);
+            resumenImpuesto.textContent = formatearMoneda(impuesto);
+            resumenDescuento.textContent = '- ' + formatearMoneda(Math.abs(descuento));
             resumenDescuentoRow.classList.toggle('d-none', descuento <= 0.009);
-            resumenTotal.textContent = formatearNumero(total);
-            resumenImporte.textContent = formatearNumero(total);
+            resumenTotal.textContent = formatearMoneda(total);
+            resumenImporte.textContent = formatearMoneda(total);
         }
 
         function marcarSeleccion(card) {
             planCards.forEach(c => c.classList.remove('border-primary', 'shadow'));
             card.classList.add('border-primary', 'shadow');
-
             const dias = parseInt(card.dataset.planDias || '0', 10);
             const precio = parseFloat(card.dataset.planPrecio || '0');
-
             resumenFin.textContent = calcularFin(dias) || '--/--/----';
             actualizarTotales(precio);
-
             const input = card.querySelector('input[type="radio"]');
-            if (input) {
-                input.checked = true;
+            if (input) input.checked = true;
+            if (planResumen) {
+                const nombre = card.querySelector('.card-title')?.textContent?.trim() || '';
+                planResumen.textContent = nombre || 'Plan no seleccionado';
             }
         }
 
@@ -323,98 +412,92 @@
             const radio = card.querySelector('input[type="radio"]');
             if (radio) {
                 radio.addEventListener('change', () => marcarSeleccion(card));
-                if (radio.checked) {
-                    marcarSeleccion(card);
-                }
+                if (radio.checked) marcarSeleccion(card);
             }
         });
 
+        function normalizarMetodo(val) {
+            return (val || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        }
+        function obtenerMetodoSeleccionado() {
+            const checked = metodoRadios.find(r => r.checked);
+            return normalizarMetodo(checked ? checked.value : '');
+        }
         function refrescarMetodo() {
-            const metodo = metodoSelect.value;
-            const esTarjetaNueva = metodo === 'Tarjeta nueva';
-            const esTransferencia = metodo === 'Transferencia bancaria';
-            tarjetaFields.classList.toggle('d-none', !esTarjetaNueva);
+            const metodo = obtenerMetodoSeleccionado();
+            const rawMetodo = metodoRadios.find(r => r.checked)?.value || '';
+            const esTarjetaNueva = metodo.includes('tarjeta') && metodo.includes('nueva');
+            const esTransferencia = metodo.includes('transferencia');
+            tarjetaFields?.classList.toggle('d-none', !esTarjetaNueva);
+            avisoTarjetaNueva?.classList.toggle('d-none', !esTarjetaNueva);
             transferenciaInfo.classList.toggle('d-none', !esTransferencia);
-            [titularInput, numeroInput, fechaInput, cvvInput].forEach(inp => {
-                if (inp) {
-                    inp.required = esTarjetaNueva;
-                    if (!esTarjetaNueva) {
-                        inp.value = '';
-                    }
-                }
+            [titularInput, numeroTarjetaInput, fechaInput, cvvInput].forEach(inp => {
+                if (inp) inp.required = esTarjetaNueva;
             });
+            if (!esTarjetaNueva) {
+                if (numeroTarjetaInput) numeroTarjetaInput.value = '';
+                if (luhnEstado) { luhnEstado.textContent=''; luhnEstado.className='small mt-1 text-muted'; }
+            }
+            btnConfirmar.disabled = tienePendiente;
             btnConfirmar.querySelector('span').textContent = esTransferencia
                 ? 'Generar instrucciones'
                 : (esTarjetaNueva ? 'Confirmar pago con tarjeta' : 'Confirmar con tarjeta guardada');
+            if (metodoResumen) metodoResumen.textContent = rawMetodo || 'Sin método';
+            if (esTarjetaNueva) {
+                setTimeout(() => { numeroTarjetaInput?.focus({preventScroll:true}); }, 120);
+            }
         }
-
-        metodoSelect.addEventListener('change', refrescarMetodo);
+        metodoRadios.forEach(r => r.addEventListener('change', refrescarMetodo));
+        if (alertaErroresTarjeta) {
+            const target = metodoRadios.find(r => r.value?.includes('Tarjeta nueva'));
+            if (target) target.checked = true;
+        }
         refrescarMetodo();
 
-        let overlayInterval = null;
-        formRenovacion.addEventListener('submit', () => {
-            const metodo = metodoSelect.value;
-            if (metodo === 'Transferencia bancaria') {
+        formRenovacion.addEventListener('submit', (e) => {
+            if (tienePendiente) {
+                e.preventDefault();
+                alert('No puedes renovar mientras exista una factura pendiente. Cancela o paga la factura pendiente primero.');
                 return;
             }
-            overlay.classList.remove('d-none');
-            const pasos = ['Validando tarjeta...', 'Contactando banco...', 'Confirmando pago...'];
-            let indice = 0;
-            pasarelaStep.textContent = pasos[indice];
-            overlayInterval = setInterval(() => {
-                indice = (indice + 1) % pasos.length;
-                pasarelaStep.textContent = pasos[indice];
-            }, 1200);
-        });
-
-        window.addEventListener('beforeunload', () => {
-            if (overlayInterval) {
-                clearInterval(overlayInterval);
+            const planRadio = formRenovacion.querySelector('input[name="membresiaId"]:checked');
+            if (!planRadio) {
+                e.preventDefault();
+                alert('Selecciona un plan antes de confirmar.');
+                return;
             }
-        });
-
-        if (numeroInput) {
-            numeroInput.addEventListener('input', () => {
-                const soloDigitos = numeroInput.value.replace(/\D/g, '').slice(0, 16);
-                numeroInput.value = soloDigitos.replace(/(.{4})/g, '$1 ').trim();
-                validarLuhn();
-            });
-        }
-        if (fechaInput) {
-            fechaInput.addEventListener('input', () => {
-                let valor = fechaInput.value.replace(/\D/g, '').slice(0, 4);
-                if (valor.length >= 3) {
-                    valor = valor.slice(0, 2) + '/' + valor.slice(2);
+            const metodo = metodoRadios.find(r => r.checked)?.value || '';
+            if (metodo === 'Transferencia bancaria') {
+                btnConfirmar.disabled = true;
+                return;
+            }
+            if (metodo === 'Tarjeta nueva') {
+                const limpio = soloDigitos(numeroTarjetaInput?.value || '');
+                if (limpio.length !== 16) {
+                    e.preventDefault();
+                    if (luhnEstado) {
+                        luhnEstado.className = 'small mt-1 text-danger';
+                        luhnEstado.textContent = 'El numero de tarjeta debe tener 16 digitos';
+                    }
+                    numeroTarjetaInput?.focus();
+                    return;
                 }
-                fechaInput.value = valor;
-            });
-        }
-
-        function validarLuhn() {
-            if (!numeroInput) return true;
-            const num = numeroInput.value.replace(/\s+/g, '');
-            if (num.length !== 16 || !/^\d{16}$/.test(num)) {
-                numeroInput.setCustomValidity('El numero debe tener 16 digitos.');
-                luhnStatus.textContent = '';
-                return false;
-            }
-            let sum = 0;
-            for (let i = 0; i < num.length; i++) {
-                let n = parseInt(num[num.length - 1 - i], 10);
-                if (i % 2 === 1) {
-                    n = n * 2;
-                    if (n > 9) n -= 9;
+                if (!validarLuhn(limpio)) {
+                    e.preventDefault();
+                    if (luhnEstado) {
+                        luhnEstado.className = 'small mt-1 text-danger';
+                        luhnEstado.textContent = 'El numero de tarjeta no es válido (Luhn).';
+                    }
+                    numeroTarjetaInput?.focus();
+                    return;
                 }
-                sum += n;
+                numeroTarjetaInput.value = limpio; // enviar sin espacios
             }
-            const valido = sum % 10 === 0;
-            numeroInput.setCustomValidity(valido ? '' : 'Tarjeta invalida');
-            luhnStatus.className = 'small mt-1 ' + (valido ? 'text-success' : 'text-danger');
-            luhnStatus.textContent = valido ? 'Numero de tarjeta valido.' : 'Numero de tarjeta no supera validacion.';
-            return valido;
-        }
+            btnConfirmar.disabled = true;
+        });
     });
 </script>
+
 
 <style>
     .pasarela-overlay {

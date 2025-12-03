@@ -1,439 +1,221 @@
 /* ============================================================
-   INCA FIT – ESQUEMA + DATOS DE DEMO
+   INCA FIT – ESQUEMA + DATOS DE DEMO (export 2025-11-13)
+   Basado en los dumps de la carpeta BBDD/
    ============================================================ */
-CREATE DATABASE IF NOT EXISTS incafit_db
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+DROP DATABASE IF EXISTS incafit_db;
+CREATE DATABASE incafit_db CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE incafit_db;
 
 /* -------------------
    TABLAS PRINCIPALES
    ------------------- */
 
-CREATE TABLE IF NOT EXISTS membresias (
-    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre              VARCHAR(120) NOT NULL,
-    descripcion         TEXT,
-    tipo_membresia      VARCHAR(100) NOT NULL,
-    duracion_dias       INT NOT NULL,
-    clases_incluidas    INT DEFAULT 0,
-    precio              DECIMAL(10,2) NOT NULL,
-    precio_base         DECIMAL(10,2) DEFAULT 0,
-    precio_clase_extra  DECIMAL(10,2) DEFAULT 0,
-    tipo_cobro          VARCHAR(60)
-) ENGINE=InnoDB;
+CREATE TABLE membresias (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  clases_incluidas INT DEFAULT NULL,
+  descripcion VARCHAR(1000) DEFAULT NULL,
+  nombre VARCHAR(255) DEFAULT NULL,
+  precio_base DECIMAL(38,2) DEFAULT NULL,
+  precio_clase_extra DECIMAL(38,2) DEFAULT NULL,
+  tipo_cobro ENUM('CLASES_INCLUIDAS','CUOTA_FIJA','PAGO_POR_CLASE') DEFAULT NULL,
+  duracion_dias INT NOT NULL,
+  precio DECIMAL(38,2) NOT NULL,
+  tipo_membresia VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS instructores (
-    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre_completo VARCHAR(255) NOT NULL,
-    especialidad    VARCHAR(255),
-    email           VARCHAR(255) NOT NULL UNIQUE,
-    telefono        VARCHAR(30),
-    experiencia     VARCHAR(255)
-) ENGINE=InnoDB;
+CREATE TABLE instructores (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  nombre_completo VARCHAR(255) NOT NULL,
+  especialidad VARCHAR(255) DEFAULT NULL,
+  email VARCHAR(255) NOT NULL,
+  experiencia VARCHAR(255) DEFAULT NULL,
+  telefono VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS clases (
-    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre            VARCHAR(255) NOT NULL,
-    descripcion       TEXT,
-    capacidad_maxima  INT NOT NULL DEFAULT 1,
-    instructor_id     BIGINT,
-    hora              TIME,
-    duracion_minutos  INT,
-    activo            TINYINT(1) NOT NULL DEFAULT 1,
-    fecha_inicio      DATE,
-    fecha_fin         DATE,
-    precio_adicional  DECIMAL(10,2),
-    CONSTRAINT fk_clase_instructor
-        FOREIGN KEY (instructor_id) REFERENCES instructores(id)
-        ON DELETE SET NULL
-) ENGINE=InnoDB;
+CREATE TABLE clases (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  nombre VARCHAR(255) NOT NULL,
+  descripcion VARCHAR(255) DEFAULT NULL,
+  capacidad_maxima INT NOT NULL DEFAULT 1,
+  instructor_id BIGINT DEFAULT NULL,
+  hora TIME DEFAULT NULL,
+  duracion_minutos INT DEFAULT NULL,
+  dias_semana VARCHAR(255) DEFAULT NULL,
+  activo BIT(1) NOT NULL,
+  fecha_inicio DATE DEFAULT NULL,
+  fecha_fin DATE DEFAULT NULL,
+  precio_adicional DECIMAL(38,2) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY instructor_id (instructor_id),
+  CONSTRAINT clases_ibfk_1 FOREIGN KEY (instructor_id) REFERENCES instructores (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS socios (
-    id                      BIGINT AUTO_INCREMENT PRIMARY KEY,
-    dni                     VARCHAR(10) NOT NULL UNIQUE,
-    nombre                  VARCHAR(255) NOT NULL,
-    email                   VARCHAR(255) NOT NULL UNIQUE,
-    password                VARCHAR(255) NOT NULL,
-    rol                     ENUM('ADMIN','USUARIO') NOT NULL DEFAULT 'USUARIO',
-    activo                  TINYINT(1) NOT NULL DEFAULT 1,
-    fecha_registro          DATE NOT NULL,
-    telefono                VARCHAR(20),
-    membresia_id            BIGINT,
-    fecha_inicio_membresia  DATE,
-    fecha_fin_membresia     DATE,
-    CONSTRAINT fk_socio_membresia
-        FOREIGN KEY (membresia_id) REFERENCES membresias(id)
-        ON DELETE SET NULL
-) ENGINE=InnoDB;
+CREATE TABLE socios (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  dni VARCHAR(10) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  telefono VARCHAR(255) DEFAULT NULL,
+  fecha_registro DATE DEFAULT NULL,
+  nombre VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  rol ENUM('ADMIN','USUARIO') NOT NULL DEFAULT 'USUARIO',
+  activo TINYINT(1) NOT NULL DEFAULT 1,
+  membresia_id BIGINT DEFAULT NULL,
+  fecha_inicio_membresia DATE DEFAULT NULL,
+  fecha_fin_membresia DATE DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY dni (dni),
+  UNIQUE KEY email (email),
+  KEY FK_socio_membresia (membresia_id),
+  CONSTRAINT FK_socio_membresia FOREIGN KEY (membresia_id) REFERENCES membresias (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS reservas (
-    id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    socio_id  BIGINT NOT NULL,
-    clase_id  BIGINT NOT NULL,
-    fecha_hora DATETIME NOT NULL,
-    estado    VARCHAR(20) NOT NULL DEFAULT 'CONFIRMADA',
-    CONSTRAINT fk_reserva_socio FOREIGN KEY (socio_id) REFERENCES socios(id) ON DELETE CASCADE,
-    CONSTRAINT fk_reserva_clase FOREIGN KEY (clase_id) REFERENCES clases(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+CREATE TABLE reservas (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  estado VARCHAR(255) DEFAULT NULL,
+  fecha_hora DATETIME(6) DEFAULT NULL,
+  socio_id BIGINT DEFAULT NULL,
+  clase_id BIGINT DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY FK_reserva_socio (socio_id),
+  KEY fk_reservas_clase (clase_id),
+  CONSTRAINT fk_reservas_clase FOREIGN KEY (clase_id) REFERENCES clases (id) ON DELETE CASCADE,
+  CONSTRAINT FK_reserva_socio FOREIGN KEY (socio_id) REFERENCES socios (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS asistencias (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    socio_id    BIGINT NOT NULL,
-    clase_id    BIGINT NOT NULL,
-    reserva_id  BIGINT,
-    fecha       DATE NOT NULL,
-    presente    TINYINT(1) NOT NULL DEFAULT 1,
-    CONSTRAINT fk_asistencia_socio   FOREIGN KEY (socio_id)   REFERENCES socios(id)   ON DELETE CASCADE,
-    CONSTRAINT fk_asistencia_clase   FOREIGN KEY (clase_id)   REFERENCES clases(id)  ON DELETE CASCADE,
-    CONSTRAINT fk_asistencia_reserva FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
+CREATE TABLE asistencias (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  socio_id BIGINT NOT NULL,
+  clase_id BIGINT NOT NULL,
+  reserva_id BIGINT NOT NULL,
+  fecha DATE NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY reserva_id (reserva_id),
+  KEY socio_id (socio_id),
+  KEY clase_id (clase_id),
+  CONSTRAINT asistencias_ibfk_1 FOREIGN KEY (socio_id) REFERENCES socios (id) ON DELETE CASCADE,
+  CONSTRAINT asistencias_ibfk_2 FOREIGN KEY (clase_id) REFERENCES clases (id) ON DELETE CASCADE,
+  CONSTRAINT asistencias_ibfk_3 FOREIGN KEY (reserva_id) REFERENCES reservas (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE facturas (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  socio_id BIGINT NOT NULL,
+  fecha DATE NOT NULL,
+  total DECIMAL(38,2) DEFAULT NULL,
+  estado VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY socio_id (socio_id),
+  CONSTRAINT facturas_ibfk_1 FOREIGN KEY (socio_id) REFERENCES socios (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS facturas (
-    id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    socio_id  BIGINT NOT NULL,
-    fecha     DATE NOT NULL,
-    total     DECIMAL(10,2) NOT NULL,
-    estado    VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
-    CONSTRAINT fk_factura_socio FOREIGN KEY (socio_id) REFERENCES socios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+CREATE TABLE detalles_factura (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  factura_id BIGINT NOT NULL,
+  descripcion VARCHAR(255) DEFAULT NULL,
+  cantidad INT NOT NULL DEFAULT 1,
+  precio_unitario DECIMAL(38,2) DEFAULT NULL,
+  subtotal DECIMAL(38,2) DEFAULT NULL,
+  monto DECIMAL(38,2) DEFAULT NULL,
+  tipo_item VARCHAR(255) DEFAULT NULL,
+  membresia_id BIGINT DEFAULT NULL,
+  reserva_id BIGINT DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY factura_id (factura_id),
+  KEY fk_detalle_membresia (membresia_id),
+  KEY fk_detalle_reserva (reserva_id),
+  CONSTRAINT detalles_factura_ibfk_1 FOREIGN KEY (factura_id) REFERENCES facturas (id),
+  CONSTRAINT fk_detalle_membresia FOREIGN KEY (membresia_id) REFERENCES membresias (id) ON DELETE SET NULL,
+  CONSTRAINT fk_detalle_reserva FOREIGN KEY (reserva_id) REFERENCES reservas (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS detalles_factura (
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    factura_id     BIGINT NOT NULL,
-    descripcion    VARCHAR(500) NOT NULL,
-    cantidad       INT NOT NULL DEFAULT 1,
-    precio_unitario DECIMAL(10,2) NOT NULL,
-    subtotal       DECIMAL(10,2) NOT NULL,
-    monto          DECIMAL(10,2),
-    tipo_item      VARCHAR(50),
-    membresia_id   BIGINT,
-    reserva_id     BIGINT,
-    CONSTRAINT fk_detalle_factura   FOREIGN KEY (factura_id)   REFERENCES facturas(id) ON DELETE CASCADE,
-    CONSTRAINT fk_detalle_membresia FOREIGN KEY (membresia_id) REFERENCES membresias(id) ON DELETE SET NULL,
-    CONSTRAINT fk_detalle_reserva   FOREIGN KEY (reserva_id)   REFERENCES reservas(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS pagos (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    factura_id    BIGINT NOT NULL,
-    fecha_pago    DATE NOT NULL,
-    monto_pagado  DECIMAL(10,2) NOT NULL,
-    metodo_pago   VARCHAR(100) NOT NULL,
-    CONSTRAINT fk_pago_factura FOREIGN KEY (factura_id) REFERENCES facturas(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+CREATE TABLE pagos (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  factura_id BIGINT NOT NULL,
+  fecha_pago DATE NOT NULL,
+  monto_pagado DOUBLE NOT NULL,
+  metodo_pago VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id),
+  KEY factura_id (factura_id),
+  CONSTRAINT pagos_ibfk_1 FOREIGN KEY (factura_id) REFERENCES facturas (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /* -------------------
    DATOS DE REFERENCIA
    ------------------- */
 
-INSERT INTO membresias (id, nombre, descripcion, tipo_membresia, duracion_dias, clases_incluidas, precio, precio_base, precio_clase_extra, tipo_cobro) VALUES
-    (1, 'Plan Esencial', 'Acceso estándar a todas las clases regulares y seguimiento básico.', 'Mensual', 30, 12, 39.90, 39.90, 8.50, 'Mensualidad'),
-    (2, 'Plan Pro', 'Incluye reservas ilimitadas, ranking de asistentes y reportes.', 'Trimestral', 90, 40, 109.00, 95.00, 7.00, 'Trimestral'),
-    (3, 'Plan Elite', 'Acceso total, asesor personalizado y talleres exclusivos.', 'Anual', 365, 160, 399.00, 330.00, 5.50, 'Anual')
-ON DUPLICATE KEY UPDATE
-    descripcion        = VALUES(descripcion),
-    tipo_membresia     = VALUES(tipo_membresia),
-    duracion_dias      = VALUES(duracion_dias),
-    clases_incluidas   = VALUES(clases_incluidas),
-    precio             = VALUES(precio),
-    precio_base        = VALUES(precio_base),
-    precio_clase_extra = VALUES(precio_clase_extra),
-    tipo_cobro         = VALUES(tipo_cobro);
+INSERT INTO membresias (id, clases_incluidas, descripcion, nombre, precio_base, precio_clase_extra, tipo_cobro, duracion_dias, precio, tipo_membresia) VALUES
+  (1, 10, 'Acceso por 30 dias', NULL, NULL, 5.00, 'CLASES_INCLUIDAS', 30, 50.00, 'Mensual'),
+  (2, 30, 'Acceso por 90 dias', NULL, NULL, 4.50, 'CLASES_INCLUIDAS', 90, 135.00, 'Trimestral'),
+  (3, 120, 'Acceso por 365 dias', NULL, NULL, 4.00, 'CLASES_INCLUIDAS', 365, 500.00, 'Anual');
 
-INSERT INTO instructores (id, nombre_completo, especialidad, email, telefono, experiencia) VALUES
-    (1, 'Pol Fernandez',   'Yoga · Pilates · Mindfulness',       'pol.fernandez@incafit.com',   '600000111', 'Instructor senior con 8 años de experiencia.'),
-    (2, 'Luis Martinez',   'Spinning · HIIT · Defensa Personal', 'luis.martinez@incafit.com',   '600000222', 'Coach funcional certificado.'),
-    (3, 'Miguel Rodriguez','Fuerza · Musculación · Powerlifting','miguel.rodriguez@incafit.com','600000333', 'Preparador físico y nutricionista.'),
-    (4, 'Laura Santos',    'Zumba · Ritmos Latinos · Cardio',    'laura.santos@incafit.com',    '600000444', 'Coreógrafa profesional.')
-ON DUPLICATE KEY UPDATE
-    especialidad = VALUES(especialidad),
-    telefono     = VALUES(telefono),
-    experiencia  = VALUES(experiencia);
+INSERT INTO instructores (id, nombre_completo, especialidad, email, experiencia, telefono) VALUES
+  (2, 'Luis Martinez', 'Spinning', 'luis.martinez@incafit.com', '', '123123123'),
+  (3, 'Miguel Rodriguez', 'Musculacion', 'miguel.rodriguez@incafit.com', NULL, NULL),
+  (4, 'Laura Santos', 'Zumba', 'laura.santos@incafit.com', '', ''),
+  (6, 'Pol Fernandez', 'Pilates', 'pol.fernandez@incafit.com', '', '');
 
-INSERT INTO clases (id, nombre, descripcion, capacidad_maxima, instructor_id, hora, duracion_minutos, activo, fecha_inicio, fecha_fin, precio_adicional)
-VALUES
-    (1, 'Yoga Flow Morning',   'Sesión matutina de movilidad y respiración consciente.', 20, 1, '08:00:00', 60, 1, NULL, NULL, NULL),
-    (2, 'Pilates Core Sculpt', 'Trabajo de core con implementos ligeros.',               16, 1, '10:00:00', 50, 1, NULL, NULL, NULL),
-    (3, 'Spinning Power Ride', 'Clase de ciclismo indoor con métricas en vivo.',         18, 2, '18:00:00', 45, 1, NULL, NULL, 6.50),
-    (4, 'HIIT Warriors',       'Entrenamiento interválico de alta intensidad.',          15, 2, '19:30:00', 30, 1, NULL, NULL, 8.50),
-    (5, 'Musculación Guiada',  'Circuito completo de fuerza y técnica.',                 12, 3, '07:00:00', 80, 1, NULL, NULL, NULL),
-    (6, 'Zumba Night Party',   'Sesión nocturna de baile y cardio.',                     25, 4, '20:00:00', 60, 1, NULL, NULL, NULL),
-    (7, 'Defensa Personal',    'Curso intensivo de 12 semanas con prácticas reales.',    14, 2, '13:00:00', 90, 1, DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 11 WEEK), 25.00)
-ON DUPLICATE KEY UPDATE
-    descripcion      = VALUES(descripcion),
-    capacidad_maxima = VALUES(capacidad_maxima),
-    instructor_id    = VALUES(instructor_id),
-    hora             = VALUES(hora),
-    duracion_minutos = VALUES(duracion_minutos),
-    activo           = VALUES(activo),
-    fecha_inicio     = VALUES(fecha_inicio),
-    fecha_fin        = VALUES(fecha_fin),
-    precio_adicional = VALUES(precio_adicional);
+INSERT INTO clases (id, nombre, descripcion, capacidad_maxima, instructor_id, hora, duracion_minutos, dias_semana, activo, fecha_inicio, fecha_fin, precio_adicional) VALUES
+  (1, 'Yoga', 'Clase de relajacion y flexibilidad', 20, 6, '15:45:00', 60, 'MONDAY,WEDNESDAY,FRIDAY', b'1', NULL, NULL, NULL),
+  (2, 'Spinning', 'Clase de ciclismo intenso', 15, 2, '18:00:00', 45, 'TUESDAY,THURSDAY', b'1', NULL, NULL, NULL),
+  (3, 'Pilates', 'Fortalecimiento del core y flexibilidad', 12, 6, '10:00:00', 50, 'MONDAY,WEDNESDAY', b'1', NULL, NULL, NULL),
+  (4, 'HIIT', 'Entrenamiento de alta intensidad', 10, 2, '19:30:00', 30, 'TUESDAY,THURSDAY', b'1', NULL, NULL, NULL),
+  (5, 'Musculacion', 'Entrenamiento con pesas', 8, 3, '07:00:00', 90, 'MONDAY,WEDNESDAY,FRIDAY', b'1', NULL, NULL, NULL),
+  (7, 'Defensa Personal', 'Curso de defensa personal de 3 meses', 15, 2, '19:00:00', 90, 'MONDAY,WEDNESDAY,FRIDAY', b'1', '2025-10-19', '2026-01-17', 25.00),
+  (8, 'Yoga', 'Clase de relajacion y flexibilidad', 20, 6, '18:30:00', 60, 'TUESDAY,THURSDAY', b'1', NULL, NULL, NULL),
+  (9, 'Spinning', 'Clase de ciclismo intenso', 15, 2, '18:00:00', 45, 'MONDAY,WEDNESDAY,FRIDAY', b'1', NULL, NULL, NULL),
+  (10, 'Pilates', 'Fortalecimiento del core y flexibilidad', 12, 6, '10:00:00', 50, 'TUESDAY,THURSDAY', b'1', NULL, NULL, NULL),
+  (11, 'HIIT', 'Entrenamiento de alta intensidad', 10, 2, '19:30:00', 30, 'MONDAY,WEDNESDAY,FRIDAY', b'1', NULL, NULL, NULL),
+  (12, 'Musculacion', 'Entrenamiento con pesas', 8, 3, '07:00:00', 90, 'TUESDAY,THURSDAY', b'1', NULL, NULL, NULL),
+  (13, 'Zumba', 'Baile y cardio', 25, 4, '20:00:00', 60, 'MONDAY,WEDNESDAY,FRIDAY', b'1', NULL, NULL, NULL),
+  (14, 'Defensa Personal', 'Curso de defensa personal de 3 meses', 15, 3, '19:00:00', 90, 'MONDAY,WEDNESDAY,FRIDAY', b'1', '2025-10-19', '2026-01-17', 25.00);
 
-/* ----------- SOCIOS (ADMIN + USUARIOS) ----------- */
-INSERT INTO socios (
-    id, dni, nombre, email, password, rol, activo,
-    fecha_registro, telefono, membresia_id,
-    fecha_inicio_membresia, fecha_fin_membresia
-) VALUES
-    (1, '12345678', 'Administrador IncaFit', 'admin@incafit.com',
-        '$2a$10$F1dx7V1u2SMxjF5pXJ51GuMjY6h3JH4fiUowq3hhVz3VyoKoG8vNG',
-        'ADMIN', 1, CURDATE(), '600111222', 2,
-        CURDATE(), DATE_ADD(CURDATE(), INTERVAL 90 DAY)),
-    (2, '87654321', 'Nikolas Adriano Medina Ricra', 'nikkmed805@gmail.com',
-        '$2a$10$Q5PwWKpQ9ju7GZLaSGMS2OF5m2LgN1J53wda8opeNIF8Jx3Yse7u2',
-        'ADMIN', 1, DATE_SUB(CURDATE(), INTERVAL 150 DAY), '600987654', 2,
-        DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 70 DAY)),
-    (3, '11223344', 'Lucía Romero', 'lucia.romero@yopmail.com',
-        '$2a$10$2V.Zkng1bUfy61p2.Oowsu9F91eVCGgZcFQXH7mC4c8j/SRdF1.KK',
-        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 60 DAY), '600888777', 1,
-        DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 20 DAY)),
-    (4, '55667788', 'Diego Salazar', 'diego.salazar@yopmail.com',
-        '$2a$10$hyePxBkuqvY6dXy2Hh2HaOwOlYrGZ7rRlR2Y7biwiW7v3S63LaOHG',
-        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 30 DAY), '600555444', 3,
-        DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 360 DAY))
-ON DUPLICATE KEY UPDATE
-    nombre                 = VALUES(nombre),
-    password               = VALUES(password),
-    rol                    = VALUES(rol),
-    activo                 = VALUES(activo),
-    fecha_registro         = VALUES(fecha_registro),
-    telefono               = VALUES(telefono),
-    membresia_id           = VALUES(membresia_id),
-    fecha_inicio_membresia = VALUES(fecha_inicio_membresia),
-    fecha_fin_membresia    = VALUES(fecha_fin_membresia);
+INSERT INTO socios (id, dni, email, telefono, fecha_registro, nombre, password, rol, activo, membresia_id, fecha_inicio_membresia, fecha_fin_membresia) VALUES
+  (2, '12345678A', 'test@example.com', '600123456', '2025-09-10', 'Usuario Test', '$2a$10$r3k4I5q6w7e8r9t0y1u2vOcQdReSfTgUhViWjXkYlZmAnBoCpDqEs', 'USUARIO', 1, 1, '2025-10-19', '2025-11-18'),
+  (3, '74085564', 'nikkmed805@gmail.com', '600987653', '2025-09-29', 'Nikolas Adriano Medina Ricra', '$2a$10$4DxZXb5Ys4y9chw2tIClFuuP7tZlafoAwyiQUTicTy0fsYHjGqX2u', 'ADMIN', 1, 2, '2025-10-19', '2026-01-17'),
+  (4, '12345678', 'prueba@yopmail.com', NULL, '2025-10-14', 'Prueba Prueba Prueba Pruebaa', '123456', 'USUARIO', 1, 2, NULL, NULL),
+  (6, '123456777', 'holainca@yopmail.com', '666999330', '2025-10-21', 'Hola', '$2a$10$JucMYn4Jc1anijZraDtKh..yqx0Q5j4YXlRwu8F2GzrM/pL0Zyrji', 'USUARIO', 1, 1, '2025-12-10', '2026-01-08'),
+  (8, '740855643', 'testeo@yopmail.com', '357357758', '2025-10-30', 'TESTEO testeo', '$2a$10$wsajuKnoiPOrnZxXZOGZcO.WIFCWDpzkKun3fK16jt9DPdqWu8nfS', 'USUARIO', 1, 3, NULL, NULL),
+  (9, '74085562', 'holatest@yopmail.com', '603100222', '2025-10-30', 'HOLA', '$2a$10$i8hc3k2AYYbb.uJPKP1YkuQZxDbxrbGtqqotkEDH0FjgVP1PmAJYu', 'USUARIO', 1, 3, NULL, NULL),
+  (11, '3914119241', 'final@yopmail.com', NULL, '2025-11-04', 'final final', '12345678', 'USUARIO', 1, 1, NULL, NULL),
+  (12, '00000007', 'admindemo@incafit.com', '600777888', '2025-11-04', 'Admin Demo', '$2a$10$M7AlYmPn1QIPDultONJ2XOq8c6PfIL1eM/jDOxKMK7gf/CIEvdOGO', 'ADMIN', 1, NULL, NULL, NULL),
+  (13, '123456781', 'Hola@yopmail.com', '603030242', '2025-11-07', 'Holaa', '$2a$10$Sgd5LDMladLyh172ElTGoeDjyFLx7kngIswQrWRfx3NvKWk4Mt.yG', 'USUARIO', 1, 1, NULL, NULL),
+  (14, '74085533', 'finaltest@yopmail.com', '123456711', '2025-11-10', 'Final', '$2a$10$Pt7skOOm2pfPv9HO7dojKeojs8qzEHQ5PqUULOnJ77j0smDNJLBJW', 'USUARIO', 1, 1, NULL, NULL),
+  (15, '12341412A', 'nikkmed@hotmail.com', '666303444', '2025-11-13', 'Niko', '$2a$10$m.O5PHvOLJXwuI9xSu3qPe6f1wQdr61Bbp5shnEckm8NXyDa8TAxu', 'USUARIO', 1, 1, NULL, NULL);
 
-/* ----------- RESERVAS Y ASISTENCIAS ----------- */
-INSERT INTO reservas (socio_id, clase_id, fecha_hora, estado) VALUES
-    (2, 1, DATE_ADD(CURDATE(), INTERVAL 2 DAY) + INTERVAL 8 HOUR, 'CONFIRMADA'),
-    (2, 4, DATE_ADD(CURDATE(), INTERVAL 3 DAY) + INTERVAL 19 HOUR + INTERVAL 30 MINUTE, 'CONFIRMADA'),
-    (3, 3, DATE_SUB(CURDATE(), INTERVAL 1 DAY) + INTERVAL 18 HOUR, 'CANCELADA'),
-    (3, 6, DATE_ADD(CURDATE(), INTERVAL 1 DAY) + INTERVAL 20 HOUR, 'PENDIENTE'),
-    (4, 7, DATE_ADD(CURDATE(), INTERVAL 6 DAY) + INTERVAL 13 HOUR, 'CONFIRMADA')
-ON DUPLICATE KEY UPDATE estado = VALUES(estado);
-
-INSERT INTO asistencias (socio_id, clase_id, reserva_id, fecha, presente) VALUES
-    (2, 1, NULL, DATE_SUB(CURDATE(), INTERVAL 14 DAY), 1),
-    (3, 3, NULL, DATE_SUB(CURDATE(), INTERVAL 7 DAY), 0),
-    (4, 5, NULL, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 1)
-ON DUPLICATE KEY UPDATE presente = VALUES(presente);
-
-/* ----------- FACTURAS, DETALLES Y PAGOS ----------- */
-
-DELETE FROM pagos;
-DELETE FROM detalles_factura;
-DELETE FROM facturas;
+INSERT INTO reservas (id, estado, fecha_hora, socio_id, clase_id) VALUES
+  (5, 'CONFIRMADA', '2025-11-12 12:00:00', 3, 7),
+  (8, 'CONFIRMADA', '2025-11-19 14:45:00', 3, 1),
+  (9, 'CANCELADA', '2025-11-13 18:30:00', 6, 4),
+  (10, 'CONFIRMADA', '2025-11-17 19:00:00', 3, 13),
+  (11, 'CONFIRMADA', '2025-11-19 19:00:00', 3, 13),
+  (12, 'CANCELADA', '2025-11-19 19:00:00', 3, 13);
 
 INSERT INTO facturas (id, socio_id, fecha, total, estado) VALUES
-    (2001, 2, DATE_SUB(CURDATE(), INTERVAL 2 MONTH), 109.00, 'PAGADA'),
-    (2002, 3, DATE_SUB(CURDATE(), INTERVAL 20 DAY), 39.90, 'PAGADA'),
-    (2003, 2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 58.40, 'PENDIENTE'),
-    (2004, 4, CURDATE(), 399.00, 'PENDIENTE')
-ON DUPLICATE KEY UPDATE
-    socio_id = VALUES(socio_id),
-    fecha    = VALUES(fecha),
-    total    = VALUES(total),
-    estado   = VALUES(estado);
+  (2, 3, '2025-10-15', 135.00, 'PAGADA'),
+  (3, 4, '2025-10-15', 50.00, 'PAGADA'),
+  (6, 3, '2025-10-28', 135.00, 'PAGADA'),
+  (13, 6, '2025-11-10', 50.00, 'PAGADA'),
+  (14, 6, '2025-11-10', 50.00, 'PAGADA'),
+  (15, 15, '2025-11-13', 50.00, NULL);
 
-INSERT INTO detalles_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal, tipo_item, membresia_id, reserva_id) VALUES
-    (2001, 'Plan Pro Trimestral',   1, 109.00, 109.00, 'MEMBRESIA', 2, NULL),
-    (2002, 'Plan Esencial Mensual', 1, 39.90, 39.90, 'MEMBRESIA', 1, NULL),
-    (2003, 'HIIT Warriors Drop-in', 1, 8.50,   8.50,  'CLASE',     NULL, 2),
-    (2003, 'Plan Esencial Mensual', 1, 49.90, 49.90,  'MEMBRESIA', 1, NULL),
-    (2004, 'Plan Elite Anual',      1, 399.00, 399.00,'MEMBRESIA', 3, NULL)
-ON DUPLICATE KEY UPDATE
-    descripcion    = VALUES(descripcion),
-    cantidad       = VALUES(cantidad),
-    precio_unitario= VALUES(precio_unitario),
-    subtotal       = VALUES(subtotal),
-    tipo_item      = VALUES(tipo_item),
-    membresia_id   = VALUES(membresia_id),
-    reserva_id     = VALUES(reserva_id);
+INSERT INTO detalles_factura (id, factura_id, descripcion, cantidad, precio_unitario, subtotal, monto, tipo_item, membresia_id, reserva_id) VALUES
+  (2, 2, 'Renovacion de Membresia Trimestral', 1, 135.00, 135.00, NULL, NULL, NULL, NULL),
+  (12, 13, 'Renovacion de membresia Mensual', 1, 50.00, 50.00, NULL, 'MEMBRESIA', 1, NULL),
+  (13, 14, 'Renovacion de membresia Mensual', 1, 50.00, 50.00, NULL, 'MEMBRESIA', 1, NULL),
+  (14, 15, 'Membresia Mensual', 1, 50.00, 50.00, NULL, NULL, NULL, NULL);
 
-INSERT INTO pagos (factura_id, fecha_pago, monto_pagado, metodo_pago) VALUES
-    (2001, DATE_SUB(CURDATE(), INTERVAL 2 MONTH), 109.00, 'Tarjeta guardada'),
-    (2002, DATE_SUB(CURDATE(), INTERVAL 19 DAY),  39.90, 'Transferencia')
-ON DUPLICATE KEY UPDATE
-    fecha_pago   = VALUES(fecha_pago),
-    monto_pagado = VALUES(monto_pagado),
-    metodo_pago  = VALUES(metodo_pago);
+INSERT INTO asistencias (id, socio_id, clase_id, reserva_id, fecha) VALUES
+  (1, 3, 7, 5, '2025-10-30'),
+  (3, 3, 1, 8, '2025-11-19'),
+  (4, 6, 4, 9, '2025-11-13'),
+  (5, 3, 13, 10, '2025-11-17'),
+  (6, 3, 13, 11, '2025-11-19'),
+  (7, 3, 13, 12, '2025-11-19');
 
-INSERT INTO membresias (id, tipo_membresia, precio, duracion_dias, descripcion) VALUES
-    (1, 'Mensual',    45.00,  30, 'Acceso ilimitado 30 días'),
-    (2, 'Trimestral', 120.00, 90, 'Acceso trimestral con descuento'),
-    (3, 'Anual',      420.00,365, 'Acceso anual completo')
-ON DUPLICATE KEY UPDATE
-    precio = VALUES(precio),
-    duracion_dias = VALUES(duracion_dias),
-    descripcion = VALUES(descripcion);
-
-INSERT INTO instructores (id, nombre_completo, especialidad, email, telefono, experiencia) VALUES
-    (1, 'Carla Castillo', 'Funcional y HIIT', 'carla.castillo@incafit.com', '600000000', 'Coach certificada'),
-    (2, 'Javier Martín',  'Yoga y Pilates',   'javier.martin@incafit.com',  '600000001', 'Instructor senior')
-ON DUPLICATE KEY UPDATE
-    especialidad = VALUES(especialidad),
-    telefono = VALUES(telefono),
-    experiencia = VALUES(experiencia);
-
-INSERT INTO clases (id, nombre, descripcion, capacidad_maxima, instructor_id, hora, duracion_minutos, activo, fecha_inicio, fecha_fin, precio_adicional)
-VALUES
-    (1, 'Funcional Express', 'Sesión funcional de 50 minutos', 20, 1, '18:30:00', 50, 1, NULL, NULL, NULL),
-    (2, 'HIIT Nocturno',     'Entrenamiento HIIT avanzado',    18, 1, '20:00:00', 45, 1, NULL, NULL, 8.50),
-    (3, 'Defensa Personal',  'Curso intensivo de 3 meses',     15, 2, '19:00:00', 90, 1, DATE_SUB(CURDATE(), INTERVAL 15 DAY), DATE_ADD(CURDATE(), INTERVAL 2 MONTH), 25.00)
-ON DUPLICATE KEY UPDATE
-    descripcion = VALUES(descripcion),
-    capacidad_maxima = VALUES(capacidad_maxima),
-    instructor_id = VALUES(instructor_id),
-    hora = VALUES(hora),
-    duracion_minutos = VALUES(duracion_minutos),
-    activo = VALUES(activo),
-    fecha_inicio = VALUES(fecha_inicio),
-    fecha_fin = VALUES(fecha_fin),
-    precio_adicional = VALUES(precio_adicional);
-
-/* ----------- SOCIOS (ADMIN + USUARIOS) ----------- */
-INSERT INTO socios (
-    id, dni, nombre, email, password, rol, activo,
-    fecha_registro, telefono, membresia_id,
-    fecha_inicio_membresia, fecha_fin_membresia
-) VALUES
-    -- Contraseña original: admin123
-    (1, '00000001', 'Administrador IncaFit', 'admin@incafit.com',
-        '$2a$10$F1dx7V1u2SMxjF5pXJ51GuMjY6h3JH4fiUowq3hhVz3VyoKoG8vNG',
-        'ADMIN', 1, CURDATE(), '600111222', 1,
-        CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
-
-    -- Contraseña original: TestGym!24
-    (2, '00000002', 'Usuario Test', 'test@example.com',
-        '$2a$10$gtT3BGJd4Y1RRG.Xcuv6HOpFwLtn86IExBPOQfi4X.gawjV9N3laK',
-        'USUARIO', 0, DATE_SUB(CURDATE(), INTERVAL 180 DAY), '600123456', NULL, NULL, NULL),
-
-    -- Contraseña original: nickyreny22
-    (3, '00000003', 'Nikolas Adriano Medina Ricra', 'nikkmed805@gmail.com',
-        '$2a$10$Q5PwWKpQ9ju7GZLaSGMS2OF5m2LgN1J53wda8opeNIF8Jx3Yse7u2',
-        'ADMIN', 1, DATE_SUB(CURDATE(), INTERVAL 150 DAY), '600987654', 1,
-        DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 10 DAY)),
-
-    -- Contraseña original: PruebaFit#24
-    (4, '00000004', 'Prueba Prueba Prueba Prueba', 'prueba@yopmail.com',
-        '$2a$10$2V.Zkng1bUfy61p2.Oowsu9F91eVCGgZcFQXH7mC4c8j/SRdF1.KK',
-        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 120 DAY), '600888777', 1,
-        DATE_SUB(CURDATE(), INTERVAL 15 DAY), DATE_ADD(CURDATE(), INTERVAL 15 DAY)),
-
-    -- Contraseña original: HolaGym#24
-    (5, '00000005', 'prueba holaa', 'p@yopmail.com',
-        '$2a$10$hyePxBkuqvY6dXy2Hh2HaOwOlYrGZ7rRlR2Y7biwiW7v3S63LaOHG',
-        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 90 DAY), '599999999', NULL, NULL, NULL),
-
-    -- Contraseña original: IncaHola#24
-    (6, '00000006', 'Hola', 'holainca@yopmail.com',
-        '$2a$10$3Z7h72fL9EKC62XsfBKtne5o6ZBFZlZp7jd0QxsuNn.7F5N7EuArK',
-        'USUARIO', 1, DATE_SUB(CURDATE(), INTERVAL 60 DAY), '666999330', 2,
-        DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 80 DAY))
-ON DUPLICATE KEY UPDATE
-    nombre = VALUES(nombre),
-    password = VALUES(password),
-    rol = VALUES(rol),
-    activo = VALUES(activo),
-    fecha_registro = VALUES(fecha_registro),
-    telefono = VALUES(telefono),
-    membresia_id = VALUES(membresia_id),
-    fecha_inicio_membresia = VALUES(fecha_inicio_membresia),
-    fecha_fin_membresia = VALUES(fecha_fin_membresia);
-
-/* ----------- RESERVAS Y ASISTENCIAS ----------- */
-INSERT INTO reservas (socio_id, clase_id, fecha_hora, estado) VALUES
-    (3, 1, DATE_ADD(CURDATE(), INTERVAL 2 DAY) + INTERVAL 18 HOUR + INTERVAL 30 MINUTE, 'CONFIRMADA'),
-    (4, 2, DATE_ADD(CURDATE(), INTERVAL 3 DAY) + INTERVAL 20 HOUR, 'CONFIRMADA'),
-    (5, 2, DATE_SUB(CURDATE(), INTERVAL 2 DAY) + INTERVAL 20 HOUR, 'CANCELADA'),
-    (6, 3, DATE_ADD(CURDATE(), INTERVAL 5 DAY) + INTERVAL 19 HOUR, 'PENDIENTE')
-ON DUPLICATE KEY UPDATE estado = VALUES(estado);
-
-INSERT INTO asistencias (socio_id, clase_id, fecha, presente) VALUES
-    (3, 1, DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1),
-    (4, 2, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1),
-    (5, 2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 0)
-ON DUPLICATE KEY UPDATE presente = VALUES(presente);
-
-/* ----------- FACTURAS, DETALLES Y PAGOS ----------- */
-
--- Limpieza opcional de facturas de demo previas
-DELETE FROM pagos          WHERE factura_id NOT IN (SELECT id FROM facturas);
-DELETE FROM detalles_factura WHERE factura_id NOT IN (SELECT id FROM facturas);
-DELETE FROM facturas WHERE id >= 1000;
-
-INSERT INTO facturas (id, socio_id, fecha, total, estado) VALUES
-    (1001, 3, DATE_SUB(CURDATE(), INTERVAL 5 MONTH),   39.90, 'PAGADA'),
-    (1002, 4, DATE_SUB(CURDATE(), INTERVAL 4 MONTH),   45.00, 'PAGADA'),
-    (1003, 5, DATE_SUB(CURDATE(), INTERVAL 3 MONTH),   52.50, 'PAGADA'),
-    (1004, 6, DATE_SUB(CURDATE(), INTERVAL 2 MONTH),   58.50, 'PENDIENTE'),
-    (1005, 3, DATE_SUB(CURDATE(), INTERVAL 1 MONTH),   68.00, 'PAGADA'),
-    (1006, 3, CURDATE(),                               120.00,'PENDIENTE')
-ON DUPLICATE KEY UPDATE
-    socio_id = VALUES(socio_id),
-    fecha = VALUES(fecha),
-    total = VALUES(total),
-    estado = VALUES(estado);
-
-INSERT INTO detalles_factura (factura_id, descripcion, cantidad, precio_unitario, subtotal, tipo_item, membresia_id, reserva_id) VALUES
-    (1001, 'Membresía Mensual',     1, 39.90, 39.90, 'MEMBRESIA', 1, NULL),
-    (1002, 'Membresía Mensual',     1, 45.00, 45.00, 'MEMBRESIA', 1, NULL),
-    (1003, 'Membresía + Clase HIIT',1, 52.50, 52.50, 'MIXTO',     1, NULL),
-    (1004, 'Membresía Mensual',     1, 45.00, 45.00, 'MEMBRESIA', 1, NULL),
-    (1004, 'Clase HIIT Nocturno',   1, 13.50, 13.50, 'CLASE',     NULL, 2),
-    (1005, 'Bono Clases + Mensual', 1, 68.00, 68.00, 'MIXTO',     1, 1),
-    (1006, 'Membresía Anual',       1,120.00,120.00, 'MEMBRESIA', 3, NULL)
-ON DUPLICATE KEY UPDATE
-    descripcion = VALUES(descripcion),
-    cantidad = VALUES(cantidad),
-    precio_unitario = VALUES(precio_unitario),
-    subtotal = VALUES(subtotal),
-    tipo_item = VALUES(tipo_item),
-    membresia_id = VALUES(membresia_id),
-    reserva_id = VALUES(reserva_id);
-
-INSERT INTO pagos (factura_id, fecha_pago, monto_pagado, metodo_pago) VALUES
-    (1001, DATE_SUB(CURDATE(), INTERVAL 5 MONTH), 39.90, 'TARJETA'),
-    (1002, DATE_SUB(CURDATE(), INTERVAL 4 MONTH), 45.00, 'TRANSFERENCIA'),
-    (1003, DATE_SUB(CURDATE(), INTERVAL 3 MONTH), 52.50, 'TARJETA'),
-    (1005, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 68.00, 'BIZUM')
-ON DUPLICATE KEY UPDATE
-    fecha_pago   = VALUES(fecha_pago),
-    monto_pagado = VALUES(monto_pagado),
-    metodo_pago  = VALUES(metodo_pago);
-
-
-/* Admin demo – contraseña: AdminDemo#24 */
-INSERT INTO socios (
-    dni, nombre, email, password, rol, activo,
-    fecha_registro, telefono, membresia_id,
-    fecha_inicio_membresia, fecha_fin_membresia
-)
-VALUES (
-    '00000007',
-    'Admin Demo',
-    'admindemo@incafit.com',
-    '$2a$12$1kuAJ7Ju7cl11mx6SaI9GOVbEw7ZcW6GlVRlJTMsKQdLWBnwD66wu', -- hash de AdminDemo#24
-    'ADMIN',
-    1,
-    CURDATE(),
-    '600777888',
-    NULL,
-    NULL,
-    NULL
-);
-
--- Deja al admin demo con la contraseña: admin123
-UPDATE socios
-SET password = '$2a$10$OGLqZw8GBl/yw5vmb3r7EOB6MRgVuLewqgi4pYh8v7pLmeU20acg.'
-WHERE email = 'admindemo@incafit.com'
-;
-
-UPDATE socios
-SET password = '$2a$10$M7AlYmPn1QIPDultONJ2XOq8c6PfIL1eM/jDOxKMK7gf/CIEvdOGO',
-    rol = 'ADMIN',
-    activo = 1
-WHERE email = 'admindemo@incafit.com';
-
-select * from socios;
+INSERT INTO pagos (id, factura_id, fecha_pago, monto_pagado, metodo_pago) VALUES
+  (2, 2, '2024-10-01', 135.00, 'TRANSFERENCIA_BANCARIA');
