@@ -12,22 +12,34 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <form th:action="${clase.id == null ? '/admin/clases/nueva' : '/admin/clases/editar/' + clase.id}" th:object="${clase}" method="post">
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">Ocurrio un error</div>
+                <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">Guardado</div>
+                <div th:if="${#fields.hasErrors()}" class="alert alert-danger">
+                    Revisa los datos marcados en rojo.
+                    <ul class="mb-0">
+                        <li th:each="err : ${#fields.errors()}" th:text="${err}">Error</li>
+                    </ul>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required
+                                   th:classappend="${#fields.hasErrors('nombre')} ? ' is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">Error</div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="instructor" class="form-label">Instructor</label>
-                            <select class="form-select" id="instructor" th:field="*{instructor}" required>
+                            <select class="form-select" id="instructor" th:field="*{instructor}" required
+                                    th:classappend="${#fields.hasErrors('instructor')} ? ' is-invalid'">
                                 <option value="">Seleccionar instructor...</option>
                                 <option th:each="instructor : ${instructores}"
                                         th:value="${instructor.id}"
                                         th:text="${instructor.nombreCompleto}"></option>
                             </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('instructor')}" th:errors="*{instructor}">Error</div>
                         </div>
                     </div>
                 </div>
@@ -36,13 +48,17 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="hora" class="form-label">Hora</label>
-                            <input type="time" class="form-control" id="hora" th:field="*{hora}" required>
+                            <input type="time" class="form-control" id="hora" th:field="*{hora}" required
+                                   th:classappend="${#fields.hasErrors('hora')} ? ' is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}">Error</div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="duracionMinutos" class="form-label">Duracion (minutos)</label>
-                            <input type="number" class="form-control" id="duracionMinutos" th:field="*{duracionMinutos}" required>
+                            <input type="number" class="form-control" id="duracionMinutos" th:field="*{duracionMinutos}" required
+                                   th:classappend="${#fields.hasErrors('duracionMinutos')} ? ' is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('duracionMinutos')}" th:errors="*{duracionMinutos}">Error</div>
                         </div>
                     </div>
                 </div>

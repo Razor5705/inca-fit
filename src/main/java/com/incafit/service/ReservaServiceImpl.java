@@ -7,14 +7,16 @@ import com.incafit.Model.Reserva;
 import com.incafit.Model.Socio;
 import com.incafit.Repository.AsistenciaRepository;
 import com.incafit.Repository.ReservaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.incafit.Repository.ClaseRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ReservaServiceImpl implements ReservaService {
@@ -23,22 +25,33 @@ public class ReservaServiceImpl implements ReservaService {
     private final ClaseRepository claseRepository;
     private final AsistenciaRepository asistenciaRepository;
     private final EmailService emailService;
+    private final ClaseHorarioService claseHorarioService;
 
     @Autowired
-    public ReservaServiceImpl(ReservaRepository reservaRepository, 
-                             ClaseRepository claseRepository,
-                             AsistenciaRepository asistenciaRepository,
-                             EmailService emailService) {
+    public ReservaServiceImpl(ReservaRepository reservaRepository,
+                              ClaseRepository claseRepository,
+                              AsistenciaRepository asistenciaRepository,
+                              EmailService emailService,
+                              ClaseHorarioService claseHorarioService) {
         this.reservaRepository = reservaRepository;
         this.claseRepository = claseRepository;
         this.asistenciaRepository = asistenciaRepository;
         this.emailService = emailService;
+        this.claseHorarioService = claseHorarioService;
     }
 
     @Override
     public Reserva crearReserva(Socio socio, Long claseId, LocalDateTime fechaHora) {
+        validarSocio(socio);
+
         Clase clase = claseRepository.findById(claseId)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada con ID: " + claseId));
+        validarClaseYHorario(clase, fechaHora);
+        validarCapacidad(clase, fechaHora);
+        if (reservaRepository.existsReservaActiva(socio, claseId, fechaHora)) {
+            throw new IllegalArgumentException("Ya tienes una reserva activa para esta clase y fecha.");
+        }
+
         Reserva reserva = new Reserva();
         reserva.setSocio(socio);
         reserva.setClase(clase);
@@ -46,8 +59,8 @@ public class ReservaServiceImpl implements ReservaService {
         reserva.setEstado("CONFIRMADA");
 
         Reserva reservaGuardada = reservaRepository.save(reserva);
-        
-        // Crear asistencia automáticamente cuando se confirma una reserva
+
+        // Crear asistencia automaticamente cuando se confirma una reserva
         Asistencia asistencia = new Asistencia();
         asistencia.setSocio(socio);
         asistencia.setClase(clase);
@@ -69,6 +82,59 @@ public class ReservaServiceImpl implements ReservaService {
         }
 
         return reservaGuardada;
+    }
+
+    private void validarSocio(Socio socio) {
+        if (socio == null) {
+            throw new IllegalArgumentException("Socio no encontrado.");
+        }
+        if (!socio.isActivo()) {
+            throw new IllegalStateException("Tu cuenta esta inactiva. Reactivala para reservar.");
+        }
+        if (socio.getMembresia() == null || !socio.isMembresiaActiva()) {
+            throw new IllegalStateException("Necesitas una membresia vigente para reservar esta clase.");
+        }
+    }
+
+    private void validarClaseYHorario(Clase clase, LocalDateTime fechaHora) {
+        if (clase == null) {
+            throw new IllegalArgumentException("Clase no encontrada.");
+        }
+        if (!clase.isActivo()) {
+            throw new IllegalStateException("La clase no esta activa.");
+        }
+        if (!clase.isVigente()) {
+            throw new IllegalStateException("La clase no esta vigente.");
+        }
+        if (fechaHora == null) {
+            throw new IllegalArgumentException("La fecha y hora de la reserva son obligatorias.");
+        }
+        if (fechaHora.toLocalDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("No puedes reservar en una fecha pasada.");
+        }
+        if (clase.getFechaInicio() != null && fechaHora.toLocalDate().isBefore(clase.getFechaInicio())) {
+            throw new IllegalArgumentException("La clase seleccionada aun no ha comenzado.");
+        }
+        if (clase.getFechaFin() != null && fechaHora.toLocalDate().isAfter(clase.getFechaFin())) {
+            throw new IllegalArgumentException("La clase seleccionada ya finalizo.");
+        }
+        if (clase.getHora() != null && !clase.getHora().equals(fechaHora.toLocalTime())) {
+            throw new IllegalArgumentException("La hora seleccionada no coincide con el horario de la clase.");
+        }
+        Set<DayOfWeek> diasPermitidos = claseHorarioService.obtenerDiasPermitidos(clase.getId());
+        if (diasPermitidos != null && !diasPermitidos.isEmpty() && !diasPermitidos.contains(fechaHora.getDayOfWeek())) {
+            throw new IllegalArgumentException("La clase no se imparte el dia seleccionado.");
+        }
+    }
+
+    private void validarCapacidad(Clase clase, LocalDateTime fechaHora) {
+        if (clase.getCapacidadMaxima() <= 0) {
+            return;
+        }
+        long ocupadas = reservaRepository.countActivasByClaseAndFechaHora(clase.getId(), fechaHora);
+        if (ocupadas >= clase.getCapacidadMaxima()) {
+            throw new IllegalStateException("No quedan plazas disponibles para esta clase en la fecha seleccionada.");
+        }
     }
 
     @Override
@@ -113,7 +179,7 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public List<Reserva> obtenerTodasReservas() {
-        return reservaRepository.findAll(); // Debe usar el repositorio para obtener todas las facturas
+        return reservaRepository.findAll();
     }
 
     @Override

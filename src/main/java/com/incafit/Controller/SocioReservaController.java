@@ -35,13 +35,20 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/socio")
 public class SocioReservaController {
 
-    private static final Locale LOCALE_ES = new Locale("es", "ES");
+    private static final Locale LOCALE_ES = Locale.forLanguageTag("es-ES");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final List<DayOfWeek> DIAS_SEMANA = List.of(
@@ -125,7 +132,7 @@ public class SocioReservaController {
         return "socio/reservas/formulario";
     }
 
-    @PostMapping("/reservas/guardar")
+        @PostMapping("/reservas/guardar")
     public String guardarReserva(@RequestParam("claseId") Long claseId,
                                  @RequestParam(value = "fechaReserva", required = false) String fechaReserva,
                                  @ModelAttribute Reserva reserva,
@@ -137,46 +144,7 @@ public class SocioReservaController {
                 throw new IllegalArgumentException("Clase no encontrada");
             }
 
-
-            LocalDateTime fechaHora = reserva.getFechaHora();
-            if (fechaHora == null) {
-                if (fechaReserva == null || fechaReserva.isBlank()) {
-                    throw new IllegalArgumentException("Debe seleccionar una fecha para la clase");
-                }
-
-                LocalDate fecha = LocalDate.parse(fechaReserva);
-                DayOfWeek dia = fecha.getDayOfWeek();
-                if (!claseHorarioService.obtenerDiasPermitidos(claseSeleccionada.getId()).contains(dia)) {
-                    String diaEnEspanol = dia.getDisplayName(TextStyle.FULL, new Locale("es", "ES"));
-                    throw new IllegalArgumentException("La clase seleccionada no se imparte los " + diaEnEspanol + ".");
-                }
-
-                LocalDate hoy = LocalDate.now();
-                if (fecha.isBefore(hoy)) {
-                    throw new IllegalArgumentException("No es posible reservar en una fecha pasada.");
-                }
-
-                if (claseSeleccionada.getFechaInicio() != null &&
-                        fecha.isBefore(claseSeleccionada.getFechaInicio())) {
-                    throw new IllegalArgumentException("La clase seleccionada aún no ha comenzado.");
-                }
-
-                if (claseSeleccionada.getFechaFin() != null &&
-                        fecha.isAfter(claseSeleccionada.getFechaFin())) {
-                    throw new IllegalArgumentException("La clase seleccionada ya ha finalizado.");
-                }
-
-                LocalTime hora = claseSeleccionada.getHora();
-                if (hora == null) {
-                    throw new IllegalStateException("La clase seleccionada no tiene una hora configurada");
-                }
-                fechaHora = LocalDateTime.of(fecha, hora);
-            }
-
-            if (reservaService.existeReservaActiva(socio, claseId, fechaHora)) {
-                throw new IllegalArgumentException("Ya tienes una reserva activa para esta clase y fecha.");
-            }
-
+            LocalDateTime fechaHora = construirFechaHoraSegura(claseSeleccionada, fechaReserva, reserva.getFechaHora());
             reservaService.crearReserva(socio, claseId, fechaHora);
             redirect.addFlashAttribute("success", "Reserva creada correctamente");
         } catch (Exception e) {
@@ -261,38 +229,17 @@ public class SocioReservaController {
                 .filter(f -> f.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Factura no encontrada o no pertenece al socio."));
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Factura #").append(factura.getId()).append(System.lineSeparator());
-        sb.append("Fecha: ").append(factura.getFecha()).append(System.lineSeparator());
-        sb.append("Estado: ").append(factura.getEstado()).append(System.lineSeparator());
-        sb.append("Total: ").append(factura.getTotal()).append(System.lineSeparator()).append(System.lineSeparator());
-
-        sb.append("Conceptos:").append(System.lineSeparator());
-        if (factura.getDetalles() != null && !factura.getDetalles().isEmpty()) {
-            factura.getDetalles().forEach(d -> sb.append("- ")
-                    .append(d.getDescripcion()).append(" | Cantidad: ").append(d.getCantidad())
-                    .append(" | Precio: ").append(d.getPrecioUnitario())
-                    .append(" | Subtotal: ").append(d.getSubtotal())
-                    .append(System.lineSeparator()));
-        } else {
-            sb.append("- Sin conceptos").append(System.lineSeparator());
+        if (factura.getDetalles() != null) {
+            factura.getDetalles().size();
+        }
+        if (factura.getPagos() != null) {
+            factura.getPagos().size();
         }
 
-        sb.append(System.lineSeparator()).append("Pagos:").append(System.lineSeparator());
-        if (factura.getPagos() != null && !factura.getPagos().isEmpty()) {
-            factura.getPagos().forEach(p -> sb.append("- ")
-                    .append(p.getFechaPago()).append(" | ").append(p.getMetodoPago())
-                    .append(" | Importe: ").append(p.getMontoPagado())
-                    .append(System.lineSeparator()));
-        } else {
-            sb.append("- Sin pagos registrados").append(System.lineSeparator());
-        }
-
-        byte[] bytes = sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] bytes = FacturaPdfBuilder.desdeFactura(factura);
         return org.springframework.http.ResponseEntity.ok()
-                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=factura-" + factura.getId() + ".txt")
-                .contentType(org.springframework.http.MediaType.TEXT_PLAIN)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=factura-" + factura.getId() + ".pdf")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
                 .body(bytes);
     }
 
@@ -419,6 +366,46 @@ public class SocioReservaController {
         return eventos;
     }
 
+    private LocalDateTime construirFechaHoraSegura(Clase claseSeleccionada,
+                                                   String fechaReserva,
+                                                   LocalDateTime fechaHoraForm) {
+        LocalDate fecha;
+        if (fechaReserva != null && !fechaReserva.isBlank()) {
+            fecha = LocalDate.parse(fechaReserva);
+        } else if (fechaHoraForm != null) {
+            fecha = fechaHoraForm.toLocalDate();
+        } else {
+            throw new IllegalArgumentException("Debe seleccionar una fecha para la clase");
+        }
+
+        DayOfWeek dia = fecha.getDayOfWeek();
+        if (!claseHorarioService.obtenerDiasPermitidos(claseSeleccionada.getId()).contains(dia)) {
+            String diaEnEspanol = dia.getDisplayName(TextStyle.FULL, LOCALE_ES);
+            throw new IllegalArgumentException("La clase seleccionada no se imparte los " + diaEnEspanol + ".");
+        }
+
+        LocalDate hoy = LocalDate.now();
+        if (fecha.isBefore(hoy)) {
+            throw new IllegalArgumentException("No es posible reservar en una fecha pasada.");
+        }
+
+        if (claseSeleccionada.getFechaInicio() != null &&
+                fecha.isBefore(claseSeleccionada.getFechaInicio())) {
+            throw new IllegalArgumentException("La clase seleccionada aun no ha comenzado.");
+        }
+
+        if (claseSeleccionada.getFechaFin() != null &&
+                fecha.isAfter(claseSeleccionada.getFechaFin())) {
+            throw new IllegalArgumentException("La clase seleccionada ya ha finalizado.");
+        }
+
+        LocalTime hora = claseSeleccionada.getHora();
+        if (hora == null) {
+            throw new IllegalStateException("La clase seleccionada no tiene una hora configurada");
+        }
+        return LocalDateTime.of(fecha, hora);
+    }
+
     private Map<DayOfWeek, Map<LocalTime, List<Clase>>> construirMatrizSemanal(List<Clase> clases,
                                                                               SortedSet<LocalTime> horasRegistradas) {
         Map<DayOfWeek, Map<LocalTime, List<Clase>>> matriz = new LinkedHashMap<>();
@@ -453,4 +440,77 @@ public class SocioReservaController {
 
         return matriz;
     }
+
+    private static class FacturaPdfBuilder {
+        private static final float MARGIN = 40f;
+        private static final float LEADING = 16f;
+
+        static byte[] desdeFactura(Factura factura) {
+            try (PDDocument doc = new PDDocument(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                PDPage page = new PDPage(PDRectangle.A4);
+                doc.addPage(page);
+
+                try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
+                    cs.setFont(PDType1Font.HELVETICA_BOLD, 14);
+                    float y = page.getMediaBox().getHeight() - MARGIN;
+                    cs.beginText();
+                    cs.newLineAtOffset(MARGIN, y);
+                    cs.showText("Factura #" + factura.getId());
+                    cs.endText();
+
+                    y -= LEADING * 2;
+                    cs.setFont(PDType1Font.HELVETICA, 12);
+                    y = writeLine(cs, "Fecha: " + factura.getFecha(), y);
+                    y = writeLine(cs, "Estado: " + factura.getEstado(), y);
+                    y = writeLine(cs, "Total: " + factura.getTotal(), y);
+
+                    y = writeLine(cs, "", y);
+                    cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                    y = writeLine(cs, "Conceptos:", y);
+                    cs.setFont(PDType1Font.HELVETICA, 12);
+                    if (factura.getDetalles() != null && !factura.getDetalles().isEmpty()) {
+                        for (var d : factura.getDetalles()) {
+                            y = writeLine(cs,
+                                    "- " + d.getDescripcion() + " | Cantidad: " + d.getCantidad()
+                                            + " | Precio: " + d.getPrecioUnitario()
+                                            + " | Subtotal: " + d.getSubtotal(),
+                                    y);
+                        }
+                    } else {
+                        y = writeLine(cs, "- Sin conceptos", y);
+                    }
+
+                    y = writeLine(cs, "", y);
+                    cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                    y = writeLine(cs, "Pagos:", y);
+                    cs.setFont(PDType1Font.HELVETICA, 12);
+                    if (factura.getPagos() != null && !factura.getPagos().isEmpty()) {
+                        for (var p : factura.getPagos()) {
+                            y = writeLine(cs,
+                                    "- " + p.getFechaPago() + " | " + p.getMetodoPago()
+                                            + " | Importe: " + p.getMontoPagado(),
+                                    y);
+                        }
+                    } else {
+                        y = writeLine(cs, "- Sin pagos registrados", y);
+                    }
+                }
+
+                doc.save(out);
+                return out.toByteArray();
+            } catch (IOException e) {
+                throw new RuntimeException("No se pudo generar el PDF de la factura", e);
+            }
+        }
+
+        private static float writeLine(PDPageContentStream cs, String text, float y) throws IOException {
+            cs.beginText();
+            cs.newLineAtOffset(MARGIN, y);
+            cs.showText(text != null ? text : "");
+            cs.endText();
+            return y - LEADING;
+        }
+    }
 }
+
+

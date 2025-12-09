@@ -22,9 +22,9 @@
                 </div>
                 <div class="card-body p-4">
                     <p class="text-center mb-4">Introduce tus datos de pago para completar el registro. <strong>(Esto es una simulación)</strong></p>
-                    
+
                     <div class="alert alert-info mb-4">
-                        <h6 class="alert-heading">Datos de prueba para el tutor:</h6>
+                        <h6 class="alert-heading">Datos de prueba:</h6>
                         <ul class="mb-0 small">
                             <li><strong>Nombre en la tarjeta:</strong> Cualquier nombre (ej: Juan Perez)</li>
                             <li><strong>Numero de tarjeta:</strong> 16 digitos (ej: 1234 5678 9012 3456)</li>
@@ -33,7 +33,7 @@
                         </ul>
                     </div>
 
-                    <form th:action="@{/registro/paso3}" th:object="${registroDto}" method="post" id="formPaso3">
+                    <form th:action="@{/registro/paso3}" th:object="${registroDto}" method="post" id="formPaso3" autocomplete="off">
                         <div class="form-floating mb-3">
                             <input type="text"
                                    class="form-control"
@@ -48,19 +48,18 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Numero de Tarjeta (16 digitos)</label>
+                        <div class="form-floating mb-3">
                             <input type="text"
-                                   class="form-control text-center"
+                                   class="form-control"
                                    id="numeroTarjeta"
-                                   name="numeroTarjeta"
                                    th:field="*{numeroTarjeta}"
                                    placeholder="1234 5678 9012 3456"
-                                   maxlength="19"
                                    inputmode="numeric"
                                    autocomplete="cc-number"
-                                   pattern="[0-9]{16}">
-                            <div class="form-text">Introduce los 16 digitos; se formatean en grupos de 4 automaticamente.</div>
+                                   maxlength="19"
+                                   required>
+                            <label for="numeroTarjeta">Numero de Tarjeta (16 digitos)</label>
+                            <div class="form-text">Se agrupa en bloques de 4 automaticamente.</div>
                             <div id="luhnEstado" class="small mt-1"></div>
                             <div th:if="${#fields.hasErrors('numeroTarjeta')}" class="text-danger small mt-1">
                                 <span th:errors="*{numeroTarjeta}"></span>
@@ -98,9 +97,9 @@
                                            maxlength="3"
                                            inputmode="numeric"
                                            autocomplete="cc-csc"
-                                           title="Debe tener 3 dígitos"
+                                           title="Debe tener 3 digitos"
                                            required>
-                                    <label for="cvv">CVV (3 dígitos)</label>
+                                    <label for="cvv">CVV (3 digitos)</label>
                                     <div th:if="${#fields.hasErrors('cvv')}" class="text-danger small mt-1">
                                         <span th:errors="*{cvv}"></span>
                                     </div>
@@ -125,9 +124,6 @@
         </div>
     </div>
 </div>
-
-
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const numeroTarjetaInput = document.getElementById('numeroTarjeta');
@@ -142,9 +138,15 @@
 
         const soloDigitos = (valor) => (valor || '').replace(/\D/g, '');
 
-        const formatearNumero = (valor) => {
-            const limpio = soloDigitos(valor).slice(0, 16);
-            return limpio.replace(/(.{4})/g, '$1 ').trim();
+        const leerNumero = () => soloDigitos(numeroTarjetaInput?.value || '').slice(0, 16);
+        const formatearNumero = () => {
+            if (!numeroTarjetaInput) return '';
+            const limpio = leerNumero();
+            const conEspacios = limpio.replace(/(.{4})/g, '$1 ').trim();
+            numeroTarjetaInput.value = conEspacios;
+            // coloca el cursor al final del texto formateado
+            numeroTarjetaInput.setSelectionRange(conEspacios.length, conEspacios.length);
+            return limpio;
         };
 
         const validarLuhn = (numero) => {
@@ -164,28 +166,31 @@
             return suma % 10 === 0;
         };
 
-        const actualizarEstado = (numero) => {
-            const limpio = soloDigitos(numero);
+        const actualizarEstado = () => {
+            const limpio = leerNumero();
             if (!luhnEstado) return;
             if (limpio.length === 0) {
                 luhnEstado.className = 'small mt-1 text-muted';
                 luhnEstado.textContent = '';
+                numeroTarjetaInput?.setCustomValidity('');
                 return;
             }
             if (limpio.length < 16) {
                 luhnEstado.className = 'small mt-1 text-muted';
                 luhnEstado.textContent = `Ingresa ${16 - limpio.length} digitos mas`;
+                numeroTarjetaInput?.setCustomValidity('Faltan digitos');
                 return;
             }
             const valido = validarLuhn(limpio);
-            luhnEstado.className = 'small mt-1 ' + (valido ? 'text-success' : 'text-warning');
-            luhnEstado.textContent = valido ? '✓ Numero de tarjeta listo' : '⚠ El numero no pasa Luhn, revisa los digitos';
+            luhnEstado.className = 'small mt-1 ' + (valido ? 'text-success' : 'text-danger');
+            luhnEstado.textContent = valido ? 'Numero de tarjeta listo' : 'El numero no pasa Luhn, revisa los digitos';
+            numeroTarjetaInput?.setCustomValidity(valido ? '' : 'Tarjeta invalida');
         };
 
         const guardar = () => {
             const payload = {
                 nombre: nombreTarjetaInput?.value || '',
-                numero: soloDigitos(numeroTarjetaInput?.value || ''),
+                numero: leerNumero(),
                 fecha: fechaCaducidadInput?.value || '',
                 cvv: cvvInput?.value || ''
             };
@@ -198,25 +203,25 @@
                 if (!raw) return;
                 const data = JSON.parse(raw);
                 if (data.nombre && nombreTarjetaInput) nombreTarjetaInput.value = data.nombre;
-                if (data.numero && numeroTarjetaInput) numeroTarjetaInput.value = formatearNumero(data.numero);
+                if (data.numero && numeroTarjetaInput) numeroTarjetaInput.value = data.numero.replace(/(.{4})/g, '$1 ').trim();
                 if (data.fecha && fechaCaducidadInput) fechaCaducidadInput.value = data.fecha;
                 if (data.cvv && cvvInput) cvvInput.value = data.cvv;
-                actualizarEstado(numeroTarjetaInput?.value || '');
+                actualizarEstado();
             } catch (_) {}
         };
 
-        numeroTarjetaInput?.addEventListener('input', (e) => {
-            e.target.value = formatearNumero(e.target.value);
-            actualizarEstado(e.target.value);
-            guardar();
-        });
-        numeroTarjetaInput?.addEventListener('blur', (e) => {
-            const limpio = soloDigitos(e.target.value);
-            if (limpio.length && limpio.length < 16 && luhnEstado) {
-                luhnEstado.className = 'small mt-1 text-danger';
-                luhnEstado.textContent = `Se requieren 16 digitos (tienes ${limpio.length})`;
+        if (numeroTarjetaInput) {
+            numeroTarjetaInput.addEventListener('input', () => {
+                formatearNumero();
+                actualizarEstado();
+                guardar();
+            });
+            // formatea si viene precargado
+            if (numeroTarjetaInput.value) {
+                formatearNumero();
+                actualizarEstado();
             }
-        });
+        }
 
         fechaCaducidadInput?.addEventListener('input', (e) => {
             let valor = soloDigitos(e.target.value).slice(0, 4);
@@ -229,10 +234,11 @@
         cvvInput?.addEventListener('input', guardar);
 
         restaurar();
-        actualizarEstado(numeroTarjetaInput?.value || '');
+        actualizarEstado();
 
         form?.addEventListener('submit', (e) => {
-            const limpio = soloDigitos(numeroTarjetaInput?.value || '');
+            const limpio = leerNumero();
+            if (numeroTarjetaInput) numeroTarjetaInput.value = limpio;
             if (limpio.length !== 16) {
                 e.preventDefault();
                 if (luhnEstado) {
@@ -242,7 +248,6 @@
                 numeroTarjetaInput?.focus();
                 return;
             }
-            numeroTarjetaInput.value = limpio;
             if (spinner && submitBtn) {
                 spinner.classList.remove('d-none');
                 submitBtn.disabled = true;
@@ -251,8 +256,5 @@
         });
     });
 </script>
-
-
-
 </body>
 </html>

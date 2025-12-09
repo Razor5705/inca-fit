@@ -24,6 +24,9 @@
             <span th:text="${resumenRenovacion['fin']}">--/--/----</span>
             (<span th:text="${resumenRenovacion['metodo']}">metodo</span>).
         </div>
+        <div th:if="${facturaHoy}" class="alert alert-info">
+            Ya registraste una renovacion hoy. Puedes ver el detalle, pero espera 24h para volver a confirmar otro pago.
+        </div>
         <div th:if="${pagoExito}" class="alert alert-success">
             Pago aprobado.
             <span th:if="${referenciaPago != null}">
@@ -59,7 +62,7 @@
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <form th:action="@{/socio/membresia/renovar}" method="post" id="formRenovacion">
+            <form th:action="@{/socio/membresia/renovar}" method="post" id="formRenovacion" autocomplete="off">
                 <input type="hidden" name="cambio" th:value="${esCambioPlan}">
                 <div class="row g-3">
                     <div class="col-md-6" th:each="membresia : ${membresias}">
@@ -159,16 +162,14 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Numero de tarjeta</label>
-                                <input type="text"
-                                       class="form-control text-center"
+                                <input type="text" class="form-control"
                                        id="numeroTarjeta"
                                        name="numeroTarjeta"
-                                       placeholder="1234 5678 9012 3456"
-                                       maxlength="19"
                                        inputmode="numeric"
                                        autocomplete="cc-number"
-                                       pattern="[0-9\\s]{16,19}">
-                                <div class="form-text">Introduce 16 digitos, se formatean en grupos de 4 automaticamente.</div>
+                                       maxlength="19"
+                                       placeholder="1234 5678 9012 3456">
+                                <div class="form-text">Se agrupa en bloques de 4 automaticamente.</div>
                                 <div id="luhnEstado" class="small mt-1"></div>
                             </div>
                             <div class="col-md-4">
@@ -316,11 +317,14 @@
         const luhnEstado = document.getElementById('luhnEstado');
         const planResumen = document.getElementById('planResumen');
         const metodoResumen = document.getElementById('metodoResumen');
+        const miniResumenCard = planResumen ? planResumen.closest('.alert') : null;
+        const totalsCard = document.querySelector('.border.rounded.p-3.bg-light.mt-3');
 
         const opcionesFecha = {day: '2-digit', month: '2-digit', year: 'numeric'};
 
         const soloDigitos = (valor) => (valor || '').replace(/\D/g, '');
-        const formatearTarjeta = (valor) => soloDigitos(valor).slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+        const formatearTarjeta = (valor) => soloDigitos(valor).slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+        const leerNumero = () => soloDigitos(numeroTarjetaInput?.value || '').slice(0, 16);
         const validarLuhn = (numero) => {
             const limpio = soloDigitos(numero);
             if (limpio.length !== 16) return false;
@@ -334,7 +338,7 @@
         };
         const actualizarEstadoTarjeta = () => {
             if (!luhnEstado || !numeroTarjetaInput) return;
-            const limpio = soloDigitos(numeroTarjetaInput.value);
+            const limpio = leerNumero();
             if (!limpio.length) { luhnEstado.textContent=''; luhnEstado.className='small mt-1 text-muted'; return; }
             if (limpio.length < 16) {
                 luhnEstado.textContent = `Ingresa ${16 - limpio.length} digitos mas`;
@@ -342,16 +346,25 @@
                 return;
             }
             const ok = validarLuhn(limpio);
-            luhnEstado.textContent = ok ? '✓ Numero listo' : '⚠ Revisa los digitos (no pasa Luhn)';
+            luhnEstado.textContent = ok ? 'Numero listo' : 'Revisa los digitos (no pasa Luhn)';
             luhnEstado.className = 'small mt-1 ' + (ok ? 'text-success' : 'text-warning');
         };
 
         if (numeroTarjetaInput) {
             numeroTarjetaInput.addEventListener('input', (e) => {
-                e.target.value = formatearTarjeta(e.target.value);
+                const limpio = leerNumero();
+                const formateado = formatearTarjeta(limpio);
+                const cursor = e.target.selectionStart;
+                e.target.value = formateado;
+                // intentar mantener el cursor al final
+                e.target.setSelectionRange(formateado.length, formateado.length);
                 actualizarEstadoTarjeta();
             });
-            numeroTarjetaInput.addEventListener('blur', () => actualizarEstadoTarjeta());
+            // formatear si viene precargado
+            if (numeroTarjetaInput.value) {
+                numeroTarjetaInput.value = formatearTarjeta(numeroTarjetaInput.value);
+                actualizarEstadoTarjeta();
+            }
         }
         if (fechaInput) {
             fechaInput.addEventListener('input', (e) => {
@@ -360,6 +373,39 @@
                 e.target.value = valor;
             });
         }
+
+        function styleBlocks() {
+            if (avisoTarjetaNueva) {
+                avisoTarjetaNueva.style.borderRadius = '12px';
+                avisoTarjetaNueva.style.border = '1px solid rgba(13,110,253,0.22)';
+                avisoTarjetaNueva.style.boxShadow = '0 12px 26px rgba(13,110,253,0.16)';
+                avisoTarjetaNueva.style.background = 'linear-gradient(135deg, rgba(13,110,253,0.16), rgba(13,110,253,0.08))';
+                avisoTarjetaNueva.style.padding = '0.9rem 1rem';
+            }
+            if (miniResumenCard) {
+                miniResumenCard.style.borderRadius = '12px';
+                miniResumenCard.style.border = '1px solid rgba(15,23,42,0.08)';
+                miniResumenCard.style.boxShadow = '0 10px 20px rgba(15,23,42,0.12)';
+                miniResumenCard.style.background = 'linear-gradient(135deg, #f9fafb, #eef2ff)';
+                miniResumenCard.style.padding = '0.9rem 1.1rem';
+            }
+            if (tarjetaFields) {
+                tarjetaFields.style.border = '1px solid rgba(15,23,42,0.08)';
+                tarjetaFields.style.borderRadius = '14px';
+                tarjetaFields.style.boxShadow = '0 12px 26px rgba(15,23,42,0.1)';
+                tarjetaFields.style.padding = '1.05rem';
+                tarjetaFields.style.background = '#fff';
+                tarjetaFields.style.gap = '0.75rem';
+            }
+            if (totalsCard) {
+                totalsCard.style.border = '1px solid rgba(15,23,42,0.08)';
+                totalsCard.style.borderRadius = '12px';
+                totalsCard.style.boxShadow = '0 12px 22px rgba(15,23,42,0.08)';
+                totalsCard.style.background = '#f9fafb';
+                totalsCard.style.padding = '1rem';
+            }
+        }
+        styleBlocks();
 
         // Seleccionar un metodo por defecto si no viene preseleccionado
         if (metodoRadios.length && !metodoRadios.some(r => r.checked)) {
@@ -417,7 +463,7 @@
         });
 
         function normalizarMetodo(val) {
-            return (val || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+            return (val || '').trim().toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
         }
         function obtenerMetodoSeleccionado() {
             const checked = metodoRadios.find(r => r.checked);
@@ -431,9 +477,7 @@
             tarjetaFields?.classList.toggle('d-none', !esTarjetaNueva);
             avisoTarjetaNueva?.classList.toggle('d-none', !esTarjetaNueva);
             transferenciaInfo.classList.toggle('d-none', !esTransferencia);
-            [titularInput, numeroTarjetaInput, fechaInput, cvvInput].forEach(inp => {
-                if (inp) inp.required = esTarjetaNueva;
-            });
+            [titularInput, fechaInput, cvvInput, numeroTarjetaInput].forEach(inp => { if (inp) inp.required = esTarjetaNueva; });
             if (!esTarjetaNueva) {
                 if (numeroTarjetaInput) numeroTarjetaInput.value = '';
                 if (luhnEstado) { luhnEstado.textContent=''; luhnEstado.className='small mt-1 text-muted'; }
@@ -472,26 +516,29 @@
                 return;
             }
             if (metodo === 'Tarjeta nueva') {
-                const limpio = soloDigitos(numeroTarjetaInput?.value || '');
-                if (limpio.length !== 16) {
+                const limpio = leerNumero();
+                const fechaVal = (fechaInput?.value || '').trim();
+                const cvvVal = (cvvInput?.value || '').trim();
+                const titularVal = (titularInput?.value || '').trim();
+                const erroresCliente = [];
+                if (!titularVal) erroresCliente.push('El nombre del titular es obligatorio.');
+                if (limpio.length !== 16) erroresCliente.push('El numero de tarjeta debe tener 16 digitos.');
+                if (limpio.length === 16 && !validarLuhn(limpio)) erroresCliente.push('El numero de tarjeta no es valido (Luhn).');
+                if (!fechaVal) erroresCliente.push('La fecha de expiracion es obligatoria.');
+                if (!cvvVal) erroresCliente.push('El CVV es obligatorio.');
+
+                if (erroresCliente.length) {
                     e.preventDefault();
-                    if (luhnEstado) {
-                        luhnEstado.className = 'small mt-1 text-danger';
-                        luhnEstado.textContent = 'El numero de tarjeta debe tener 16 digitos';
-                    }
-                    numeroTarjetaInput?.focus();
-                    return;
-                }
-                if (!validarLuhn(limpio)) {
-                    e.preventDefault();
-                    if (luhnEstado) {
-                        luhnEstado.className = 'small mt-1 text-danger';
-                        luhnEstado.textContent = 'El numero de tarjeta no es válido (Luhn).';
-                    }
-                    numeroTarjetaInput?.focus();
+                    alert(erroresCliente.join('\\n'));
+                    if (limpio.length !== 16) numeroTarjetaInput?.focus();
+                    else if (!fechaVal) fechaInput?.focus();
+                    else if (!cvvVal) cvvInput?.focus();
                     return;
                 }
                 numeroTarjetaInput.value = limpio; // enviar sin espacios
+                fechaInput.value = fechaVal;
+                cvvInput.value = cvvVal;
+                if (titularInput) titularInput.value = titularVal;
             }
             btnConfirmar.disabled = true;
         });
@@ -520,3 +567,12 @@
 </style>
 </body>
 </html>
+
+
+
+
+
+
+
+
+

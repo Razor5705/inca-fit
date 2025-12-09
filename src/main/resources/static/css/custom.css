@@ -1001,3 +1001,15 @@ h1, h2, h3, h4, h5, h6 {
         font-size: 0.9rem;
     }
 }
+
+/* Admin sidebar */
+#sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#sidebar .nav-link i {
+    width: 18px;
+    text-align: center;
+}

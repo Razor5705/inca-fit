@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -247,23 +248,38 @@ public class AdminClaseController {
         if (clase.getInstructor() == null || clase.getInstructor().getId() == null || clase.getHora() == null) {
             return false;
         }
-        Set<DayOfWeek> diasSeleccionados = clase.getDiasSemana() == null ? Set.of() : clase.getDiasSemana();
+        Set<DayOfWeek> diasSeleccionados = clase.getDiasSemana() == null || clase.getDiasSemana().isEmpty()
+                ? claseHorarioService.obtenerDiasPermitidos(clase.getId())
+                : clase.getDiasSemana();
         List<Clase> existentes = claseRepository.findByActivoTrueAndInstructorId(clase.getInstructor().getId());
         for (Clase existente : existentes) {
             if (existente.getId() != null && existente.getId().equals(clase.getId())) {
                 continue;
             }
-            if (existente.getHora() == null || !existente.getHora().equals(clase.getHora())) {
+            if (existente.getHora() == null || clase.getHora() == null) {
                 continue;
             }
             Set<DayOfWeek> diasExistente = existente.getDiasSemana();
             if (diasExistente == null || diasExistente.isEmpty()) {
                 diasExistente = claseHorarioService.obtenerDiasPermitidos(existente.getId());
             }
-            if (!Collections.disjoint(diasSeleccionados, diasExistente)) {
+            if (Collections.disjoint(diasSeleccionados, diasExistente)) {
+                continue;
+            }
+            LocalTime inicioNuevo = clase.getHora();
+            LocalTime finNuevo = calcularFin(inicioNuevo, clase.getDuracionMinutos());
+            LocalTime inicioExistente = existente.getHora();
+            LocalTime finExistente = calcularFin(inicioExistente, existente.getDuracionMinutos());
+            boolean seSolapa = inicioNuevo.isBefore(finExistente) && inicioExistente.isBefore(finNuevo);
+            if (seSolapa) {
                 return true;
             }
         }
         return false;
+    }
+
+    private LocalTime calcularFin(LocalTime inicio, Integer duracionMinutos) {
+        int duracion = duracionMinutos != null && duracionMinutos > 0 ? duracionMinutos : 60;
+        return inicio.plusMinutes(duracion);
     }
 }

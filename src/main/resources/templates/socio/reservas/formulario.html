@@ -29,7 +29,7 @@
                         </div>
                     </div>
 
-                                        <form th:action="@{/socio/reservas/guardar}" th:object="${reserva}" method="post">
+                    <form th:action="@{/socio/reservas/guardar}" th:object="${reserva}" method="post">
                         <input type="hidden" id="fechaHora" th:field="*{fechaHora}">
                         <div class="form-floating mb-3">
                             <input type="date" class="form-control" id="fechaReserva" name="fechaReserva" required>
@@ -63,7 +63,7 @@
                             <strong>Horario:</strong>
                             <span id="infoHorarioTexto"></span>
                         </div>
-                        <div id="ayudaFecha" class="d-none"></div>
+                        <div id="ayudaFecha" class="small text-muted border rounded-3 p-2"></div>
 
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary-custom btn-lg">Confirmar Reserva</button>
@@ -118,6 +118,15 @@
             'SATURDAY': 6,
             'SUNDAY': 0
         };
+        const etiquetaDia = {
+            'MONDAY': 'Lunes',
+            'TUESDAY': 'Martes',
+            'WEDNESDAY': 'Miercoles',
+            'THURSDAY': 'Jueves',
+            'FRIDAY': 'Viernes',
+            'SATURDAY': 'Sabado',
+            'SUNDAY': 'Domingo'
+        };
 
         function diaPermitido(fechaISO, claseId) {
             if (!fechaISO || !claseId || !diasPorClase[claseId]) {
@@ -129,6 +138,20 @@
                 .split(',')
                 .map(d => mapaDias[d])
                 .includes(diaSemana);
+        }
+
+        function renderDiasDisponibles(claseId) {
+            if (!ayudaFecha) return;
+            if (!claseId || !diasPorClase[claseId]) {
+                ayudaFecha.innerHTML = 'Selecciona una fecha disponible segun el calendario de la clase.';
+                return;
+            }
+            const badges = diasPorClase[claseId]
+                .split(',')
+                .filter(Boolean)
+                .map(d => `<span class="badge bg-light text-primary border me-1">${etiquetaDia[d] || d}</span>`)
+                .join('');
+            ayudaFecha.innerHTML = `<span class="fw-semibold">Dias disponibles:</span> ${badges}`;
         }
 
         function actualizarRestriccionesFecha(claseId) {
@@ -217,6 +240,12 @@
             sessionStorage.removeItem('preReservaSeleccion');
         }
 
+        function formatearFecha(fechaIso) {
+            if (!fechaIso) return '';
+            const fecha = new Date(fechaIso + 'T00:00:00');
+            return fecha.toLocaleDateString('es-ES');
+        }
+
         function actualizarCampos() {
             const claseId = claseSelect.value;
             const fecha = fechaInput.value;
@@ -237,12 +266,15 @@
                 infoText.textContent = '';
                 infoBox.classList.add('d-none');
             }
+            renderDiasDisponibles(claseId);
 
             if (claseResumen) {
-                claseResumen.textContent = labelSeleccion || 'Selecciona una clase desde el horario.';
+                const resumenClase = labelSeleccion ? (hora ? `${labelSeleccion} · ${hora}` : labelSeleccion) : 'Selecciona una clase desde el horario.';
+                claseResumen.textContent = resumenClase;
             }
             if (fechaResumen) {
-                fechaResumen.textContent = fecha ? ('Fecha sugerida: ' + fecha) : 'Fecha sugerida: --/--/----';
+                const fechaTexto = fecha ? formatearFecha(fecha) : '--/--/----';
+                fechaResumen.textContent = `Fecha sugerida: ${fechaTexto}`;
             }
 
             if (fecha && hora) {
@@ -256,20 +288,20 @@
                 const maxPermitida = finPorClase[claseId] || '';
 
                 if (fecha < minPermitida) {
-                    ayudaFecha.textContent = 'No puedes reservar antes del ' + minPermitida + '.';
+                    ayudaFecha.innerHTML = 'No puedes reservar antes del ' + minPermitida + '.';
                     fechaInput.setCustomValidity('La fecha seleccionada es anterior a la permitida.');
                 } else if (maxPermitida && fecha > maxPermitida) {
-                    ayudaFecha.textContent = 'La clase solo esta disponible hasta el ' + maxPermitida + '.';
+                    ayudaFecha.innerHTML = 'La clase solo esta disponible hasta el ' + maxPermitida + '.';
                     fechaInput.setCustomValidity('La fecha supera la vigencia de la clase.');
                 } else if (!diaPermitido(fecha, claseId)) {
-                    ayudaFecha.textContent = 'La clase seleccionada no se dicta ese dia. Elige uno de los dias disponibles.';
+                    ayudaFecha.innerHTML = 'La clase seleccionada no se dicta ese dia. Elige uno de los dias disponibles.';
                     fechaInput.setCustomValidity('La clase no se dicta este dia.');
                 } else {
-                    ayudaFecha.textContent = 'La fecha es valida para este horario.';
+                    ayudaFecha.innerHTML = 'La fecha es valida para este horario.';
                     fechaInput.setCustomValidity('');
                 }
             } else {
-                ayudaFecha.textContent = 'Selecciona una fecha disponible segun el calendario de la clase.';
+                ayudaFecha.innerHTML = 'Selecciona una fecha disponible segun el calendario de la clase.';
                 fechaInput.setCustomValidity('');
             }
         }

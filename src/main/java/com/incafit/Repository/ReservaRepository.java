@@ -20,4 +20,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     boolean existsReservaActiva(@Param("socio") Socio socio,
                                 @Param("claseId") Long claseId,
                                 @Param("fechaHora") LocalDateTime fechaHora);
+
+    @Query("SELECT COUNT(r) FROM Reserva r WHERE r.clase.id = :claseId AND r.fechaHora = :fechaHora AND r.estado <> 'CANCELADA'")
+    long countActivasByClaseAndFechaHora(@Param("claseId") Long claseId,
+                                         @Param("fechaHora") LocalDateTime fechaHora);
 }

@@ -77,17 +77,11 @@ public class SocioMembresiaController {
         Socio socio = socioService.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
 
+        Factura facturaPendiente = obtenerFacturaPendiente(socio);
         boolean facturaHoy = facturaRepository.findBySocio(socio).stream()
                 .anyMatch(f -> f.getFecha() != null
                         && f.getFecha().isEqual(LocalDate.now())
                         && !"CANCELADA".equalsIgnoreCase(f.getEstado()));
-        if (facturaHoy) {
-            redirectAttributes.addFlashAttribute("pagoError",
-                    "Ya registraste una renovaci�n hoy. Espera a que termine el proceso antes de volver a intentarlo.");
-            return "redirect:/socio/membresia";
-        }
-
-        Factura facturaPendiente = obtenerFacturaPendiente(socio);
 
         List<Membresia> planes = membresiaService.findAll();
         if (planes.isEmpty()) {
@@ -131,6 +125,7 @@ public class SocioMembresiaController {
         model.addAttribute("descuentoRate", aplicaDescuentoFidelidad(socio) ? DESCUENTO_FIDELIDAD : BigDecimal.ZERO);
         model.addAttribute("descuentoActivo", aplicaDescuentoFidelidad(socio));
         model.addAttribute("esCambioPlan", esCambioPlan);
+        model.addAttribute("facturaHoy", facturaHoy);
         return "socio/membresia/renovar";
     }
 
@@ -146,16 +141,6 @@ public class SocioMembresiaController {
                                    RedirectAttributes redirectAttributes) {
         Socio socio = socioService.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
-
-        boolean facturaHoy = facturaRepository.findBySocio(socio).stream()
-                .anyMatch(f -> f.getFecha() != null
-                        && f.getFecha().isEqual(LocalDate.now())
-                        && !"CANCELADA".equalsIgnoreCase(f.getEstado()));
-        if (facturaHoy) {
-            redirectAttributes.addFlashAttribute("pagoError",
-                    "Ya registraste una renovaci�n hoy. Espera a que termine el proceso antes de volver a intentarlo.");
-            return "redirect:/socio/membresia";
-        }
 
         Factura facturaPendiente = obtenerFacturaPendiente(socio);
 
@@ -249,6 +234,10 @@ public class SocioMembresiaController {
                 .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
 
         Factura facturaPendiente = obtenerFacturaPendiente(socio);
+        boolean facturaHoy = facturaRepository.findBySocio(socio).stream()
+                .anyMatch(f -> f.getFecha() != null
+                        && f.getFecha().isEqual(LocalDate.now())
+                        && !"CANCELADA".equalsIgnoreCase(f.getEstado()));
 
         if (facturaPendiente == null) {
             redirectAttributes.addFlashAttribute("pagoError", "No tienes facturas pendientes que cancelar.");
@@ -391,6 +380,8 @@ public class SocioMembresiaController {
         }
     }
 }
+
+
 
 
 

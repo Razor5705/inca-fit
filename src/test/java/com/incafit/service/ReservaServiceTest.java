@@ -3,6 +3,7 @@ package com.incafit.service;
 import com.incafit.Model.Clase;
 import com.incafit.Model.Reserva;
 import com.incafit.Model.Socio;
+import com.incafit.Model.Membresia;
 import com.incafit.Repository.ClaseRepository;
 import com.incafit.Repository.ReservaRepository;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +34,9 @@ public class ReservaServiceTest {
     @Mock
     private ClaseRepository claseRepository;
 
+    @Mock
+    private ClaseHorarioService claseHorarioService;
+
     @InjectMocks
     private ReservaServiceImpl reservaService;
 
@@ -38,13 +45,20 @@ public class ReservaServiceTest {
         // Given
         Socio socio = new Socio();
         socio.setId(1L);
+        Membresia membresia = new Membresia("Mensual", "Plan mensual", 30.0, 30);
+        socio.setMembresia(membresia);
+        socio.setFechaInicioMembresia(LocalDate.now().minusDays(1));
+        socio.setFechaFinMembresia(LocalDate.now().plusDays(10));
 
         Long claseId = 1L;
         Clase clase = new Clase();
         clase.setId(claseId);
         clase.setNombre("Yoga");
+        clase.setHora(LocalTime.of(10, 0));
+        clase.setDuracionMinutos(60);
+        clase.setCapacidadMaxima(10);
 
-        LocalDateTime fechaHora = LocalDateTime.now();
+        LocalDateTime fechaHora = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
 
         Reserva reserva = new Reserva();
         reserva.setSocio(socio);
@@ -54,6 +68,8 @@ public class ReservaServiceTest {
 
         when(claseRepository.findById(claseId)).thenReturn(Optional.of(clase));
         when(reservaRepository.save(any(Reserva.class))).thenReturn(reserva);
+        when(reservaRepository.countActivasByClaseAndFechaHora(claseId, fechaHora)).thenReturn(0L);
+        when(claseHorarioService.obtenerDiasPermitidos(claseId)).thenReturn(Set.of(fechaHora.getDayOfWeek()));
 
         // When
         Reserva reservaCreada = reservaService.crearReserva(socio, claseId, fechaHora);
